@@ -42,7 +42,7 @@ public final class Main {
                 /***
                  * 
                  * @param e
-                 * resize window
+                 * can resize window
                  */
                 @Override
                 public void windowIconified(final WindowEvent e) {
