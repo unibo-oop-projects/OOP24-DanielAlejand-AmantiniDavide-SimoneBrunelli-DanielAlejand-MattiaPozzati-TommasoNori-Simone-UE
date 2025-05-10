@@ -9,6 +9,7 @@ import javax.swing.SwingUtilities;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import it.unibo.exam.controller.input.KeyHandler;
+import it.unibo.exam.view.panel.MainMenuPanel;
 
 /**
  * Main application class that initializes the application window.
@@ -55,6 +56,9 @@ public final class Main {
             window.setVisible(true);
             window.setLocationRelativeTo(null);
             window.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            window.add(new MainMenuPanel(window));
+            window.pack();
+            window.setLocationRelativeTo(null);
             final GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             final GraphicsDevice gd = ge.getDefaultScreenDevice();
             if (gd.isFullScreenSupported()) {
