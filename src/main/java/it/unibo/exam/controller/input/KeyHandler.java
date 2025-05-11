@@ -12,36 +12,42 @@ public final class KeyHandler implements KeyListener {
     private boolean leftPressed;
     private boolean rightPressed;
     private boolean interactPressed;
+
     /**
      * @return true if up key is pressed
      */
     public boolean isUpPressed() {
         return upPressed;
     }
+
     /**
      * @return true if down key is pressed
      */
     public boolean isDownPressed() {
         return downPressed;
     } 
+
     /**
      * @return true if left key is pressed
      */
     public boolean isLeftPressed() {
         return leftPressed;
     }
+
     /**
      * @return true if right key is pressed
      */
     public boolean isRightPressed() {
         return rightPressed;
-    } 
+    }
+
     /**
      * @return true if interact key is pressed
      */
     public boolean isInteractPressed() {
         return interactPressed;
     }
+
     /**
      * {@inheritDoc}
      */
@@ -49,6 +55,7 @@ public final class KeyHandler implements KeyListener {
     public void keyTyped(final KeyEvent e) {
         // Not used but required by the KeyListener interface
     }
+
     /**
      * {@inheritDoc}
      */
@@ -71,6 +78,7 @@ public final class KeyHandler implements KeyListener {
             interactPressed = true;
         }
     }
+    
     /**
      * {@inheritDoc}
      */

@@ -1,5 +1,8 @@
-package it.unibo.exam.utility;
+package it.unibo.exam.utility.Geometry;
 
+/**
+ * A simple class that rappresent a point in an 2D enviroment.
+ */
 public class Point2D {
     private int x;
     private int y;
@@ -53,8 +56,7 @@ public class Point2D {
      */
     public double distance(final Point2D p) {
         return Math.sqrt(
-            Math.pow(this.x - p.getX(), 2) + 
-            Math.pow(this.y - p.getY(), 2)
+            Math.pow(this.x - p.getX(), 2) + Math.pow(this.y - p.getY(), 2)
         );
     }
 }
