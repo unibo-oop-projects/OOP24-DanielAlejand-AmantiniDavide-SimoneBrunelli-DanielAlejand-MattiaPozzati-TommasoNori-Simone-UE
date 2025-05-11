@@ -38,6 +38,9 @@ public final class Main {
             final int defaultWidth = (int) (screenWidth * 0.8);
             final int defaultHeight = (int) (screenHeight * 0.8);
             window.setSize(defaultWidth, defaultHeight);
+            // Create and add the MainMenuPanel to the window
+            final MainMenuPanel mainMenu = new MainMenuPanel(window);
+            window.getContentPane().add(mainMenu);
             // Add window listener to handle iconification (minimize) events
             window.addWindowListener(new WindowAdapter() {
                 /***
@@ -53,12 +56,12 @@ public final class Main {
                     window.setVisible(true);
                 }
             });
-            window.setVisible(true);
-            window.setLocationRelativeTo(null);
-            window.setExtendedState(JFrame.MAXIMIZED_BOTH);
-            window.add(new MainMenuPanel(window));
+            // Pack the window to properly size all components
             window.pack();
             window.setLocationRelativeTo(null);
+            window.setVisible(true);
+            window.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            // Full screen logic
             final GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             final GraphicsDevice gd = ge.getDefaultScreenDevice();
             if (gd.isFullScreenSupported()) {
