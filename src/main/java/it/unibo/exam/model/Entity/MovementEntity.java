@@ -3,29 +3,32 @@ package it.unibo.exam.model.Entity;
 import it.unibo.exam.utility.Geometry.Point2D;
 
 /**
- * A simple Entity who can move in the enviroment
+ * A simple entity that can move in the environment.
  */
-public class MovementEntity extends Entity{
+public class MovementEntity extends Entity {
 
     private static final int DEFAULT_SPEED = 20;
     private static final int DEFAULT_SIZE = 800;
 
     private int speed;
-    
+
     /**
      * Constructor.
-     * Create an entity and then update speed according to enviromentSize
-     * @param scaleFactor 
-     * @param enviromentSize
+     * Creates an entity and updates speed according to the environment size.
+     *
+     * @param scaleFactor the scale factor of the entity
+     * @param environmentSize the size of the environment
      * @see Entity
      */
-    public MovementEntity(int scaleFactor, Point2D environmentSize) {
+    public MovementEntity(final int scaleFactor, final Point2D environmentSize) {
         super(scaleFactor, environmentSize);
         this.speed = updateSpeed();
     }
 
     /**
-     * Update speed according to the enviroment size
+     * Updates speed according to the environment size.
+     *
+     * @return the updated speed
      */
     private int updateSpeed() {
         return this.getEnviromentSize().getX() / DEFAULT_SIZE * DEFAULT_SPEED;
@@ -58,16 +61,17 @@ public class MovementEntity extends Entity{
     }
 
     /**
-     * Moves the entity by the specified distance.
+     * Sets the position of the entity.
      *
-     * @param dx the distance to move in the x direction
+     * @param position the new position of the entity
      */
     public void setPosition(final Point2D position) {
         this.getPosition().setXY(position.getX(), position.getY());
     }
 
     /**
-     * sets the position of the entity.
+     * Sets the position of the entity.
+     *
      * @param x the x coordinate
      * @param y the y coordinate
      * @see Point2D#setXY(int, int)
@@ -77,7 +81,8 @@ public class MovementEntity extends Entity{
     }
 
     /**
-     * sets the position X of the entity.
+     * Sets the x-coordinate of the entity's position.
+     *
      * @param x the x coordinate
      * @see Point2D#setXY(int, int)
      */
@@ -86,8 +91,9 @@ public class MovementEntity extends Entity{
     }
 
     /**
-     * sets the position Y of the entity.
-     * @param y the x coordinate
+     * Sets the y-coordinate of the entity's position.
+     *
+     * @param y the y coordinate
      * @see Point2D#setXY(int, int)
      */
     public void setPositionY(final int y) {
@@ -95,14 +101,13 @@ public class MovementEntity extends Entity{
     }
 
     /**
-     * Sets the new dimension of the entity.
+     * Resizes the entity and updates its speed.
      *
-     * @param newDimension the new dimension of the entity
+     * @param newSize the new size of the environment
      */
     @Override
-     public void resize(final Point2D newSize) {
+    public void resize(final Point2D newSize) {
         super.resize(newSize);
         this.speed = updateSpeed();
     }
-    
 }

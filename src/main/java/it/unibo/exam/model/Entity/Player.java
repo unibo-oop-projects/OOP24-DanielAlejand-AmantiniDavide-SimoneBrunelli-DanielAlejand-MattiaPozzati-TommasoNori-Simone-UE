@@ -2,10 +2,14 @@ package it.unibo.exam.model.Entity;
 
 import it.unibo.exam.utility.Geometry.Point2D;
 
+/**
+ * Simple player class.
+ * @see MovementEntity
+ */
 public class Player extends MovementEntity {
 
-    public static final int SCALE_FACTOR = 20; // Reordered static variable
-    private final int score; // Made 'score' final
+    private static final int SCALE_FACTOR = 20; 
+    private final int score;
 
     /**
      * Constructor for Player.

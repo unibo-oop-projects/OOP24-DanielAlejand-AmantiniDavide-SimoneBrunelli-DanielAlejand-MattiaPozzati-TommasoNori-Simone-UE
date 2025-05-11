@@ -8,6 +8,7 @@ import it.unibo.exam.utility.Geometry.Point2D;
 public final class Npc extends Entity {
 
     private static final int SCALE_FACTOR = 20; // Reordered static variable
+    private static final Point2D DEFAULT_POSITION = new Point2D(0, 0);
     private final String name;
     private final String description;
     private final String dialogue;
@@ -15,15 +16,14 @@ public final class Npc extends Entity {
     /**
      * Constructor for Npc.
      *
-     * @param position the position of the NPC
      * @param enviromentSize the size of the environment
      * @param name the name of the NPC
      * @param description the description of the NPC
      * @param dialogue the dialogue of the NPC
      */
-    public Npc(final Point2D position, final Point2D enviromentSize, final String name, 
+    public Npc(final Point2D enviromentSize, final String name, 
                final String description, final String dialogue) {
-        super(position, SCALE_FACTOR, enviromentSize);
+        super(DEFAULT_POSITION, SCALE_FACTOR, enviromentSize);
         this.name = name;
         this.description = description;
         this.dialogue = dialogue;

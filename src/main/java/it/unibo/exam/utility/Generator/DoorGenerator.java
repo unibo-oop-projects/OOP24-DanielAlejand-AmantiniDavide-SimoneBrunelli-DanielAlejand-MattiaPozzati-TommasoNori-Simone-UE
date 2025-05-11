@@ -1,7 +1,7 @@
 package it.unibo.exam.utility.Generator;
 
 /**
- * TODO
+ * TODO.
  */
 public class DoorGenerator {
 }

@@ -4,11 +4,9 @@ import it.unibo.exam.model.Entity.Npc;
 import it.unibo.exam.utility.Geometry.Point2D;
 
 /**
- * Utility class for generating NPCs.
+ * NPC generator.
  */
 public final class NpcGenerator {
-
-    private static final Point2D NPC_DEFAULT_POSITION = new Point2D(1, 1);
 
     private static final String[] NAMES = {
         "Professor Oak",
@@ -19,7 +17,7 @@ public final class NpcGenerator {
         "Professor Kukui",
         "Professor Magnolia",
         "Professor Cerise",
-    }; // Added trailing comma
+    };
 
     private static final String[] DESCRIPTIONS = {
         "A wise and knowledgeable professor.",
@@ -30,7 +28,7 @@ public final class NpcGenerator {
         "A professor with a deep understanding of Pokémon.",
         "A professor who is always ready to help.",
         "A professor with a wealth of knowledge.",
-    }; // Added trailing comma
+    };
 
     private static final String[] DIALOGUES = {
         "Hello, trainer! Are you ready for your adventure?",
@@ -41,19 +39,29 @@ public final class NpcGenerator {
         "I have some valuable information for you.",
         "Do you want to hear about my latest research?",
         "I'm here to help you on your journey.",
-    }; // Added trailing comma
+    };
+
+    private final Point2D enviromentSize; // Reordered instance variable
+
+    /**
+     * Constructor for NpcGenerator.
+     *
+     * @param enviromentSize the size of the environment
+     */
+    public NpcGenerator(final Point2D enviromentSize) {
+        this.enviromentSize = enviromentSize;
+    }
 
     /**
      * Generates an NPC based on the given ID.
      *
      * @param id the ID of the NPC to generate
-     * @param enviromentSize @see Entity
      * @return the generated NPC
      */
-  	public static Npc generateNpc(final int id, Point2D enviromentSize) {
+    public Npc generateNpc(final int id) {
         final String name = NAMES[id];
         final String description = DESCRIPTIONS[id];
         final String dialogue = DIALOGUES[id];
-        return new Npc(NPC_DEFAULT_POSITION,enviromentSize, name, description, dialogue);
+        return new Npc(enviromentSize, name, description, dialogue);
     }
 }

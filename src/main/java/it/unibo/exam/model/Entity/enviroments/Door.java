@@ -3,7 +3,12 @@ package it.unibo.exam.model.Entity.enviroments;
 import it.unibo.exam.model.Entity.Entity;
 import it.unibo.exam.utility.Geometry.Point2D;
 
+/**
+ * Simple door class.
+ */
 public class Door extends Entity {
+
+    private static final int SCALE_FACTOR = 20;
 
     private boolean isOpen;
     private final int fromId;
@@ -13,11 +18,12 @@ public class Door extends Entity {
      * Constructor for Door.
      *
      * @param position the inizial position of the door
-     * @param dimension the dimension of the door
-     * @param isOpen if the door is open or closed
+     * @param enviromentSize the dimension of the enviroment
+     * @param fromId current room index
+     * @param toId next room index
      */
-    public Door(final int scaleFactor, final Point2D enviromentSize, final Point2D position, final int fromId, final int toId) {
-        super(position, scaleFactor, enviromentSize);
+    public Door(final Point2D enviromentSize, final Point2D position, final int fromId, final int toId) {
+        super(position, SCALE_FACTOR, enviromentSize);
         this.fromId = fromId;
         this.toId = toId;
         this.isOpen = false;
@@ -36,7 +42,7 @@ public class Door extends Entity {
     public void open() {
         this.isOpen = true;
     }
-    
+
     /**
      * Sets the door to closed.
      */
@@ -57,5 +63,5 @@ public class Door extends Entity {
     public int getToId() {
         return this.toId;
     }
-    
+
 }

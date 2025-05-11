@@ -78,7 +78,7 @@ public final class KeyHandler implements KeyListener {
             interactPressed = true;
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */

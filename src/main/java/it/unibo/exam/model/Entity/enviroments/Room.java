@@ -6,7 +6,7 @@ import it.unibo.exam.model.Entity.Npc;
 import it.unibo.exam.model.Entity.Minigame.Minigame;
 
 /**
- * A simple Room class rappresenting a room
+ * A simple Room class rappresenting a room.
  */
 public class Room {
 
@@ -67,7 +67,7 @@ public class Room {
     public List<Door> getDoors() {
         return doors;
     }
-    
+
     /**
      * @return the type of the room
      */
