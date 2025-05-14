@@ -41,20 +41,19 @@ public final class MainMenuPanel extends JPanel {
      * @param window the parent JFrame window
      */
     private void createUI(final JFrame window) {
-        // Layout del pannello per allineare i pulsanti
+        // Panel layout for align the buttons
         super.setLayout(new BorderLayout());
         super.setPreferredSize(window.getSize());
-        // Crea il pannello centrale che conterrà i pulsanti
+        // Creates the panel where the buttons will stay
         final JPanel buttonPanel = createButtonPanel();
         final GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.insets = new Insets(BUTTONSPACING, 0, BUTTONSPACING, 0); // Spaziatura tra pulsanti
+        gbc.insets = new Insets(BUTTONSPACING, 0, BUTTONSPACING, 0); // Space between buttons
         gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER; // Centra i pulsanti
-        // Distribuisce lo spazio in altezza
+        gbc.anchor = GridBagConstraints.CENTER; // Move the buttons ins the centre
 
-        // Creazione dei pulsanti
+        // Buttons creation
         final JButton playButton = new JButton("Gioca");
         final JButton optionsButton = new JButton("Opzioni");
         final JButton exitButton = new JButton("Esci");
@@ -64,38 +63,38 @@ public final class MainMenuPanel extends JPanel {
         optionsButton.setPreferredSize(buttonSize);
         exitButton.setPreferredSize(buttonSize);
 
-        // Imposta il font
+        //Button's font
         final Font buttonFont = new Font("Arial", Font.BOLD, BUTTONFONTSIZE);
         playButton.setFont(buttonFont);
         optionsButton.setFont(buttonFont);
         exitButton.setFont(buttonFont);
 
-        // Aggiungiamo i pulsanti al pannello
+        //Adding the buttons to the panel
         buttonPanel.add(playButton, gbc);
-        gbc.gridy++; // Sposta il prossimo elemento più in basso
+        gbc.gridy++; //Move the next button lower
         buttonPanel.add(optionsButton, gbc);
-        gbc.gridy++; // Sposta il prossimo elemento più in basso
+        gbc.gridy++; //Move the next button lower
         buttonPanel.add(exitButton, gbc);
 
-        // Aggiunta del pannello alla finestra
+        //Adding the panel to the window
         super.add(buttonPanel, BorderLayout.CENTER);
 
-        // Aggiunta degli ascoltatori di eventi sui pulsanti
+        //Action listener fo the button 'Play'
         playButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                // Quando clicchi "Gioca", rimuoviamo il menu e carichiamo il gioco
+                //Once you press 'Play', menu panel get removed and the game starts 
                 window.getContentPane().removeAll();
-                window.pack();
-                window.setLocationRelativeTo(null);
-                window.setVisible(true);
+                window.setExtendedState(JFrame.NORMAL);
+                window.revalidate();
+                window.repaint();
             }
         });
 
         optionsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                // Qui puoi aggiungere la logica per il pannello delle opzioni
+                // Options not implemented yet
                 JOptionPane.showMessageDialog(window, "Opzioni non implementate ancora.");
             }
         });
