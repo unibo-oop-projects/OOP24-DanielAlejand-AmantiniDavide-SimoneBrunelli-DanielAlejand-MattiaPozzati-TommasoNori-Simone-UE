@@ -1,8 +1,8 @@
 package it.unibo.exam.view;
 
-import it.unibo.exam.model.Entity.Player;
-import it.unibo.exam.model.Entity.enviroments.Room;
-import it.unibo.exam.model.Game.GameState;
+import it.unibo.exam.model.entity.Player;
+import it.unibo.exam.model.entity.enviroments.Room;
+import it.unibo.exam.model.game.GameState;
 
 /**
  * Handles rendering of the game elements such as rooms and players.
@@ -32,7 +32,7 @@ public class GameRenderer {
      *
      * @param currentRoom the room to render
      */
-    private void renderRoom(final Room currentRoom) { 
+    private void renderRoom(final Room currentRoom) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'renderRoom'");
     }

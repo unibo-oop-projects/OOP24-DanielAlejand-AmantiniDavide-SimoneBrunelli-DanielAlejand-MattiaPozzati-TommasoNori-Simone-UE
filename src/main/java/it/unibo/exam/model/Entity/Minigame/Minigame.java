@@ -1,4 +1,4 @@
-package it.unibo.exam.model.Entity.Minigame;
+package it.unibo.exam.model.entity.minigame;
 
 /**
  * Simple minigame class.

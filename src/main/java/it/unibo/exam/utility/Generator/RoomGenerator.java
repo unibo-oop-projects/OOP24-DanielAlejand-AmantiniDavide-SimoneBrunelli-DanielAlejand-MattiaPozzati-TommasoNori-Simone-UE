@@ -1,21 +1,30 @@
-package it.unibo.exam.utility.Generator;
+package it.unibo.exam.utility.generator;
 
-import it.unibo.exam.model.Entity.enviroments.Room;
-import it.unibo.exam.utility.Geometry.Point2D;
+import it.unibo.exam.model.entity.enviroments.Room;
+import it.unibo.exam.utility.geometry.Point2D;
 
 /**
  * Room Generator.
  * @see Room
  */
-public class RoomGenerator extends EntityGenerator<Room>{
+public class RoomGenerator extends EntityGenerator<Room> {
 
     /**
-     * RoomType = 2 = PuzzleRoom.
+     * RoomType:
+     *  2 = PuzzleRoom.
      */
     public static final int PUZZLE_ROOM = 2;
+
+    /**
+     * RoomType:
+     *  2 = PuzzleRoom.
+     */
     public static final int MAIN_ROOM = 1;
 
-    public RoomGenerator (final Point2D enviromentSize){
+    /**
+     * @param enviromentSize
+     */
+    public RoomGenerator(final Point2D enviromentSize) {
         super(enviromentSize);
     }
 
@@ -26,10 +35,10 @@ public class RoomGenerator extends EntityGenerator<Room>{
      * @return the generated room
      */
     @Override
-    public Room generate(int id) {
+    public Room generate(final int id) {
         return new Room(
             id, 
-            new DoorGenerator(enviromentSize).generate(id), 
+            new DoorGenerator(super.getEnv()).generate(id), 
             id == 0 ? MAIN_ROOM : PUZZLE_ROOM
         );
     }

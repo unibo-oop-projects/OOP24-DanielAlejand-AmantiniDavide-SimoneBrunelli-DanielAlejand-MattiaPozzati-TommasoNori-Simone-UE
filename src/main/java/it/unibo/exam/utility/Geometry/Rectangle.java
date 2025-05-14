@@ -1,4 +1,4 @@
-package it.unibo.exam.utility.Geometry;
+package it.unibo.exam.utility.geometry;
 
 /**
  * A simple record class that rappresent a rectangle.

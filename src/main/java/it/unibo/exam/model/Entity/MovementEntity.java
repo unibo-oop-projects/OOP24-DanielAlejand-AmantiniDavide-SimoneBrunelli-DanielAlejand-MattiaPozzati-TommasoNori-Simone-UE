@@ -1,6 +1,6 @@
-package it.unibo.exam.model.Entity;
+package it.unibo.exam.model.entity;
 
-import it.unibo.exam.utility.Geometry.Point2D;
+import it.unibo.exam.utility.geometry.Point2D;
 
 /**
  * A simple entity that can move in the environment.
@@ -29,6 +29,7 @@ public class MovementEntity extends Entity {
      * Updates speed according to the environment size.
      *
      * @return the updated speed
+     * @Note Final keyword is necessary
      */
     private int updateSpeed() {
         return this.getEnviromentSize().getX() / DEFAULT_SIZE * DEFAULT_SPEED;
@@ -36,7 +37,7 @@ public class MovementEntity extends Entity {
 
     /**
      * @return the speed of the entity
-     */
+    */
     public int getSpeed() {
         return speed;
     }

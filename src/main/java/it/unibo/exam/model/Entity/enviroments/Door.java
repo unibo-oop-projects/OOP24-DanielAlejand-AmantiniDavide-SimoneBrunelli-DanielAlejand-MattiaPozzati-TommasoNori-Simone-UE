@@ -1,7 +1,7 @@
-package it.unibo.exam.model.Entity.enviroments;
+package it.unibo.exam.model.entity.enviroments;
 
-import it.unibo.exam.model.Entity.Entity;
-import it.unibo.exam.utility.Geometry.Point2D;
+import it.unibo.exam.model.entity.Entity;
+import it.unibo.exam.utility.geometry.Point2D;
 
 /**
  * Simple door class.

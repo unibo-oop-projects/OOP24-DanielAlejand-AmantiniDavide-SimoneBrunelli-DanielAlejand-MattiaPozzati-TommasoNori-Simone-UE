@@ -1,6 +1,6 @@
-package it.unibo.exam.model.Entity;
+package it.unibo.exam.model.entity;
 
-import it.unibo.exam.utility.Geometry.Point2D;
+import it.unibo.exam.utility.geometry.Point2D;
 
 /**
  * Represents a non-playable character (NPC) in the game.

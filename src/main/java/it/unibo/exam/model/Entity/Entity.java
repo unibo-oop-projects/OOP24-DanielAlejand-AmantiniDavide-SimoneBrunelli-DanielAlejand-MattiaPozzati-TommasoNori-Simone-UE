@@ -1,7 +1,7 @@
-package it.unibo.exam.model.Entity;
+package it.unibo.exam.model.entity;
 
-import it.unibo.exam.utility.Geometry.Point2D;
-import it.unibo.exam.utility.Geometry.Rectangle;
+import it.unibo.exam.utility.geometry.Point2D;
+import it.unibo.exam.utility.geometry.Rectangle;
 
 /**
  * 
@@ -24,7 +24,7 @@ public class Entity {
     public Entity(final Point2D position, final int scaleFactor, final Point2D enviromentSize) {
 
         if (position == null) {
-            this.position = new Point2D((int) enviromentSize.getX() / 2, (int) enviromentSize.getY() / 2);
+            this.position = new Point2D(enviromentSize.getX() / 2, enviromentSize.getY() / 2);
         } else if (new Rectangle(new Point2D(0, 0), enviromentSize).contains(position)) {
             throw new IllegalArgumentException("Initial position out of bounds");
         } else {
@@ -38,7 +38,7 @@ public class Entity {
             throw new IllegalArgumentException("Scale factor out of bound");
         }
 
-        this.dimension = new Point2D((int) enviromentSize.getX() / scaleFactor, (int) enviromentSize.getY() / scaleFactor);
+        this.dimension = new Point2D(enviromentSize.getX() / scaleFactor, enviromentSize.getY() / scaleFactor);
         this.enviromentSize = enviromentSize;
         this.hitbox = new Rectangle(position, dimension);
     }
@@ -53,7 +53,7 @@ public class Entity {
     public Entity(final int scaleFactor, final Point2D enviromentSize) {
 
         this(
-            new Point2D((int) enviromentSize.getX() / 2, (int) enviromentSize.getY() / 2), 
+            new Point2D(enviromentSize.getX() / 2, enviromentSize.getY() / 2), 
             scaleFactor, 
             enviromentSize
         );
@@ -69,7 +69,7 @@ public class Entity {
     /**
      * @return enviromentSize
      */
-    protected Point2D getEnviromentSize() {
+    protected final Point2D getEnviromentSize() {
         return enviromentSize;
     }
 

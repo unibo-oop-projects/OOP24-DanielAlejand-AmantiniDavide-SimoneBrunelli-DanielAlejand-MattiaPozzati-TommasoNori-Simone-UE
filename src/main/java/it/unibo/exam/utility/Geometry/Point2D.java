@@ -1,4 +1,4 @@
-package it.unibo.exam.utility.Geometry;
+package it.unibo.exam.utility.geometry;
 
 /**
  * A simple class that rappresent a point in an 2D enviroment.

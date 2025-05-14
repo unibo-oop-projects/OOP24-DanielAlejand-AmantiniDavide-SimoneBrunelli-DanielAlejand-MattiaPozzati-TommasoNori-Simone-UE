@@ -1,12 +1,12 @@
-package it.unibo.exam.utility.Generator;
+package it.unibo.exam.utility.generator;
 
-import it.unibo.exam.model.Entity.Npc;
-import it.unibo.exam.utility.Geometry.Point2D;
+import it.unibo.exam.model.entity.Npc;
+import it.unibo.exam.utility.geometry.Point2D;
 
 /**
  * NPC generator.
  */
-public final class NpcGenerator extends EntityGenerator<Npc>{
+public final class NpcGenerator extends EntityGenerator<Npc> {
 
     private static final String[] NAMES = {
         "Professor Oak",
@@ -61,6 +61,6 @@ public final class NpcGenerator extends EntityGenerator<Npc>{
         final String name = NAMES[id];
         final String description = DESCRIPTIONS[id];
         final String dialogue = DIALOGUES[id];
-        return new Npc(enviromentSize, name, description, dialogue);
+        return new Npc(super.getEnv(), name, description, dialogue);
     }
 }

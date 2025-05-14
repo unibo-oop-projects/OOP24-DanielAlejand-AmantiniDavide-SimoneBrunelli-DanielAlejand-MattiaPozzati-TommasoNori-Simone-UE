@@ -1,10 +1,10 @@
 package it.unibo.exam.controller;
 
 import it.unibo.exam.controller.input.KeyHandler;
-import it.unibo.exam.model.Entity.Player;
-import it.unibo.exam.model.Entity.enviroments.Room;
-import it.unibo.exam.model.Game.GameState;
-import it.unibo.exam.utility.Geometry.Point2D;
+import it.unibo.exam.model.entity.Player;
+import it.unibo.exam.model.entity.enviroments.Room;
+import it.unibo.exam.model.game.GameState;
+import it.unibo.exam.utility.geometry.Point2D;
 import it.unibo.exam.view.GameRenderer;
 
 /**
@@ -21,7 +21,6 @@ public class MainController {
     private final KeyHandler keyHandler;
     private final GameState gameState;
     private final GameRenderer gameRenderer;
-    private double deltaTime;
     private boolean running;
 
     /**
@@ -62,7 +61,7 @@ public class MainController {
      */
     private void gameLoop() {
         long lastTime = System.nanoTime();
-        deltaTime = 0;
+        double deltaTime = 0;
         final double nsPerUpdate =  SECOND / FPS;
 
         while (running) {
@@ -80,6 +79,7 @@ public class MainController {
             try {
                 Thread.sleep(1); // Sleep to limit the frame rate
             } catch (final InterruptedException e) {
+                //NOPMD
                 e.printStackTrace();
             }
         }
@@ -101,7 +101,6 @@ public class MainController {
      * 
      */
     private void checkWin() {
-        return; // TODO: Implement win condition
     }
 
     /**
@@ -118,11 +117,11 @@ public class MainController {
         });
 
         // Check for collisions with NPCs
-        if (room.getNpc() != null) {
-            if (player.getHitbox().intersects(room.getNpc().getHitbox()) && keyHandler.isInteractPressed()) {
-                // Interact with NPC
-                room.getNpc().interact();
-            }
+        if (room.getNpc() != null 
+        && player.getHitbox().intersects(room.getNpc().getHitbox()) 
+        && keyHandler.isInteractPressed()) {
+            // Interact with NPC
+            room.getNpc().interact();
         }
 
     }

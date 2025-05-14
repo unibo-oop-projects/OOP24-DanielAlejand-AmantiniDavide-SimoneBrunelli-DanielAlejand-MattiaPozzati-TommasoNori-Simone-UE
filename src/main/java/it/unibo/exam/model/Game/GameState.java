@@ -1,13 +1,13 @@
-package it.unibo.exam.model.Game;
+package it.unibo.exam.model.game;
 
 import java.util.List;
 import java.util.stream.IntStream;
 
-import it.unibo.exam.model.Entity.Entity;
-import it.unibo.exam.model.Entity.Player;
-import it.unibo.exam.model.Entity.enviroments.Room;
-import it.unibo.exam.utility.Generator.RoomGenerator;
-import it.unibo.exam.utility.Geometry.Point2D;
+import it.unibo.exam.model.entity.Entity;
+import it.unibo.exam.model.entity.Player;
+import it.unibo.exam.model.entity.enviroments.Room;
+import it.unibo.exam.utility.generator.RoomGenerator;
+import it.unibo.exam.utility.geometry.Point2D;
 
 /**
  * Represents the state of the game, including rooms, the player, and the current room.
@@ -57,7 +57,7 @@ public class GameState {
         final RoomGenerator rg = new RoomGenerator(enviromentSize);
 
         return IntStream.range(0, 4)
-            .mapToObj(i -> rg.generate(i)).toList();
+            .mapToObj(rg::generate).toList();
     }
     /**
      * @return the current room
