@@ -6,7 +6,7 @@ import it.unibo.exam.utility.Geometry.Point2D;
 /**
  * NPC generator.
  */
-public final class NpcGenerator {
+public final class NpcGenerator extends EntityGenerator<Npc>{
 
     private static final String[] NAMES = {
         "Professor Oak",
@@ -41,15 +41,13 @@ public final class NpcGenerator {
         "I'm here to help you on your journey.",
     };
 
-    private final Point2D enviromentSize; // Reordered instance variable
-
     /**
      * Constructor for NpcGenerator.
      *
      * @param enviromentSize the size of the environment
      */
     public NpcGenerator(final Point2D enviromentSize) {
-        this.enviromentSize = enviromentSize;
+        super(enviromentSize);
     }
 
     /**
@@ -58,7 +56,8 @@ public final class NpcGenerator {
      * @param id the ID of the NPC to generate
      * @return the generated NPC
      */
-    public Npc generateNpc(final int id) {
+    @Override
+    public Npc generate(final int id) {
         final String name = NAMES[id];
         final String description = DESCRIPTIONS[id];
         final String dialogue = DIALOGUES[id];

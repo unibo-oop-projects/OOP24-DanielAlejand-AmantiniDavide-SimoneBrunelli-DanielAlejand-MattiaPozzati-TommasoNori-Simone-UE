@@ -1,6 +1,7 @@
 package it.unibo.exam.model.Game;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 import it.unibo.exam.model.Entity.Entity;
 import it.unibo.exam.model.Entity.Player;
@@ -53,9 +54,11 @@ public class GameState {
      * @return a list of rooms
      */
     private List<Room> initRooms(final Point2D enviromentSize) {
-        return new RoomGenerator().generateRooms(enviromentSize);
-    }
+        final RoomGenerator rg = new RoomGenerator(enviromentSize);
 
+        return IntStream.range(0, 4)
+            .mapToObj(i -> rg.generate(i)).toList();
+    }
     /**
      * @return the current room
      */

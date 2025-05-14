@@ -1,8 +1,5 @@
 package it.unibo.exam.utility.Generator;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import it.unibo.exam.model.Entity.enviroments.Room;
 import it.unibo.exam.utility.Geometry.Point2D;
 
@@ -10,25 +7,16 @@ import it.unibo.exam.utility.Geometry.Point2D;
  * Room Generator.
  * @see Room
  */
-public class RoomGenerator {
+public class RoomGenerator extends EntityGenerator<Room>{
 
     /**
      * RoomType = 2 = PuzzleRoom.
      */
     public static final int PUZZLE_ROOM = 2;
+    public static final int MAIN_ROOM = 1;
 
-    private static final int SCALE_FACTOR = 20;
-
-    /**
-     * Generates a list of rooms for the game.
-     * @param enviromentSize 
-     * @return a list of rooms
-     */
-    public List<Room> generateRooms(final Point2D enviromentSize) {
-        final List<Room> rooms = new ArrayList<>();
-        // Add logic to generate rooms here
-        // TODO:
-        return rooms;
+    public RoomGenerator (final Point2D enviromentSize){
+        super(enviromentSize);
     }
 
     /**
@@ -37,9 +25,12 @@ public class RoomGenerator {
      * @param id the ID of the room
      * @return the generated room
      */
-    public Room generateRoom(final int id) {
-        // Add logic to generate a room with the specified ID here
-        // TODO:
-        return new Room(id, null, id);
+    @Override
+    public Room generate(int id) {
+        return new Room(
+            id, 
+            new DoorGenerator(enviromentSize).generate(id), 
+            id == 0 ? MAIN_ROOM : PUZZLE_ROOM
+        );
     }
 }
