@@ -1,4 +1,4 @@
-package it.unibo.exam.utility.Geometry;
+package it.unibo.exam.utility.geometry;
 
 /**
  * A simple class that rappresent a point in an 2D enviroment.
@@ -16,6 +16,15 @@ public class Point2D {
     public Point2D(final int x, final int y) {
         this.x = x;
         this.y = y;
+    }
+
+    /**
+     * Copy constructor.
+     * @param p point to copy
+     */
+    public Point2D(final Point2D p) {
+        this.x = p.x;
+        this.y = p.y;
     }
 
     /**

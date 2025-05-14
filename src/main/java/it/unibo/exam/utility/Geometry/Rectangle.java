@@ -1,12 +1,27 @@
-package it.unibo.exam.utility.Geometry;
+package it.unibo.exam.utility.geometry;
 
 /**
- * A simple record class that rappresent a rectangle.
- * @param p position of high-left corner
- * @param d dimension of the rectangle
+ * A simple class that rappresent a rectangle.
  */
-public record Rectangle(Point2D p, Point2D d) {
+public class Rectangle {
+
+    private final Point2D p;
+    private final Point2D d;
+
     /**
+     * @param p top-left corner
+     * @param d size
+    */
+    public Rectangle(final Point2D p, final Point2D d) {
+        if (d == null || p == null) {
+            throw new IllegalArgumentException("position and size cannot be null");
+        }
+        this.d = new Point2D(d);
+        this.p = new Point2D(p);
+    }
+
+    /**
+     * @param other other rectangle
      * @return True if the rectangle intersects with another rectangle
      *        False otherwise
      */
@@ -30,6 +45,7 @@ public record Rectangle(Point2D p, Point2D d) {
     }
 
     /**
+     * @param point 2d point
      * @return True if the rectangle contain point
      *         False otherwise
      */

@@ -1,14 +1,12 @@
-package it.unibo.exam.model.Entity.enviroments;
+package it.unibo.exam.model.entity.enviroments;
 
-import it.unibo.exam.model.Entity.Entity;
-import it.unibo.exam.utility.Geometry.Point2D;
+import it.unibo.exam.model.entity.Entity;
+import it.unibo.exam.utility.geometry.Point2D;
 
 /**
  * Simple door class.
  */
 public class Door extends Entity {
-
-    private static final int SCALE_FACTOR = 20;
 
     private boolean isOpen;
     private final int fromId;
@@ -23,7 +21,7 @@ public class Door extends Entity {
      * @param toId next room index
      */
     public Door(final Point2D enviromentSize, final Point2D position, final int fromId, final int toId) {
-        super(position, SCALE_FACTOR, enviromentSize);
+        super(position, enviromentSize);
         this.fromId = fromId;
         this.toId = toId;
         this.isOpen = false;

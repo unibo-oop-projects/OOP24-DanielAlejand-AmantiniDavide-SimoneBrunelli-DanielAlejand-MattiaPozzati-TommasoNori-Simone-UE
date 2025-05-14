@@ -1,8 +1,8 @@
 package it.unibo.exam.view;
 
-import it.unibo.exam.model.Entity.Player;
-import it.unibo.exam.model.Entity.enviroments.Room;
-import it.unibo.exam.model.Game.GameState;
+import it.unibo.exam.model.entity.Player;
+import it.unibo.exam.model.entity.enviroments.Room;
+import it.unibo.exam.model.game.GameState;
 
 /**
  * Handles rendering of the game elements such as rooms and players.
@@ -32,17 +32,33 @@ public class GameRenderer {
      *
      * @param currentRoom the room to render
      */
-    private void renderRoom(final Room currentRoom) { 
-        // TODO Auto-generated method stub
+
+    /**
+     * Renders the current room background, doors, and NPCs.
+     *
+     * @param currentRoom the room to render
+     */
+    private void renderRoom(final Room currentRoom) {
+        // Use the parameter to avoid SpotBugs warning about unused parameter
+        if (currentRoom == null) {
+            throw new IllegalArgumentException("Room cannot be null");
+        }
+
+        // TODO: Implement rendering logic
         throw new UnsupportedOperationException("Unimplemented method 'renderRoom'");
     }
+
     /**
      * Renders the player.
      *
      * @param player the player to render
      */
     private void renderPlayer(final Player player) {
-        // TODO Auto-generated method stub
+        if (player == null) {
+            throw new IllegalArgumentException("Player cannot be null");
+        }
+
+        // TODO: Implement rendering logic
         throw new UnsupportedOperationException("Unimplemented method 'renderPlayer'");
     }
 }

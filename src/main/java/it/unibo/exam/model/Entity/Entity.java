@@ -1,7 +1,8 @@
-package it.unibo.exam.model.Entity;
+package it.unibo.exam.model.entity;
 
-import it.unibo.exam.utility.Geometry.Point2D;
-import it.unibo.exam.utility.Geometry.Rectangle;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import it.unibo.exam.utility.geometry.Point2D;
+import it.unibo.exam.utility.geometry.Rectangle;
 
 /**
  * 
@@ -9,37 +10,35 @@ import it.unibo.exam.utility.Geometry.Rectangle;
  */
 public class Entity {
 
+    private static final int SCALE_FACTOR = 20;
+
     private Point2D position;
     private Point2D dimension;
     private Rectangle hitbox;
-    private final Point2D enviromentSize;
+    private Point2D enviromentSize;
 
     /**
      * Constructor for Entity.
      *
-     * @param scaleFactor the scale factor for the entity
      * @param enviromentSize the size of the environment
      * @param position Inizial position of the entity
      */
-    public Entity(final Point2D position, final int scaleFactor, final Point2D enviromentSize) {
-
-        if (position == null) {
-            this.position = new Point2D((int) enviromentSize.getX() / 2, (int) enviromentSize.getY() / 2);
-        } else if (new Rectangle(new Point2D(0, 0), enviromentSize).contains(position)) {
-            throw new IllegalArgumentException("Initial position out of bounds");
-        } else {
-            this.position = position;
-        }
-
+    public Entity(final Point2D position, final Point2D enviromentSize) {
         if (enviromentSize == null) {
             throw new IllegalArgumentException("Environment size cannot be null");
         }
-        if (scaleFactor <= 0 || scaleFactor > enviromentSize.getX() || scaleFactor > enviromentSize.getY()) {
-            throw new IllegalArgumentException("Scale factor out of bound");
+
+        this.enviromentSize = new Point2D(enviromentSize);
+
+        if (position == null) {
+            this.position = new Point2D(this.enviromentSize.getX() / 2, this.enviromentSize.getY() / 2);
+        } else if (new Rectangle(new Point2D(0, 0), this.enviromentSize).contains(position)) {
+            throw new IllegalArgumentException("Initial position out of bounds");
+        } else {
+            this.position = new Point2D(position);
         }
 
-        this.dimension = new Point2D((int) enviromentSize.getX() / scaleFactor, (int) enviromentSize.getY() / scaleFactor);
-        this.enviromentSize = enviromentSize;
+        this.dimension = new Point2D(enviromentSize.getX() / SCALE_FACTOR, enviromentSize.getY() / SCALE_FACTOR);
         this.hitbox = new Rectangle(position, dimension);
     }
 
@@ -47,46 +46,45 @@ public class Entity {
     /**
      * Alternative constractor.
      * Place the entity in the center of the enviroment.
-     * @param scaleFactor the scale factor for the entity
      * @param enviromentSize the size of the environment
      */
-    public Entity(final int scaleFactor, final Point2D enviromentSize) {
-
+    public Entity(final Point2D enviromentSize) {
         this(
-            new Point2D((int) enviromentSize.getX() / 2, (int) enviromentSize.getY() / 2), 
-            scaleFactor, 
+            new Point2D(enviromentSize.getX() / 2, enviromentSize.getY() / 2), 
             enviromentSize
         );
     }
 
     /**
-     * @return the position of the entity
+     * @return copy of entity's position
      */
+    @SuppressFBWarnings(value = "EI", justification = "position need to be updated")
     public Point2D getPosition() {
         return position;
     }
 
     /**
-     * @return enviromentSize
+     * @return copy of entity's position
      */
-    protected Point2D getEnviromentSize() {
-        return enviromentSize;
+    protected final Point2D getEnviromentSize() {
+        return new Point2D(enviromentSize);
     }
 
     /**
-     * @return the dimension of the entity
+     * @return copy of entity's position
      */
     public Point2D getDimension() {
-        return dimension;
+        return new Point2D(dimension);
     }
 
     /**
      * Sets the new dimension of the entity.
      * 
-     * @param newDimension the new dimension of the entity
+     * @param newEnviromentSize the new enviroment size
      */
-    public void resize(final Point2D newDimension) {
-        this.dimension = newDimension;
+    public void resize(final Point2D newEnviromentSize) {
+        this.enviromentSize = new Point2D(newEnviromentSize);
+        this.dimension = new Point2D(enviromentSize.getX() / SCALE_FACTOR, enviromentSize.getY() / SCALE_FACTOR);
         this.hitbox = new Rectangle(this.position, dimension);
     }
 

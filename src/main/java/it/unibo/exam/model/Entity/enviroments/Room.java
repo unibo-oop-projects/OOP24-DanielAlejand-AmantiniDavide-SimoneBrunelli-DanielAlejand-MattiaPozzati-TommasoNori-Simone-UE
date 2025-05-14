@@ -1,10 +1,12 @@
-package it.unibo.exam.model.Entity.enviroments;
+package it.unibo.exam.model.entity.enviroments;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import it.unibo.exam.model.Entity.Npc;
-import it.unibo.exam.model.Entity.Minigame.Minigame;
-import it.unibo.exam.utility.Generator.RoomGenerator;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import it.unibo.exam.model.entity.Npc;
+import it.unibo.exam.model.entity.minigame.Minigame;
+import it.unibo.exam.utility.generator.RoomGenerator;
 
 /**
  * A simple Room class rappresenting a room.
@@ -12,9 +14,9 @@ import it.unibo.exam.utility.Generator.RoomGenerator;
 public class Room {
 
     private final int id;
-    private Minigame minigame = null;
+    private Minigame minigame;
     private final int roomType;
-    private Npc npc = null;
+    private Npc npc;
     private final List<Door> doors;
 
 
@@ -26,7 +28,7 @@ public class Room {
      */
     public Room(final int id, final List<Door> doors, final int roomType) {
         this.id = id;
-        this.doors = doors;
+        this.doors = new ArrayList<>(doors);
         this.roomType = roomType;
     }
 
@@ -51,8 +53,9 @@ public class Room {
     /**
      * @return the doors of the room
      */
+    @SuppressFBWarnings(value = "EI", justification = "Safe final list")
     public List<Door> getDoors() {
-        return doors;
+        return new ArrayList<>(doors);
     }
 
     /**

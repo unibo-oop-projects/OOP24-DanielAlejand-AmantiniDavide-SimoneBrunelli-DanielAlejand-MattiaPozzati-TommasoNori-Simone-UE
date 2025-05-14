@@ -1,6 +1,6 @@
-package it.unibo.exam.model.Entity;
+package it.unibo.exam.model.entity;
 
-import it.unibo.exam.utility.Geometry.Point2D;
+import it.unibo.exam.utility.geometry.Point2D;
 
 /**
  * Simple player class.
@@ -8,7 +8,6 @@ import it.unibo.exam.utility.Geometry.Point2D;
  */
 public class Player extends MovementEntity {
 
-    private static final int SCALE_FACTOR = 20; 
     private final int score;
 
     /**
@@ -17,7 +16,7 @@ public class Player extends MovementEntity {
      * @param enviromentSize the size of the environment
      */
     public Player(final Point2D enviromentSize) {
-        super(SCALE_FACTOR, enviromentSize);
+        super(enviromentSize);
         this.score = 0;
     }
 

@@ -1,10 +1,10 @@
 package it.unibo.exam.controller;
 
 import it.unibo.exam.controller.input.KeyHandler;
-import it.unibo.exam.model.Entity.Player;
-import it.unibo.exam.model.Entity.enviroments.Room;
-import it.unibo.exam.model.Game.GameState;
-import it.unibo.exam.utility.Geometry.Point2D;
+import it.unibo.exam.model.entity.Player;
+import it.unibo.exam.model.entity.enviroments.Room;
+import it.unibo.exam.model.game.GameState;
+import it.unibo.exam.utility.geometry.Point2D;
 import it.unibo.exam.view.GameRenderer;
 
 /**
@@ -21,7 +21,6 @@ public class MainController {
     private final KeyHandler keyHandler;
     private final GameState gameState;
     private final GameRenderer gameRenderer;
-    private double deltaTime;
     private boolean running;
 
     /**
@@ -62,25 +61,25 @@ public class MainController {
      */
     private void gameLoop() {
         long lastTime = System.nanoTime();
-        deltaTime = 0;
-        final double nsPerUpdate =  SECOND / FPS;
+        final long nsPerUpdate = (long) (SECOND / FPS);
+        long accumulatedTime = 0;
 
         while (running) {
             final long now = System.nanoTime();
-            deltaTime += (now - lastTime) / nsPerUpdate;
+            accumulatedTime += now - lastTime;
             lastTime = now;
 
-            while (deltaTime >= 1) {
+            while (accumulatedTime >= nsPerUpdate) {
                 update();
-                deltaTime--;
+                accumulatedTime -= nsPerUpdate;
             }
 
             render();
 
             try {
-                Thread.sleep(1); // Sleep to limit the frame rate
+                Thread.sleep(1);
             } catch (final InterruptedException e) {
-                e.printStackTrace();
+                e.printStackTrace(); //NOPMD AvoidPrintStackTrace
             }
         }
     }
@@ -101,7 +100,6 @@ public class MainController {
      * 
      */
     private void checkWin() {
-        return; // TODO: Implement win condition
     }
 
     /**
@@ -118,11 +116,11 @@ public class MainController {
         });
 
         // Check for collisions with NPCs
-        if (room.getNpc() != null) {
-            if (player.getHitbox().intersects(room.getNpc().getHitbox()) && keyHandler.isInteractPressed()) {
-                // Interact with NPC
-                room.getNpc().interact();
-            }
+        if (room.getNpc() != null 
+        && player.getHitbox().intersects(room.getNpc().getHitbox()) 
+        && keyHandler.isInteractPressed()) {
+            // Interact with NPC
+            room.getNpc().interact();
         }
 
     }
@@ -135,20 +133,19 @@ public class MainController {
      * @param player 
      */
     private void movePlayer(final Player player) {
-        final Point2D position = player.getPosition();
         final int speed = player.getSpeed();
 
         if (keyHandler.isUpPressed()) {
-            position.move(0, -speed);
+            player.move(0, -speed);
         }
         if (keyHandler.isDownPressed()) {
-            position.move(0, speed);
+            player.move(0, speed);
         }
         if (keyHandler.isLeftPressed()) {
-            position.move(-speed, 0);
+            player.move(-speed, 0);
         }
         if (keyHandler.isRightPressed()) {
-            position.move(speed, 0);
+            player.move(speed, 0);
         }
     }
 

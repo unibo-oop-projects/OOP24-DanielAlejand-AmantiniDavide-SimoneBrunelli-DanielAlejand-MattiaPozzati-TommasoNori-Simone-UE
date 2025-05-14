@@ -1,6 +1,6 @@
-package it.unibo.exam.model.Entity;
+package it.unibo.exam.model.entity;
 
-import it.unibo.exam.utility.Geometry.Point2D;
+import it.unibo.exam.utility.geometry.Point2D;
 
 /**
  * A simple entity that can move in the environment.
@@ -16,19 +16,19 @@ public class MovementEntity extends Entity {
      * Constructor.
      * Creates an entity and updates speed according to the environment size.
      *
-     * @param scaleFactor the scale factor of the entity
      * @param environmentSize the size of the environment
      * @see Entity
      */
-    public MovementEntity(final int scaleFactor, final Point2D environmentSize) {
-        super(scaleFactor, environmentSize);
-        this.speed = updateSpeed();
+    public MovementEntity(final Point2D environmentSize) {
+        super(environmentSize);
+        this.speed = this.getEnviromentSize().getX() / DEFAULT_SIZE * DEFAULT_SPEED;
     }
 
     /**
      * Updates speed according to the environment size.
      *
      * @return the updated speed
+     * @Note Final keyword is necessary
      */
     private int updateSpeed() {
         return this.getEnviromentSize().getX() / DEFAULT_SIZE * DEFAULT_SPEED;
@@ -36,7 +36,7 @@ public class MovementEntity extends Entity {
 
     /**
      * @return the speed of the entity
-     */
+    */
     public int getSpeed() {
         return speed;
     }

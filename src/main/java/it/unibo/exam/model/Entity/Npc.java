@@ -1,13 +1,12 @@
-package it.unibo.exam.model.Entity;
+package it.unibo.exam.model.entity;
 
-import it.unibo.exam.utility.Geometry.Point2D;
+import it.unibo.exam.utility.geometry.Point2D;
 
 /**
  * Represents a non-playable character (NPC) in the game.
  */
 public final class Npc extends Entity {
 
-    private static final int SCALE_FACTOR = 20; // Reordered static variable
     private static final Point2D DEFAULT_POSITION = new Point2D(0, 0);
     private final String name;
     private final String description;
@@ -23,7 +22,7 @@ public final class Npc extends Entity {
      */
     public Npc(final Point2D enviromentSize, final String name, 
                final String description, final String dialogue) {
-        super(DEFAULT_POSITION, SCALE_FACTOR, enviromentSize);
+        super(DEFAULT_POSITION, enviromentSize);
         this.name = name;
         this.description = description;
         this.dialogue = dialogue;
