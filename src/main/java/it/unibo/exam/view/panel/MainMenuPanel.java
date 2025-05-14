@@ -3,16 +3,20 @@ package it.unibo.exam.view.panel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.awt.Insets;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
+import it.unibo.exam.view.BackgroundLoader;
 
 /**
  * Main menu panel for the game, displays play, options and exit buttons.
@@ -25,6 +29,8 @@ public final class MainMenuPanel extends JPanel {
     private static final int HEIGHTBUTTON = 80;
     private static final int BUTTONFONTSIZE = 30;
     private static final int BUTTONSPACING = 20;
+    private static final String IMAGEPATH = "/it/unibo/exam/view/texture/menu/menu.jpg";
+    private BufferedImage backgroundImage;
 
     /**
      * Creates the main menu panel with buttons.
@@ -32,8 +38,17 @@ public final class MainMenuPanel extends JPanel {
      * @param window the parent JFrame window
      */
     public MainMenuPanel(final JFrame window) {
+        loadBackgroundImage();
         createUI(window);
     }
+    /***
+     * Loads the background image.
+     */
+    private void loadBackgroundImage() {
+        final BackgroundLoader loader = new BackgroundLoader();
+        backgroundImage = loader.loadBackgroundImage(IMAGEPATH);
+    }
+
     /**
      * Initialize the UI components.
      * This method is separated from the constructor to avoid calling overridable methods.
@@ -119,6 +134,14 @@ public final class MainMenuPanel extends JPanel {
      * @return JPanel with GridBagLayout
      */
     private JPanel createButtonPanel() {
-        return new JPanel(new GridBagLayout());
+       return new JPanel(new GridBagLayout()) {
+            @Override
+            protected void paintComponent(final Graphics g) {
+                super.paintComponent(g);
+                if (backgroundImage != null) {
+                    g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                }
+            }
+        };
     }
 }
