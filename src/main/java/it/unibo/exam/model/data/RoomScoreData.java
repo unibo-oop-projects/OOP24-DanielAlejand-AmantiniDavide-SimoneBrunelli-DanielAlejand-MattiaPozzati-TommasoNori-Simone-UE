@@ -6,12 +6,11 @@ package it.unibo.exam.model.data;
 public class RoomScoreData {
     // Room names mapped by room ID
     private static final String[] ROOM_NAMES = {
-        "Bar",       // 0
-        "Unknown",   // 1
+        "2.12",       // 0
+        "Bar",   // 1
         "Lab",       // 2
-        "Unknown",   // 3
-        "Unknown",   // 4
-        "Garden"     // 5
+        "Gym",   // 3
+        "Garden",   // 4
     };
 
     private final int roomId;

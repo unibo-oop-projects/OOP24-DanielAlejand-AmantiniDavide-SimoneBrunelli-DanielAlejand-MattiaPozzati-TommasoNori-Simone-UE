@@ -26,7 +26,7 @@ public class Player extends MovementEntity {
     /**
      * Records or updates the score data for a completed room.
      *
-     * @param roomName    the name of the room
+     * @param roomId    the ID of the room
      * @param timeTaken   time taken to complete the room (seconds or ms)
      * @param pointsGained points earned in the room
      */
