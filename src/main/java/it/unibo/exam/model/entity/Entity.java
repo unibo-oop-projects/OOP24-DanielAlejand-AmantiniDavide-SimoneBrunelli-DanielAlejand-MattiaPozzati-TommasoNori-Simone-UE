@@ -44,7 +44,7 @@ public class Entity {
 
 
     /**
-     * Alternative constractor.
+     * Alternative constructor.
      * Place the entity in the center of the enviroment.
      * @param enviromentSize the size of the environment
      */

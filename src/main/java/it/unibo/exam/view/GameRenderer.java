@@ -3,12 +3,17 @@ package it.unibo.exam.view;
 import it.unibo.exam.model.entity.Player;
 import it.unibo.exam.model.entity.enviroments.Room;
 import it.unibo.exam.model.game.GameState;
+import it.unibo.exam.view.hud.ScoreHud;
+
+import java.awt.Graphics2D;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Handles rendering of the game elements such as rooms and players.
  */
 public class GameRenderer {
     private final GameState gs;
+    private final ScoreHud scoreHud;
 
     /**
      * Constructor for GameRenderer.
@@ -17,6 +22,7 @@ public class GameRenderer {
      */
     public GameRenderer(final GameState gs) {
         this.gs = gs;
+        this.scoreHud = new ScoreHud(gs);
     }
 
     /**
@@ -27,13 +33,16 @@ public class GameRenderer {
         renderPlayer(gs.getPlayer());
     }
 
-    /** 
-     * Renders the current room background, doors, and NPCs.
-     *
-     * @param currentRoom the room to render
-     */
-
     /**
+     * Renders non-interactive overlays such as the score HUD.
+     *
+     * @param g the graphics context to draw on
+     */
+    public void renderHud(final Graphics2D g) {
+        scoreHud.draw(g);
+    }
+
+    /** 
      * Renders the current room background, doors, and NPCs.
      *
      * @param currentRoom the room to render
@@ -60,5 +69,18 @@ public class GameRenderer {
 
         // TODO: Implement rendering logic
         throw new UnsupportedOperationException("Unimplemented method 'renderPlayer'");
+    }
+
+    /**
+     * Temporary accessor for integration with future GamePanel.
+     *
+     * @return the ScoreHud used for rendering the HUD
+     */
+    @SuppressFBWarnings(
+        value = "EI_EXPOSE_REP",
+        justification = "Temporary accessor; remove when GamePanel calls renderHud directly"
+    )
+    public ScoreHud getScoreHud() {
+        return scoreHud;
     }
 }
