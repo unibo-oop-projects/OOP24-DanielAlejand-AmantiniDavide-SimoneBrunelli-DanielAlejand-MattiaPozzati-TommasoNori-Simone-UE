@@ -4,7 +4,17 @@ package it.unibo.exam.model.data;
  * Data class for storing the player's score and completion state for a room.
  */
 public class RoomScoreData {
-    private final String roomName;
+    // Room names mapped by room ID
+    private static final String[] ROOM_NAMES = {
+        "Bar",       // 0
+        "Unknown",   // 1
+        "Lab",       // 2
+        "Unknown",   // 3
+        "Unknown",   // 4
+        "Garden"     // 5
+    };
+
+    private final int roomId;
     private final int timeTaken;
     private final int pointsGained;
     private final boolean completed;
@@ -12,25 +22,28 @@ public class RoomScoreData {
     /**
      * Constructs a RoomScoreData object with the given details.
      *
-     * @param roomName     the name of the room
-     * @param timeTaken    time taken to complete the minigame (seconds or ms)
-     * @param pointsGained points gained for the room
-     * @param completed    true if the room has been completed, false otherwise
+     * @param roomId        the ID of the room
+     * @param timeTaken     time taken to complete the minigame (seconds or ms)
+     * @param pointsGained  points gained for the room
+     * @param completed     true if the room has been completed, false otherwise
      */
-    public RoomScoreData(final String roomName, final int timeTaken, final int pointsGained, final boolean completed) {
-        this.roomName = roomName;
+    public RoomScoreData(final int roomId, final int timeTaken, final int pointsGained, final boolean completed) {
+        this.roomId = roomId;
         this.timeTaken = timeTaken;
         this.pointsGained = pointsGained;
         this.completed = completed;
     }
 
     /**
-     * Gets the name of the room.
+     * Gets the name of the room based on its ID.
      *
      * @return the room's name
      */
     public String getRoomName() {
-        return roomName;
+        if (roomId >= 0 && roomId < ROOM_NAMES.length) {
+            return ROOM_NAMES[roomId];
+        }
+        return "Unknown";
     }
 
     /**
@@ -67,9 +80,10 @@ public class RoomScoreData {
      */
     @Override
     public String toString() {
-        return "RoomScoreData{" 
-            + "roomName='"    + roomName    + '\'' 
-            + ", timeTaken="  + timeTaken  // in seconds or ms
+        return "RoomScoreData{"
+            + "roomId=" + roomId
+            + ", roomName='" + getRoomName() + '\''
+            + ", timeTaken=" + timeTaken
             + ", pointsGained=" + pointsGained
             + ", completed=" + completed
             + '}';

@@ -12,7 +12,7 @@ import java.util.Map;
 public class Player extends MovementEntity {
 
     /** Stores RoomScoreData for each room the player completes. */
-    private final Map<String, RoomScoreData> roomScores = new HashMap<>();
+    private final Map<Integer, RoomScoreData> roomScores = new HashMap<>();
 
     /**
      * Constructs a Player.
@@ -30,8 +30,8 @@ public class Player extends MovementEntity {
      * @param timeTaken   time taken to complete the room (seconds or ms)
      * @param pointsGained points earned in the room
      */
-    public void addRoomScore(final String roomName, final int timeTaken, final int pointsGained) {
-        roomScores.put(roomName, new RoomScoreData(roomName, timeTaken, pointsGained, true));
+    public void addRoomScore(final int roomId, final int timeTaken, final int pointsGained) {
+        roomScores.put(roomId, new RoomScoreData(roomId, timeTaken, pointsGained, true));
     }
 
     /**
@@ -40,7 +40,7 @@ public class Player extends MovementEntity {
      *
      * @return a map from room names to RoomScoreData
      */
-    public Map<String, RoomScoreData> getRoomScores() {
+    public Map<Integer, RoomScoreData> getRoomScores() {
         return Map.copyOf(roomScores);
     }
 
