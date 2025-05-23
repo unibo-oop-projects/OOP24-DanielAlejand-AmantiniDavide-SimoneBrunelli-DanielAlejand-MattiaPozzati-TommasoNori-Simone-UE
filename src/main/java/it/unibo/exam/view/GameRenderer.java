@@ -5,16 +5,14 @@ import it.unibo.exam.model.entity.enviroments.Room;
 import it.unibo.exam.model.game.GameState;
 import it.unibo.exam.view.hud.ScoreHud;
 
-import java.awt.Canvas;
 import java.awt.Graphics2D;
-import java.awt.image.BufferStrategy;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Handles rendering of the game elements such as rooms and players.
  */
 public class GameRenderer {
     private final GameState gs;
-    private final Canvas canvas;
     private final ScoreHud scoreHud;
 
     /**
@@ -24,25 +22,15 @@ public class GameRenderer {
      */
     public GameRenderer(final GameState gs) {
         this.gs = gs;
-        this.canvas = new Canvas();
-        this.canvas.createBufferStrategy(2);
         this.scoreHud = new ScoreHud(gs);
     }
 
     /**
-     * Renders the game by rendering the current room, player, and HUD.
+     * Renders the game by rendering the current room and player.
      */
     public void renderGame() {
-        final BufferStrategy bs = canvas.getBufferStrategy();
-        final Graphics2D g = (Graphics2D) bs.getDrawGraphics();
-        try {
-            renderRoom(gs.getCurrentRoom());
-            renderPlayer(gs.getPlayer());
-            renderHud(g);
-        } finally {
-            g.dispose();
-            bs.show();
-        }
+        renderRoom(gs.getCurrentRoom());
+        renderPlayer(gs.getPlayer());
     }
 
     /**
@@ -84,11 +72,15 @@ public class GameRenderer {
     }
 
     /**
-     * Exposes the canvas so it can be added to a window.
+     * Temporary accessor for integration with future GamePanel.
      *
-     * @return the drawing canvas
+     * @return the ScoreHud used for rendering the HUD
      */
-    public Canvas getCanvas() {
-        return canvas;
+    @SuppressFBWarnings(
+        value = "EI_EXPOSE_REP",
+        justification = "Temporary accessor; remove when GamePanel calls renderHud directly"
+    )
+    public ScoreHud getScoreHud() {
+        return scoreHud;
     }
 }
