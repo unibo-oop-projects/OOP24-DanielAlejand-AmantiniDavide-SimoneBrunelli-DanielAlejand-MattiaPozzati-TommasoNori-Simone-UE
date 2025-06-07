@@ -1,9 +1,12 @@
 package it.unibo.exam.controller;
 
 import it.unibo.exam.controller.input.KeyHandler;
+import it.unibo.exam.controller.position.PlayerPositionManager;
 import it.unibo.exam.model.entity.Player;
 import it.unibo.exam.model.entity.enviroments.Room;
+import it.unibo.exam.model.entity.enviroments.Door;
 import it.unibo.exam.model.game.GameState;
+import it.unibo.exam.utility.generator.RoomGenerator;
 import it.unibo.exam.utility.geometry.Point2D;
 import it.unibo.exam.view.GameRenderer;
 
@@ -11,6 +14,7 @@ import it.unibo.exam.view.GameRenderer;
  * Main controller of the game.
  * It handles the game loop and the main logic of the game.
  * It is responsible for updating the game state of the game.
+ * Fixed version with proper NPC handling and input.
  */
 public class MainController {
 
@@ -27,10 +31,14 @@ public class MainController {
     private final GameState gameState;
     private final GameRenderer gameRenderer;
     private boolean running;
+    private Point2D environmentSize;
 
     private long minigameStartTime;
     private boolean minigameActive;
     private int currentMinigameRoomId = -1;
+    
+    // Track last used door for positioning
+    private Door lastUsedDoor = null;
 
     /**
      * @param enviromentSize size of the Game panel
@@ -39,6 +47,7 @@ public class MainController {
         this.keyHandler = new KeyHandler();
         this.gameState = new GameState(enviromentSize);
         this.gameRenderer = new GameRenderer(gameState);
+        this.environmentSize = new Point2D(enviromentSize);
     }
 
     /**
@@ -46,6 +55,7 @@ public class MainController {
      * @param newSize new size of the Game Panel
      */
     public void resize(final Point2D newSize) {
+        this.environmentSize = new Point2D(newSize);
         this.gameState.resize(newSize);
     }
 
@@ -62,6 +72,24 @@ public class MainController {
      */
     public void stop() {
         running = false;
+    }
+
+    /**
+     * Gets the game renderer for external rendering calls.
+     * 
+     * @return the game renderer
+     */
+    public GameRenderer getGameRenderer() {
+        return gameRenderer;
+    }
+
+    /**
+     * Gets the key handler for external input management.
+     * 
+     * @return the key handler
+     */
+    public KeyHandler getKeyHandler() {
+        return keyHandler;
     }
 
     /**
@@ -82,7 +110,8 @@ public class MainController {
                 accumulatedTime -= nsPerUpdate;
             }
 
-            render();
+            // Rendering is now handled externally by GamePanel
+            // The render() method is removed as it's no longer needed
 
             try {
                 Thread.sleep(1);
@@ -105,9 +134,11 @@ public class MainController {
     }
 
     /**
-     * 
+     * Check win condition.
      */
     private void checkWin() {
+        // Implementation for win condition check
+        // Can be expanded based on game requirements
     }
 
     /**
@@ -116,27 +147,96 @@ public class MainController {
      * @param room Current Room
      */
     private void checkInteraction(final Player player, final Room room) {
-        // Check for collisions with doors
-        room.getDoors().forEach(door -> {
-            if (player.getHitbox().intersects(door.getHitbox()) && keyHandler.isInteractPressed()) {
-                gameState.changeRoom(door.getToId());
+        // Check for collisions with doors - using just pressed for single activation
+        if (keyHandler.isInteractJustPressed()) {
+            room.getDoors().forEach(door -> {
+                if (isNearDoor(player, door)) {
+                    // Store the door used for transition
+                    lastUsedDoor = door;
+                    
+                    // Change room
+                    gameState.changeRoom(door.getToId());
+                    
+                    // Position player appropriately in the new room
+                    positionPlayerAfterRoomChange(door);
+                    
+                    System.out.println("Moved from room " + door.getFromId() + " to room " + door.getToId());
+                }
+            });
+
+            // Check for collisions with NPCs - ONLY in puzzle rooms
+            if (room.getRoomType() == RoomGenerator.PUZZLE_ROOM && room.getNpc() != null
+            && isNearNpc(player, room.getNpc())) {
+                // Interact with NPC
+                room.getNpc().interact();
+
+                // Simulation starting and ending a minigame
+                // Replace with minigame integration later
+                final int roomId = gameState.getCurrentRoom().getId();
+                startMinigame(roomId);
+                // Simulate instant completion for testing:
+                endMinigame(true);
+                // ==========================================================
             }
-        });
+        }
+    }
+    
+    /**
+     * Checks if player is near a door (with expanded detection area).
+     * @param player the player
+     * @param door the door
+     * @return true if player is close enough to interact
+     */
+    private boolean isNearDoor(final Player player, final Door door) {
+        // Expand the door's interaction area
+        final int proximityBuffer = 30; // pixels
+        
+        final Point2D playerPos = player.getPosition();
+        final Point2D playerSize = player.getDimension();
+        final Point2D doorPos = door.getPosition();
+        final Point2D doorSize = door.getDimension();
+        
+        // Check if player is within expanded door area
+        return playerPos.getX() + playerSize.getX() >= doorPos.getX() - proximityBuffer &&
+               playerPos.getX() <= doorPos.getX() + doorSize.getX() + proximityBuffer &&
+               playerPos.getY() + playerSize.getY() >= doorPos.getY() - proximityBuffer &&
+               playerPos.getY() <= doorPos.getY() + doorSize.getY() + proximityBuffer;
+    }
+    
+    /**
+     * Checks if player is near an NPC.
+     * @param player the player
+     * @param npc the NPC
+     * @return true if player is close enough to interact
+     */
+    private boolean isNearNpc(final Player player, final it.unibo.exam.model.entity.Npc npc) {
+        return player.getHitbox().intersects(npc.getHitbox());
+    }
 
-        // Check for collisions with NPCs
-        if (room.getNpc() != null
-        && player.getHitbox().intersects(room.getNpc().getHitbox())
-        && keyHandler.isInteractPressed()) {
-            // Interact with NPC
-            room.getNpc().interact();
-
-            // Simulation starting and ending a minigame
-            // Replace with minigame integration later
-            final int roomId = gameState.getCurrentRoom().getId();
-            startMinigame(roomId);
-            // Simulate instant completion for testing:
-            endMinigame(true);
-            // ==========================================================
+    /**
+     * Positions the player after changing rooms based on the door used.
+     * 
+     * @param usedDoor the door that was used to transition
+     */
+    private void positionPlayerAfterRoomChange(final Door usedDoor) {
+        final Player player = gameState.getPlayer();
+        final Room newRoom = gameState.getCurrentRoom();
+        
+        // Find the corresponding door in the new room (door leading back)
+        Door correspondingDoor = null;
+        for (Door door : newRoom.getDoors()) {
+            if (door.getToId() == usedDoor.getFromId()) {
+                correspondingDoor = door;
+                break;
+            }
+        }
+        
+        if (correspondingDoor != null) {
+            // Position player near the corresponding door but inside the room
+            PlayerPositionManager.positionPlayerAfterTransition(player, correspondingDoor, environmentSize);
+        } else {
+            // Fallback to center positioning
+            player.setPosition(PlayerPositionManager.getDefaultSpawnPosition(environmentSize));
         }
     }
 
@@ -149,26 +249,52 @@ public class MainController {
      */
     private void movePlayer(final Player player) {
         final int speed = player.getSpeed();
+        final Point2D currentPos = player.getPosition();
+        final Point2D playerSize = player.getDimension();
+
+        // Store original position in case we need to revert
+        final int originalX = currentPos.getX();
+        final int originalY = currentPos.getY();
+
+        boolean moved = false;
 
         if (keyHandler.isUpPressed()) {
-            player.move(0, -speed);
+            int newY = currentPos.getY() - speed;
+            // Check bounds
+            if (newY >= 10) { // 10 pixel margin from top
+                player.move(0, -speed);
+                moved = true;
+            }
         }
         if (keyHandler.isDownPressed()) {
-            player.move(0, speed);
+            int newY = currentPos.getY() + speed;
+            // Check bounds
+            if (newY + playerSize.getY() <= environmentSize.getY() - 10) { // 10 pixel margin from bottom
+                player.move(0, speed);
+                moved = true;
+            }
         }
         if (keyHandler.isLeftPressed()) {
-            player.move(-speed, 0);
+            int newX = currentPos.getX() - speed;
+            // Check bounds
+            if (newX >= 10) { // 10 pixel margin from left
+                player.move(-speed, 0);
+                moved = true;
+            }
         }
         if (keyHandler.isRightPressed()) {
-            player.move(speed, 0);
+            int newX = currentPos.getX() + speed;
+            // Check bounds
+            if (newX + playerSize.getX() <= environmentSize.getX() - 10) { // 10 pixel margin from right
+                player.move(speed, 0);
+                moved = true;
+            }
         }
-    }
 
-    /**
-     * Renders the game.
-     */
-    private void render() {
-        this.gameRenderer.renderGame();
+        // Update hitbox after movement
+        if (moved) {
+            player.getHitbox(); // This should update the hitbox position
+        }
     }
 
     // Point system methods

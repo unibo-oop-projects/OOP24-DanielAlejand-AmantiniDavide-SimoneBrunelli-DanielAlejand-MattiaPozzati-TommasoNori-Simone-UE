@@ -2,20 +2,26 @@ package it.unibo.exam;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import it.unibo.exam.controller.input.KeyHandler;
 import it.unibo.exam.view.panel.MainMenuPanel;
 
 /**
  * Main application class that initializes the application window.
+ * Updated to open in fullscreen mode.
  */
 public final class Main {
     private Main() {
         throw new UnsupportedOperationException("Main class cannot be instantiated");
     } 
+    
     /**
      * Entry point of the application.
      * @param args command line arguments
@@ -25,49 +31,139 @@ public final class Main {
         SwingUtilities.invokeLater(() -> {
             final KeyHandler keyHandler = new KeyHandler();
             final JFrame window = new JFrame();
+            
+            // Get screen dimensions
             final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
             final int screenWidth = (int) screenSize.getWidth();
             final int screenHeight = (int) screenSize.getHeight();
+            
+            // Get graphics device for fullscreen support
+            final GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            final GraphicsDevice gd = ge.getDefaultScreenDevice();
 
-            // Set default size for when window is not maximized (80% of screen size)
-            final int defaultWidth = (int) (screenWidth * 0.8);
-            final int defaultHeight = (int) (screenHeight * 0.8);
+            // Create main menu panel
             final MainMenuPanel mainMenu = new MainMenuPanel(window);
 
-            // Set window here
+            // Configure window
             window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             window.setResizable(true);
             window.setTitle("UniversityEscape");
             window.addKeyListener(keyHandler);
-            // Create and add the MainMenuPanel to the window
+            
+            // Add main menu panel
             window.getContentPane().add(mainMenu);
-            window.setSize(defaultWidth, defaultHeight);
-            // Add window listener to handle iconification (minimize) events
+            
+            // Set fullscreen mode
+            window.setUndecorated(true); // Remove window decorations for true fullscreen
+            window.setExtendedState(JFrame.MAXIMIZED_BOTH); // Maximize window
+            
+            // Alternative: Use exclusive fullscreen mode (uncomment if preferred)
+            // if (gd.isFullScreenSupported()) {
+            //     gd.setFullScreenWindow(window);
+            // } else {
+            //     window.setSize(screenWidth, screenHeight);
+            //     window.setLocationRelativeTo(null);
+            // }
+            
+            // For windowed fullscreen (keeps window decorations but maximized)
+            window.setSize(screenWidth, screenHeight);
+            window.setLocationRelativeTo(null);
+            
+            // Add window listeners
             window.addWindowListener(new WindowAdapter() {
-                /***
-                 * 
-                 * @param e
-                 * can resize window
+                /**
+                 * Handle window iconification events.
+                 * @param e window event
                  */
                 @Override
                 public void windowIconified(final WindowEvent e) {
-                    // When minimized, restore to default size instead of minimizing
-                    window.setState(JFrame.NORMAL);
+                    // When minimized, restore to fullscreen
+                    window.setState(JFrame.MAXIMIZED_BOTH);
                 }
 
-                /***
-                 * 
-                 * @param e 
-                 * set default size
+                /**
+                 * Handle window deiconification events.
+                 * @param e window event
                  */
                 @Override
                 public void windowDeiconified(final WindowEvent e) {
-                    window.setSize(defaultWidth, defaultHeight);
+                    // Restore to fullscreen when restored
+                    window.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                    window.setSize(screenWidth, screenHeight);
                     window.setLocationRelativeTo(null);
                 }
+                
+                /**
+                 * Handle window state changes.
+                 * @param e window event
+                 */
+                @Override
+                public void windowStateChanged(final WindowEvent e) {
+                    // Ensure window stays maximized unless explicitly minimized
+                    if (e.getNewState() != JFrame.ICONIFIED && e.getNewState() != JFrame.MAXIMIZED_BOTH) {
+                        window.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                    }
+                }
             });
-            window.setLocationRelativeTo(null);
+            
+            // Add global key listener for fullscreen toggle (F11) and exit (Alt+F4, Escape)
+            window.addKeyListener(new KeyListener() {
+                @Override
+                public void keyTyped(KeyEvent e) {
+                    // Not used
+                }
+
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    // F11 to toggle fullscreen
+                    if (e.getKeyCode() == KeyEvent.VK_F11) {
+                        toggleFullscreen(window, gd);
+                    }
+                    // Alt+F4 or Escape to exit (only from main menu)
+                    else if ((e.getKeyCode() == KeyEvent.VK_F4 && e.isAltDown()) || 
+                             e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                        // Only exit from main menu, not during game
+                        if (window.getContentPane().getComponent(0) instanceof MainMenuPanel) {
+                            System.exit(0);
+                        }
+                    }
+                }
+
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    // Not used
+                }
+            });
+            
+            // Make window visible
             window.setVisible(true);
+            
+            // Ensure we start in fullscreen
+            window.setExtendedState(JFrame.MAXIMIZED_BOTH);
         });
+    }
+    
+    /**
+     * Toggles between fullscreen and windowed mode.
+     * @param window the main window
+     * @param graphicsDevice the graphics device
+     */
+    private static void toggleFullscreen(final JFrame window, final GraphicsDevice graphicsDevice) {
+        if (graphicsDevice.getFullScreenWindow() == window) {
+            // Exit fullscreen
+            graphicsDevice.setFullScreenWindow(null);
+            window.setUndecorated(false);
+            window.setExtendedState(JFrame.NORMAL);
+            window.setSize(1024, 768); // Default windowed size
+            window.setLocationRelativeTo(null);
+        } else {
+            // Enter fullscreen
+            window.setUndecorated(true);
+            if (graphicsDevice.isFullScreenSupported()) {
+                graphicsDevice.setFullScreenWindow(window);
+            } else {
+                window.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            }
+        }
     }
 }

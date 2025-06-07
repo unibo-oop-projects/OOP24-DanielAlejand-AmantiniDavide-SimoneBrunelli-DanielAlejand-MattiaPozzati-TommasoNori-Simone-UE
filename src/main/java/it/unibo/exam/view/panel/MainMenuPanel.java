@@ -1,5 +1,7 @@
 package it.unibo.exam.view.panel;
 
+import it.unibo.exam.utility.geometry.Point2D;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -16,7 +18,8 @@ import javax.swing.JPanel;
 
 /**
  * Main menu panel for the game, displays play, options and exit buttons.
- * @version 1.1
+ * Updated to integrate with GamePanel.
+ * @version 1.2
  */
 public final class MainMenuPanel extends JPanel {
 
@@ -26,6 +29,8 @@ public final class MainMenuPanel extends JPanel {
     private static final int BUTTONFONTSIZE = 30;
     private static final int BUTTONSPACING = 20;
 
+    private GamePanel gamePanel; // Reference to track the game panel
+
     /**
      * Creates the main menu panel with buttons.
      *
@@ -34,6 +39,7 @@ public final class MainMenuPanel extends JPanel {
     public MainMenuPanel(final JFrame window) {
         createUI(window);
     }
+    
     /**
      * Initialize the UI components.
      * This method is separated from the constructor to avoid calling overridable methods.
@@ -84,10 +90,7 @@ public final class MainMenuPanel extends JPanel {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 //Once you press 'Play', menu panel get removed and the game starts 
-                window.getContentPane().removeAll();
-                window.setExtendedState(JFrame.NORMAL);
-                window.revalidate();
-                window.repaint();
+                startGame(window);
             }
         });
 
@@ -100,19 +103,96 @@ public final class MainMenuPanel extends JPanel {
         });
 
         exitButton.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(final ActionEvent e) {
-        // Show confirmation dialog
-        final int confirmed = JOptionPane.showConfirmDialog(window,
-                "Sei sicuro di voler uscire?", "Conferma uscita", JOptionPane.YES_NO_OPTION); 
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                // Show confirmation dialog
+                final int confirmed = JOptionPane.showConfirmDialog(window,
+                        "Sei sicuro di voler uscire?", "Conferma uscita", JOptionPane.YES_NO_OPTION); 
 
-        if (confirmed == JOptionPane.YES_OPTION) {
-            // Close the window instead of terminating the JVM
-            window.dispose();
+                if (confirmed == JOptionPane.YES_OPTION) {
+                    // Stop game if running
+                    if (gamePanel != null) {
+                        gamePanel.stopGame();
+                    }
+                    // Close the window instead of terminating the JVM
+                    window.dispose();
+                }
+            }
+        });
+    }
+    
+    /**
+     * Starts the game by removing the menu and adding the game panel.
+     * 
+     * @param window the parent window
+     */
+    private void startGame(final JFrame window) {
+        // Remove the menu panel
+        window.getContentPane().removeAll();
+        
+        // Create and add the game panel
+        final Dimension windowSize = window.getSize();
+        final Point2D gameSize = new Point2D(windowSize.width, windowSize.height);
+        gamePanel = new GamePanel(gameSize);
+        
+        window.add(gamePanel);
+        
+        // Ensure the game panel gets focus for key input
+        gamePanel.requestFocusInWindow();
+        
+        // Refresh the window
+        window.revalidate();
+        window.repaint();
+        
+        // Optional: Add ESC key listener to return to menu
+        addReturnToMenuListener(window);
+    }
+    
+    /**
+     * Adds a listener to return to the main menu (ESC key).
+     * 
+     * @param window the parent window
+     */
+    private void addReturnToMenuListener(final JFrame window) {
+        if (gamePanel != null) {
+            gamePanel.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW)
+                    .put(javax.swing.KeyStroke.getKeyStroke("ESCAPE"), "returnToMenu");
+            
+            gamePanel.getActionMap().put("returnToMenu", new javax.swing.AbstractAction() {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    returnToMenu(window);
+                }
+            });
         }
     }
-});
+    
+    /**
+     * Returns to the main menu from the game.
+     * 
+     * @param window the parent window
+     */
+    private void returnToMenu(final JFrame window) {
+        final int confirmed = JOptionPane.showConfirmDialog(window,
+                "Tornare al menu principale?", "Conferma", JOptionPane.YES_NO_OPTION);
+        
+        if (confirmed == JOptionPane.YES_OPTION) {
+            // Stop the game
+            if (gamePanel != null) {
+                gamePanel.stopGame();
+                gamePanel = null;
+            }
+            
+            // Remove game panel and restore menu
+            window.getContentPane().removeAll();
+            window.add(this);
+            window.revalidate();
+            window.repaint();
+        }
     }
+    
     /**
      * Creates a panel for the buttons with custom background painting.
      *

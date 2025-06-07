@@ -32,14 +32,17 @@ public class Entity {
 
         if (position == null) {
             this.position = new Point2D(this.enviromentSize.getX() / 2, this.enviromentSize.getY() / 2);
-        } else if (new Rectangle(new Point2D(0, 0), this.enviromentSize).contains(position)) {
-            throw new IllegalArgumentException("Initial position out of bounds");
+        } else if (!new Rectangle(new Point2D(0, 0), this.enviromentSize).contains(position)) {
+            // Fixed the logic - was inverted before
+            throw new IllegalArgumentException("Initial position out of bounds: " + 
+                "position(" + position.getX() + "," + position.getY() + ") " +
+                "environment(" + enviromentSize.getX() + "," + enviromentSize.getY() + ")");
         } else {
             this.position = new Point2D(position);
         }
 
         this.dimension = new Point2D(enviromentSize.getX() / SCALE_FACTOR, enviromentSize.getY() / SCALE_FACTOR);
-        this.hitbox = new Rectangle(position, dimension);
+        this.hitbox = new Rectangle(this.position, dimension);
     }
 
 
@@ -85,7 +88,22 @@ public class Entity {
     public void resize(final Point2D newEnviromentSize) {
         this.enviromentSize = new Point2D(newEnviromentSize);
         this.dimension = new Point2D(enviromentSize.getX() / SCALE_FACTOR, enviromentSize.getY() / SCALE_FACTOR);
+        updateHitbox();
+    }
+
+    /**
+     * Updates the hitbox position based on current position.
+     */
+    private void updateHitbox() {
         this.hitbox = new Rectangle(this.position, dimension);
+    }
+    
+    /**
+     * Updates the hitbox when position changes.
+     * Call this method after moving the entity.
+     */
+    public void updateHitboxPosition() {
+        updateHitbox();
     }
 
     /**

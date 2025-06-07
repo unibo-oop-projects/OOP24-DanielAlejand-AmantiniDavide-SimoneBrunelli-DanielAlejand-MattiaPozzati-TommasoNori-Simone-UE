@@ -7,20 +7,47 @@ import it.unibo.exam.utility.geometry.Point2D;
 
 /**
  * A generator class for doors.
+ * Fixed version with proper door positioning and collision detection.
  */
 public class DoorGenerator extends EntityGenerator<List<Door>> {
     private final List<Point2D> dir;
+    private final Point2D environmentSize;
 
     /**
      * @param enviromentSize
      */
     public DoorGenerator(final Point2D enviromentSize) {
         super(enviromentSize);
+        this.environmentSize = new Point2D(enviromentSize);
+        
+        // Calculate door dimensions (same as entity dimensions)
+        final int doorWidth = Math.max(40, enviromentSize.getX() / 20);  // Minimum 40px width
+        final int doorHeight = Math.max(40, enviromentSize.getY() / 20); // Minimum 40px height
+        
+        // Position doors with proper bounds checking
+        final int margin = 20; // Reduced margin for better positioning
+        
         dir = List.of(
-            new Point2D(enviromentSize.getX(), enviromentSize.getY() / 2), // Est
-            new Point2D(enviromentSize.getX() / 2, enviromentSize.getY()), // SUD
-            new Point2D(0, enviromentSize.getY() / 2), // Ovest
-            new Point2D(enviromentSize.getX() / 2, 0) // Nord
+            // To room 1
+            new Point2D(
+                Math.max(0, enviromentSize.getX() - doorWidth - margin), 
+                Math.max(0, (enviromentSize.getY() - doorHeight) / 2)
+            ),
+            // To room 2  
+            new Point2D(
+                Math.max(0, (enviromentSize.getX() - doorWidth) / 2), 
+                Math.max(0, enviromentSize.getY() - doorHeight - margin)
+            ),
+            // To room 3
+            new Point2D(
+                margin, 
+                Math.max(0, (enviromentSize.getY() - doorHeight) / 2)
+            ),
+            // To room 4
+            new Point2D(
+                Math.max(0, (enviromentSize.getX() - doorWidth) / 2), 
+                margin
+            )
         );
     }
 
@@ -58,9 +85,20 @@ public class DoorGenerator extends EntityGenerator<List<Door>> {
      * @return Door from room (fromId) to room (toId)
      */
     private Door generateSingleDoor(final int fromId, final int toId) {
+        final Point2D position = getPosition(fromId, toId);
+        
+        // Validate position is within bounds
+        final int doorWidth = Math.max(40, environmentSize.getX() / 20);
+        final int doorHeight = Math.max(40, environmentSize.getY() / 20);
+        
+        final int validX = Math.max(0, Math.min(position.getX(), environmentSize.getX() - doorWidth));
+        final int validY = Math.max(0, Math.min(position.getY(), environmentSize.getY() - doorHeight));
+        
+        final Point2D validPosition = new Point2D(validX, validY);
+        
         return new Door(
             super.getEnv(), 
-            getPosition(fromId, toId), 
+            validPosition, 
             fromId, 
             toId
         );
@@ -72,10 +110,21 @@ public class DoorGenerator extends EntityGenerator<List<Door>> {
      * @return Position of the door from room (fromId) to room (toId)
      */
     private Point2D getPosition(final int fromId, final int toId) {
-        return fromId == 0 ? dir.get(toId) : dir.get((toId + 2) % 4);
+        if (fromId == 0) {
+            // From main room (0) to other rooms (1-4)
+            int dirIndex = toId - 1; // Convert toId (1-4) to dirIndex (0-3)
+            if (dirIndex < 0 || dirIndex >= dir.size()) {
+                throw new IllegalArgumentException("Invalid toId: " + toId + " for fromId: " + fromId);
+            }
+            return new Point2D(dir.get(dirIndex));
+        } else {
+            // From other rooms (1-4) back to main room (0)
+            // Use the same position as the corresponding door in main room
+            int dirIndex = fromId - 1; // Room 1 uses index 0, room 2 uses index 1, etc.
+            if (dirIndex < 0 || dirIndex >= dir.size()) {
+                throw new IllegalArgumentException("Invalid fromId: " + fromId + " for toId: " + toId);
+            }
+            return new Point2D(dir.get(dirIndex));
+        }
     }
-
-
-
-
 }

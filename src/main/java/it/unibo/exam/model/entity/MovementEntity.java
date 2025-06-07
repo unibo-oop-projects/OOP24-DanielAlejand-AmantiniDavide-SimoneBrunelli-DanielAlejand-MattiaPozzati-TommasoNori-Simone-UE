@@ -4,10 +4,11 @@ import it.unibo.exam.utility.geometry.Point2D;
 
 /**
  * A simple entity that can move in the environment.
+ * Fixed version with proper hitbox updates.
  */
 public class MovementEntity extends Entity {
 
-    private static final int DEFAULT_SPEED = 20;
+    private static final int DEFAULT_SPEED = 10;
     private static final int DEFAULT_SIZE = 800;
 
     private int speed;
@@ -21,7 +22,7 @@ public class MovementEntity extends Entity {
      */
     public MovementEntity(final Point2D environmentSize) {
         super(environmentSize);
-        this.speed = this.getEnviromentSize().getX() / DEFAULT_SIZE * DEFAULT_SPEED;
+        this.speed = Math.max(5, this.getEnviromentSize().getX() / DEFAULT_SIZE * DEFAULT_SPEED);
     }
 
     /**
@@ -31,7 +32,7 @@ public class MovementEntity extends Entity {
      * @Note Final keyword is necessary
      */
     private int updateSpeed() {
-        return this.getEnviromentSize().getX() / DEFAULT_SIZE * DEFAULT_SPEED;
+        return Math.max(5, this.getEnviromentSize().getX() / DEFAULT_SIZE * DEFAULT_SPEED);
     }
 
     /**
@@ -48,6 +49,7 @@ public class MovementEntity extends Entity {
      */
     public void move(final Point2D d) {
         this.getPosition().move(d.getX(), d.getY());
+        this.updateHitboxPosition(); // Update hitbox after movement
     }
 
     /**
@@ -58,6 +60,7 @@ public class MovementEntity extends Entity {
      */
     public void move(final int dx, final int dy) {
         this.getPosition().move(dx, dy);
+        this.updateHitboxPosition(); // Update hitbox after movement
     }
 
     /**
@@ -67,6 +70,7 @@ public class MovementEntity extends Entity {
      */
     public void setPosition(final Point2D position) {
         this.getPosition().setXY(position.getX(), position.getY());
+        this.updateHitboxPosition(); // Update hitbox after position change
     }
 
     /**
@@ -78,6 +82,7 @@ public class MovementEntity extends Entity {
      */
     public void setPosition(final int x, final int y) {
         this.getPosition().setXY(x, y);
+        this.updateHitboxPosition(); // Update hitbox after position change
     }
 
     /**
@@ -88,6 +93,7 @@ public class MovementEntity extends Entity {
      */
     public void setPositionX(final int x) {
         this.getPosition().setXY(x, this.getPosition().getY());
+        this.updateHitboxPosition(); // Update hitbox after position change
     }
 
     /**
@@ -98,6 +104,7 @@ public class MovementEntity extends Entity {
      */
     public void setPositionY(final int y) {
         this.getPosition().setXY(this.getPosition().getX(), y);
+        this.updateHitboxPosition(); // Update hitbox after position change
     }
 
     /**

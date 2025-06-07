@@ -4,6 +4,7 @@ import it.unibo.exam.utility.geometry.Point2D;
 
 /**
  * Represents a non-playable character (NPC) in the game.
+ * Updated with positioning methods.
  */
 public final class Npc extends Entity {
 
@@ -54,5 +55,43 @@ public final class Npc extends Entity {
      */
     public void interact() {
         // Interaction logic can be implemented here
+        System.out.println("Interacting with " + name + ": " + dialogue);
+    }
+    
+    /**
+     * Sets the position of the NPC.
+     *
+     * @param position the new position of the NPC
+     */
+    public void setPosition(final Point2D position) {
+        this.getPosition().setXY(position.getX(), position.getY());
+    }
+
+    /**
+     * Sets the position of the NPC.
+     *
+     * @param x the x coordinate
+     * @param y the y coordinate
+     */
+    public void setPosition(final int x, final int y) {
+        this.getPosition().setXY(x, y);
+    }
+
+    /**
+     * Sets the x-coordinate of the NPC's position.
+     *
+     * @param x the x coordinate
+     */
+    public void setPositionX(final int x) {
+        this.getPosition().setXY(x, this.getPosition().getY());
+    }
+
+    /**
+     * Sets the y-coordinate of the NPC's position.
+     *
+     * @param y the y coordinate
+     */
+    public void setPositionY(final int y) {
+        this.getPosition().setXY(this.getPosition().getX(), y);
     }
 }
