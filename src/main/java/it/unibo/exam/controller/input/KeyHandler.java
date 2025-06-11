@@ -49,7 +49,7 @@ public final class KeyHandler implements KeyListener {
     public boolean isInteractPressed() {
         return interactPressed;
     }
-    
+
     /**
      * @return true if interact key was just pressed (single press detection)
      */

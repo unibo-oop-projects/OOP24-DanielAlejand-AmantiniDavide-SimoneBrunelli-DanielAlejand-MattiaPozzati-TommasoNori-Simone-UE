@@ -18,9 +18,14 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * Updated with entity-specific renderers.
  */
 public class GameRenderer {
+
+    private static final Color MAIN_ROOM_COLOR = new Color(70, 70, 90);
+    private static final Color PUZZLE_ROOM_COLOR = new Color(60, 80, 60);
+    private static final Color DEFAULT_ROOM_COLOR = new Color(50, 50, 50);
+
     private final GameState gs;
     private final ScoreHud scoreHud;
-    
+
     // Entity renderers
     private final PlayerRenderer playerRenderer;
     private final DoorRenderer doorRenderer;
@@ -34,7 +39,7 @@ public class GameRenderer {
     public GameRenderer(final GameState gs) {
         this.gs = gs;
         this.scoreHud = new ScoreHud(gs);
-        
+
         // Initialize renderers
         this.playerRenderer = new PlayerRenderer();
         this.doorRenderer = new DoorRenderer();
@@ -47,11 +52,11 @@ public class GameRenderer {
      * 
      * @param g the graphics context to render on
      */
-    public void renderGame(Graphics2D g) {
+    public void renderGame(final Graphics2D g) {
         if (g == null) {
             throw new IllegalArgumentException("Graphics context cannot be null");
         }
-        
+
         renderRoom(g, gs.getCurrentRoom());
         renderPlayer(g, gs.getPlayer());
     }
@@ -81,20 +86,20 @@ public class GameRenderer {
      * @param g the graphics context
      * @param currentRoom the room to render
      */
-    private void renderRoom(Graphics2D g, final Room currentRoom) {
+    private void renderRoom(final Graphics2D g, final Room currentRoom) {
         if (currentRoom == null) {
             throw new IllegalArgumentException("Room cannot be null");
         }
-        
+
         // Clear background
         clearBackground(g);
-        
+
         // Draw room background
         drawRoomBackground(g, currentRoom);
-        
+
         // Render all doors
         currentRoom.getDoors().forEach(door -> doorRenderer.render(g, door));
-        
+
         // Render NPC if present and room has one
         if (currentRoom.getRoomType() == RoomGenerator.PUZZLE_ROOM && currentRoom.getNpc() != null) {
             npcRenderer.render(g, currentRoom.getNpc());
@@ -107,64 +112,59 @@ public class GameRenderer {
      * @param g the graphics context
      * @param player the player to render
      */
-    private void renderPlayer(Graphics2D g, final Player player) {
+    private void renderPlayer(final Graphics2D g, final Player player) {
         if (player == null) {
             throw new IllegalArgumentException("Player cannot be null");
         }
-        
+
         playerRenderer.render(g, player);
     }
-    
+
     /**
      * Clears the background with a default color.
      * 
      * @param g the graphics context
      */
-    private void clearBackground(Graphics2D g) {
+    private void clearBackground(final Graphics2D g) {
         // Get the clip bounds to know what area to clear
         final java.awt.Rectangle bounds = g.getClipBounds();
         if (bounds != null) {
-            g.setColor(new Color(50, 50, 50)); // Dark gray background
+            g.setColor(DEFAULT_ROOM_COLOR);
             g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
         }
     }
-    
+
     /**
      * Draws the room-specific background and visual elements.
      * 
      * @param g the graphics context
      * @param room the room to draw background for
      */
-    private void drawRoomBackground(Graphics2D g, Room room) {
+    private void drawRoomBackground(final Graphics2D g, final Room room) {
         final java.awt.Rectangle bounds = g.getClipBounds();
         if (bounds == null) {
             return;
         }
-        
+
         // Different background colors for different room types
-        Color roomColor;
-        switch (room.getRoomType()) {
-            case RoomGenerator.MAIN_ROOM:
-                roomColor = new Color(70, 70, 90);
-                break;
-            case RoomGenerator.PUZZLE_ROOM:
-                roomColor = new Color(60, 80, 60);
-                break;
-            default:
-                roomColor = new Color(50, 50, 50);
-                break;
-        }
-        
+        final Color roomColor = switch (room.getRoomType()) {
+            case RoomGenerator.MAIN_ROOM -> MAIN_ROOM_COLOR;
+            case RoomGenerator.PUZZLE_ROOM -> PUZZLE_ROOM_COLOR;
+            default -> DEFAULT_ROOM_COLOR;
+        };
+
         g.setColor(roomColor);
         g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
-        
+
         // Draw room borders
         g.setColor(Color.WHITE);
-        g.drawRect(5, 5, bounds.width - 10, bounds.height - 10);
-        
+        final int x = 5, y = 5;
+        g.drawRect(x, y, bounds.width - 10, bounds.height - 10);
+
         // Draw room ID in corner
         g.setColor(Color.WHITE);
-        g.drawString("Room " + room.getId(), 10, 25);
+        final int offset = 25;
+        g.drawString("Room " + room.getId(), 10, offset);
     }
 
     /**

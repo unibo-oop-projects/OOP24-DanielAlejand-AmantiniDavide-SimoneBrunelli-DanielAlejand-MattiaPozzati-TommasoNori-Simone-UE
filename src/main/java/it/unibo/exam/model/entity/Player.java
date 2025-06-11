@@ -1,5 +1,6 @@
 package it.unibo.exam.model.entity;
 
+import it.unibo.exam.controller.position.PlayerPositionManager;
 import it.unibo.exam.model.data.RoomScoreData;
 import it.unibo.exam.utility.geometry.Point2D;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ public class Player extends MovementEntity {
      */
     public Player(final Point2D enviromentSize) {
         super(enviromentSize);
+        setPosition(PlayerPositionManager.getDefaultSpawnPosition(enviromentSize));
     }
 
     /**

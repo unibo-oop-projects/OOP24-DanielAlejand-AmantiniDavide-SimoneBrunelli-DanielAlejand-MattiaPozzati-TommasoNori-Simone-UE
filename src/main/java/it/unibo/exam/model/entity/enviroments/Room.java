@@ -12,13 +12,13 @@ import it.unibo.exam.utility.generator.RoomGenerator;
  * A simple Room class rappresenting a room.
  */
 public class Room {
+    @SuppressWarnings("checkstyle:DesignForExtension")
 
     private final int id;
     private Minigame minigame;
     private final int roomType;
     private Npc npc;
-    private final List<Door> doors;
-
+    private List<Door> doors;
 
     /**
      * Contractor.
@@ -30,6 +30,15 @@ public class Room {
         this.id = id;
         this.doors = new ArrayList<>(doors);
         this.roomType = roomType;
+    }
+
+    /**
+     * @param newDoors
+     * Updates the doors in this room.
+     * @implNote call only after room initialization is complete.
+     */
+    public final void updateDoors(final List<Door> newDoors) {
+        this.doors = new ArrayList<>(newDoors);
     }
 
     /**
@@ -69,6 +78,7 @@ public class Room {
      * @return the npc of the room
      * @throws IllegalStateException if the room has no npc
      */
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public Npc getNpc() {
         if (roomType == 1) {
             throw new IllegalStateException("This room has no npc");
@@ -79,6 +89,7 @@ public class Room {
     /**
      * @param npc NPC
      */
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public void attachNpc(final Npc npc) {
         if (roomType == RoomGenerator.MAIN_ROOM) {
             throw new IllegalStateException("Main room has no npc");

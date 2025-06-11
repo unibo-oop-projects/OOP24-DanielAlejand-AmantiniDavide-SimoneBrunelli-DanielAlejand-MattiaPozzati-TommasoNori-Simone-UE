@@ -10,6 +10,7 @@ public class MovementEntity extends Entity {
 
     private static final int DEFAULT_SPEED = 10;
     private static final int DEFAULT_SIZE = 800;
+    private static final int SPEEDIE = 5;
 
     private int speed;
 
@@ -22,7 +23,7 @@ public class MovementEntity extends Entity {
      */
     public MovementEntity(final Point2D environmentSize) {
         super(environmentSize);
-        this.speed = Math.max(5, this.getEnviromentSize().getX() / DEFAULT_SIZE * DEFAULT_SPEED);
+        this.speed = Math.max(SPEEDIE, this.getEnviromentSize().getX() / DEFAULT_SIZE * DEFAULT_SPEED);
     }
 
     /**
@@ -32,7 +33,7 @@ public class MovementEntity extends Entity {
      * @Note Final keyword is necessary
      */
     private int updateSpeed() {
-        return Math.max(5, this.getEnviromentSize().getX() / DEFAULT_SIZE * DEFAULT_SPEED);
+        return Math.max(SPEEDIE, this.getEnviromentSize().getX() / DEFAULT_SIZE * DEFAULT_SPEED);
     }
 
     /**

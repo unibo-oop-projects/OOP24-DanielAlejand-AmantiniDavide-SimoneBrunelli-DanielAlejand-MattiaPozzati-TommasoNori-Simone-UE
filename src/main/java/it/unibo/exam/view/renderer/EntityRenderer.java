@@ -11,7 +11,7 @@ import java.awt.Color;
  * Base class for rendering entities with common functionality.
  */
 public abstract class EntityRenderer {
-    
+
     /**
      * Renders an entity with the specified graphics context.
      * 
@@ -19,7 +19,7 @@ public abstract class EntityRenderer {
      * @param entity the entity to render
      */
     public abstract void render(Graphics2D g, Entity entity);
-    
+
     /**
      * Draws a rectangle based on entity's hitbox.
      * 
@@ -27,11 +27,11 @@ public abstract class EntityRenderer {
      * @param entity the entity
      * @param color the color to fill the rectangle
      */
-    protected void drawEntityRectangle(Graphics2D g, Entity entity, Color color) {
-        final Rectangle hitbox = entity.getHitbox();
+    protected void drawEntityRectangle(final Graphics2D g, final Entity entity, final Color color) {
+        final Rectangle hitbox = entity.getHitbox(); //NOPMD
         final Point2D position = entity.getPosition();
         final Point2D dimension = entity.getDimension();
-        
+
         g.setColor(color);
         g.fillRect(
             position.getX(), 
@@ -39,7 +39,7 @@ public abstract class EntityRenderer {
             dimension.getX(), 
             dimension.getY()
         );
-        
+
         // Draw border
         g.setColor(Color.BLACK);
         g.drawRect(
@@ -49,7 +49,7 @@ public abstract class EntityRenderer {
             dimension.getY()
         );
     }
-    
+
     /**
      * Draws text centered on the entity.
      * 
@@ -58,16 +58,16 @@ public abstract class EntityRenderer {
      * @param text the text to draw
      * @param color the text color
      */
-    protected void drawCenteredText(Graphics2D g, Entity entity, String text, Color color) {
+    protected void drawCenteredText(final Graphics2D g, final Entity entity, final String text, final Color color) {
         final Point2D position = entity.getPosition();
         final Point2D dimension = entity.getDimension();
-        
+
         g.setColor(color);
-        
+
         // Calculate text position to center it
         final int textX = position.getX() + dimension.getX() / 2 - (text.length() * 3);
         final int textY = position.getY() + dimension.getY() / 2 + 5;
-        
+
         g.drawString(text, textX, textY);
     }
 }

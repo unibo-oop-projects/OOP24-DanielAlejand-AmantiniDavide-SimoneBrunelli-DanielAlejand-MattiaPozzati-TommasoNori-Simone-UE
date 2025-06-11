@@ -55,9 +55,10 @@ public final class Npc extends Entity {
      */
     public void interact() {
         // Interaction logic can be implemented here
+        // TODO
         System.out.println("Interacting with " + name + ": " + dialogue);
     }
-    
+
     /**
      * Sets the position of the NPC.
      *
@@ -75,6 +76,7 @@ public final class Npc extends Entity {
      */
     public void setPosition(final int x, final int y) {
         this.getPosition().setXY(x, y);
+        this.updateHitboxPosition();
     }
 
     /**
@@ -84,6 +86,7 @@ public final class Npc extends Entity {
      */
     public void setPositionX(final int x) {
         this.getPosition().setXY(x, this.getPosition().getY());
+        this.updateHitboxPosition();
     }
 
     /**
@@ -93,5 +96,6 @@ public final class Npc extends Entity {
      */
     public void setPositionY(final int y) {
         this.getPosition().setXY(this.getPosition().getX(), y);
+        this.updateHitboxPosition();
     }
 }

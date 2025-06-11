@@ -39,7 +39,7 @@ public final class MainMenuPanel extends JPanel {
     public MainMenuPanel(final JFrame window) {
         createUI(window);
     }
-    
+
     /**
      * Initialize the UI components.
      * This method is separated from the constructor to avoid calling overridable methods.
@@ -120,7 +120,7 @@ public final class MainMenuPanel extends JPanel {
             }
         });
     }
-    
+
     /**
      * Starts the game by removing the menu and adding the game panel.
      * 
@@ -129,25 +129,25 @@ public final class MainMenuPanel extends JPanel {
     private void startGame(final JFrame window) {
         // Remove the menu panel
         window.getContentPane().removeAll();
-        
+
         // Create and add the game panel
         final Dimension windowSize = window.getSize();
         final Point2D gameSize = new Point2D(windowSize.width, windowSize.height);
         gamePanel = new GamePanel(gameSize);
-        
+
         window.add(gamePanel);
-        
+
         // Ensure the game panel gets focus for key input
         gamePanel.requestFocusInWindow();
-        
+
         // Refresh the window
         window.revalidate();
         window.repaint();
-        
+
         // Optional: Add ESC key listener to return to menu
         addReturnToMenuListener(window);
     }
-    
+
     /**
      * Adds a listener to return to the main menu (ESC key).
      * 
@@ -155,9 +155,9 @@ public final class MainMenuPanel extends JPanel {
      */
     private void addReturnToMenuListener(final JFrame window) {
         if (gamePanel != null) {
-            gamePanel.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW)
+            gamePanel.getInputMap(WHEN_IN_FOCUSED_WINDOW)
                     .put(javax.swing.KeyStroke.getKeyStroke("ESCAPE"), "returnToMenu");
-            
+
             gamePanel.getActionMap().put("returnToMenu", new javax.swing.AbstractAction() {
                 private static final long serialVersionUID = 1L;
 
@@ -168,7 +168,7 @@ public final class MainMenuPanel extends JPanel {
             });
         }
     }
-    
+
     /**
      * Returns to the main menu from the game.
      * 
@@ -177,14 +177,14 @@ public final class MainMenuPanel extends JPanel {
     private void returnToMenu(final JFrame window) {
         final int confirmed = JOptionPane.showConfirmDialog(window,
                 "Tornare al menu principale?", "Conferma", JOptionPane.YES_NO_OPTION);
-        
+
         if (confirmed == JOptionPane.YES_OPTION) {
             // Stop the game
             if (gamePanel != null) {
                 gamePanel.stopGame();
                 gamePanel = null;
             }
-            
+
             // Remove game panel and restore menu
             window.getContentPane().removeAll();
             window.add(this);
@@ -192,7 +192,7 @@ public final class MainMenuPanel extends JPanel {
             window.repaint();
         }
     }
-    
+
     /**
      * Creates a panel for the buttons with custom background painting.
      *

@@ -1,5 +1,6 @@
 package it.unibo.exam.utility.generator;
 
+import java.util.List;
 import it.unibo.exam.model.entity.enviroments.Room;
 import it.unibo.exam.utility.geometry.Point2D;
 
@@ -17,11 +18,11 @@ public class RoomGenerator extends EntityGenerator<Room> {
 
     /**
      * RoomType:
-     *  2 = PuzzleRoom.
+     *  1 = MainRoom.
      */
     public static final int MAIN_ROOM = 1;
 
-    private final DoorGenerator dg;
+    private DoorGenerator dg;
 
     /**
      * @param enviromentSize
@@ -29,6 +30,26 @@ public class RoomGenerator extends EntityGenerator<Room> {
     public RoomGenerator(final Point2D enviromentSize) {
         super(enviromentSize);
         this.dg = new DoorGenerator(enviromentSize);
+    }
+
+    /**
+     * Updates the door generator when environment is resized.
+     * @param newSize the new environment size
+     */
+    public void updateEnvironmentSize(final Point2D newSize) {
+        this.dg.updateEnvironmentSize(newSize);
+    }
+
+    /**
+     * Regenerates doors for a specific room with new environment size.
+     * @param roomId the room ID
+     * @param room the room to update
+     */
+    public void updateRoomDoors(final int roomId, final Room room) {
+        // Usa raw type per compatibilità con Java vecchie
+        @SuppressWarnings("unchecked")
+        final List newDoors = dg.generate(roomId);
+        room.updateDoors(newDoors);
     }
 
     /**
