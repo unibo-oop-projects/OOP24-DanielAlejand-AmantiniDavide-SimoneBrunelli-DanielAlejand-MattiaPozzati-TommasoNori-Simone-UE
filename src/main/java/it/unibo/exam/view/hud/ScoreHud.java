@@ -21,8 +21,8 @@ public class ScoreHud {
     private static final int ARC_RADIUS = 15;
     private static final int RIGHT_MARGIN = 24; // <-- Add some right margin
     private static final Color BG_COLOR = new Color(0, 0, 0, 150);
-    private static final Font TITLE_FONT = new Font("Arial", Font.BOLD, 16);
-    private static final Font TEXT_FONT = new Font("Arial", Font.PLAIN, 14);
+    private static final Font TITLE_FONT = new Font("Dialog", Font.BOLD, 16);
+    private static final Font TEXT_FONT = new Font("Dialog", Font.PLAIN, 14);
 
     private final GameState gameState;
 
@@ -49,7 +49,7 @@ public class ScoreHud {
         g.setFont(TEXT_FONT);
         int y = START_Y + LINE_HEIGHT;
         for (RoomScoreData data : scores.values()) {
-            String check = data.isCompleted() ? "✓" : "[ ]";
+            String check = data.isCompleted() ? "[✓]" : "[ ]";
             String time  = data.isCompleted() ? data.getTimeTaken()  + "s" : "--";
             String pts   = data.isCompleted() ? data.getPointsGained() + " pts" : "--";
             String line  = String.format("%s %s | %s | %s", check, data.getRoomName(), time, pts);
