@@ -9,19 +9,19 @@ import it.unibo.exam.model.entity.minigame.Minigame;
 import it.unibo.exam.utility.generator.RoomGenerator;
 
 /**
- * A simple Room class rappresenting a room.
+ * A simple Room class representing a room.
  */
 public class Room {
     @SuppressWarnings("checkstyle:DesignForExtension")
-
     private final int id;
+    private String name;
     private Minigame minigame;
     private final int roomType;
     private Npc npc;
     private List<Door> doors;
 
     /**
-     * Contractor.
+     * Constructor.
      * @param id the id of the room
      * @param doors the doors of the room
      * @param roomType the type of the room
@@ -30,12 +30,12 @@ public class Room {
         this.id = id;
         this.doors = new ArrayList<>(doors);
         this.roomType = roomType;
+        this.name = "Room " + id;
     }
 
     /**
-     * @param newDoors
      * Updates the doors in this room.
-     * @implNote call only after room initialization is complete.
+     * @param newDoors the new list of doors
      */
     public final void updateDoors(final List<Door> newDoors) {
         this.doors = new ArrayList<>(newDoors);
@@ -49,11 +49,26 @@ public class Room {
     }
 
     /**
+     * @return the name of the room
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the display name of this room.
+     * @param name the new display name
+     */
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    /**
      * @return the minigame of the room
      * @throws IllegalStateException if the room has no minigame
      */
     public Minigame getMinigame() {
-        if (roomType == 1) {
+        if (roomType == RoomGenerator.MAIN_ROOM) {
             throw new IllegalStateException("This room has no minigame");
         }
         return minigame;
@@ -80,14 +95,15 @@ public class Room {
      */
     @SuppressFBWarnings("EI_EXPOSE_REP")
     public Npc getNpc() {
-        if (roomType == 1) {
-            throw new IllegalStateException("This room has no npc");
+        if (roomType == RoomGenerator.MAIN_ROOM) {
+            throw new IllegalStateException("Main room has no npc");
         }
         return npc;
     }
 
     /**
-     * @param npc NPC
+     * Attaches an NPC to this room.
+     * @param npc the NPC to attach
      */
     @SuppressFBWarnings("EI_EXPOSE_REP")
     public void attachNpc(final Npc npc) {
@@ -98,7 +114,8 @@ public class Room {
     }
 
     /**
-     * @param mg minigame
+     * Attaches a minigame to this room.
+     * @param mg the minigame to attach
      */
     public void attacMinigame(final Minigame mg) {
         if (roomType == RoomGenerator.MAIN_ROOM) {
@@ -106,5 +123,4 @@ public class Room {
         }
         this.minigame = mg;
     }
-
 }

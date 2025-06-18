@@ -28,8 +28,8 @@ public class Player extends MovementEntity {
     /**
      * Records or updates the score data for a completed room.
      *
-     * @param roomId    the ID of the room
-     * @param timeTaken   time taken to complete the room (seconds or ms)
+     * @param roomId       the ID of the room
+     * @param timeTaken    time taken to complete the room (seconds or ms)
      * @param pointsGained points earned in the room
      */
     public void addRoomScore(final int roomId, final int timeTaken, final int pointsGained) {
@@ -37,10 +37,20 @@ public class Player extends MovementEntity {
     }
 
     /**
-     * Returns a read-only map of all room scores.
-     * The map key is the room's name.
+     * Retrieves the score data for a specific room.
      *
-     * @return a map from room names to RoomScoreData
+     * @param roomId the ID of the room
+     * @return the RoomScoreData object or null if not found
+     */
+    public RoomScoreData getRoomScore(final int roomId) {
+        return roomScores.get(roomId);
+    }
+
+    /**
+     * Returns a read-only map of all room scores.
+     * The map key is the room's ID.
+     *
+     * @return an immutable map from room IDs to RoomScoreData
      */
     public Map<Integer, RoomScoreData> getRoomScores() {
         return Map.copyOf(roomScores);
@@ -64,7 +74,7 @@ public class Player extends MovementEntity {
      * @return true if all rooms are completed, false otherwise
      */
     public boolean allRoomsCompleted(final int numRooms) {
-        return roomScores.size() == numRooms 
-        && roomScores.values().stream().allMatch(RoomScoreData::isCompleted);
+        return roomScores.size() == numRooms
+           && roomScores.values().stream().allMatch(RoomScoreData::isCompleted);
     }
 }

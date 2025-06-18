@@ -1,6 +1,8 @@
 package it.unibo.exam.utility.generator;
 
 import java.util.List;
+
+import it.unibo.exam.model.entity.enviroments.Door;
 import it.unibo.exam.model.entity.enviroments.Room;
 import it.unibo.exam.utility.geometry.Point2D;
 
@@ -11,21 +13,20 @@ import it.unibo.exam.utility.geometry.Point2D;
 public class RoomGenerator extends EntityGenerator<Room> {
 
     /**
-     * RoomType:
-     *  2 = PuzzleRoom.
+     * RoomType: 2 = PuzzleRoom.
      */
     public static final int PUZZLE_ROOM = 2;
 
     /**
-     * RoomType:
-     *  1 = MainRoom.
+     * RoomType: 1 = MainRoom.
      */
     public static final int MAIN_ROOM = 1;
 
     private DoorGenerator dg;
 
     /**
-     * @param enviromentSize
+     * Constructor.
+     * @param enviromentSize the size of the environment
      */
     public RoomGenerator(final Point2D enviromentSize) {
         super(enviromentSize);
@@ -46,24 +47,24 @@ public class RoomGenerator extends EntityGenerator<Room> {
      * @param room the room to update
      */
     public void updateRoomDoors(final int roomId, final Room room) {
-        // Usa raw type per compatibilità con Java vecchie
-        @SuppressWarnings("unchecked")
-        final List newDoors = dg.generate(roomId);
+        List<Door> newDoors = dg.generate(roomId);
         room.updateDoors(newDoors);
     }
 
     /**
-     * Generates a room with the specified ID.
-     * 
+     * Generates a room with the specified ID and assigns its display name.
      * @param id the ID of the room
      * @return the generated room
      */
     @Override
     public Room generate(final int id) {
-        return new Room(
-            id, 
-            dg.generate(id), 
+        Room room = new Room(
+            id,
+            dg.generate(id),
             id == 0 ? MAIN_ROOM : PUZZLE_ROOM
         );
+        String[] roomNames = { "2.12", "Bar", "Lab", "Gym", "Garden" };
+        room.setName(roomNames[id]);
+        return room;
     }
 }
