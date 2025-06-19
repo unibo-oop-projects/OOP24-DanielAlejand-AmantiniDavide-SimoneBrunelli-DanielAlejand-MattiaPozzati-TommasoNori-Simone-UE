@@ -106,8 +106,13 @@ public class GameState {
 
         // Se il player è fuori dai limiti, riposizionalo
         if (needsRepositioning) {
-            System.out.println("Player was out of bounds at (" + currentPos.getX() 
-                + "," + currentPos.getY() + "), repositioning to (" + newX + "," + newY + ")");
+            LOGGER.info(String.format(
+                "Player out of bounds at (%d,%d), repositioning to (%d,%d)",
+                currentPos.getX(),
+                currentPos.getY(),
+                newX,
+                newY
+            ));
             player.setPosition(newX, newY);
         }
     }
@@ -154,8 +159,9 @@ public class GameState {
     private List<Room> initRooms(final Point2D enviromentSize) {
         final RoomGenerator rg = new RoomGenerator(enviromentSize);
         final int endExclusive = 5;
-        return IntStream.range(0, endExclusive) // Changed to 5 to include rooms 0-4
-            .mapToObj(rg::generate).toList();
+        return IntStream.range(0, endExclusive)
+            .mapToObj(rg::generate)
+            .toList();
     }
 
     /**
@@ -180,8 +186,8 @@ public class GameState {
                     npc.setPosition(npcPosition);
                     room.attachNpc(npc);
 
-                    System.out.println("NPC " + npc.getName() + " posizionato in room " + i 
-                    + " alla posizione (" + npcPosition.getX() + "," + npcPosition.getY() + ")");
+                    LOGGER.info("NPC " + npc.getName() + " posizionato in room " + i 
+                        + " alla posizione (" + npcPosition.getX() + "," + npcPosition.getY() + ")");
 
                 } catch (final IllegalArgumentException e) {
                     LOGGER.log(Level.SEVERE, "Failed to generate NPC for room " + i + ": " + e.getMessage(), e);
@@ -190,37 +196,31 @@ public class GameState {
         }
     }
 
-
     /**
      * Calculates custom position for NPC based on room ID.
-     * 
-     * @param roomId the room identifier
-     * @param environmentSize the environment dimensions
-     * @param npcWidth the NPC width
-     * @param npcHeight the NPC height
-     * @return the calculated position
+     *
+     * @param roomId identifier of room
+     * @param environmentSize dimensions of environment
+     * @param npcWidth NPC width
+     * @param npcHeight NPC height
+     * @return new position for NPC
      */
-    /*LI METTO A CASO POI PENSIAMO A COME SISTAMARLI */
-    private Point2D calculateNpcPosition(final int roomId, final Point2D environmentSize, 
+    private Point2D calculateNpcPosition(final int roomId, final Point2D environmentSize,
                                     final int npcWidth, final int npcHeight) {
-        final int margin = 60; // Margine dai bordi
+        final int margin = 60;
         final int centerX = environmentSize.getX() / 2;
         final int centerY = environmentSize.getY() / 2;
 
         switch (roomId) {
-            case 1: // Room 1 (Bar)
+            case 1:
                 return new Point2D(margin, margin);
-
-            case 2: // Room 2 (Lab)
+            case 2:
                 return new Point2D(centerX - npcWidth / 2, centerY - npcHeight / 2);
-
-            case 3: // Room 3 (Gym) 
-                return new Point2D(environmentSize.getX() - npcWidth - margin, 
-                                environmentSize.getY() - npcHeight - margin);
-
-            case 4: // Room 4 (Garden)
+            case 3:
+                return new Point2D(environmentSize.getX() - npcWidth - margin,
+                                    environmentSize.getY() - npcHeight - margin);
+            case 4:
                 return new Point2D(margin, centerY - npcHeight / 2);
-
             default:
                 return new Point2D(centerX - npcWidth / 2, centerY - npcHeight / 2);
         }
@@ -238,12 +238,10 @@ public class GameState {
      *
      * @param newRoomId the ID of the new room
      */
-    public void changeRoom(final int newRoomId) { // Made 'newRoomId' final
-        // Check if the new room ID is valid
+    public void changeRoom(final int newRoomId) {
         if (newRoomId < 0 || newRoomId >= rooms.size()) {
             throw new IllegalArgumentException("Invalid room ID: " + newRoomId);
         }
-
         this.currentRoomId = newRoomId;
     }
 
@@ -256,17 +254,13 @@ public class GameState {
     }
 
     /**
-     * Gets the total number of rooms in the game.
-     * 
-     * @return the number of rooms
+     * @return total number of rooms
      */
     public int getTotalRooms() {
         return rooms.size();
     }
 
     /**
-     * Gets the current room ID.
-     * 
      * @return the current room ID
      */
     public int getCurrentRoomId() {
@@ -274,9 +268,7 @@ public class GameState {
     }
 
     /**
-     * Gets a read-only list of all rooms.
-     * 
-     * @return list of all rooms
+     * @return read-only list of all rooms
      */
     public List<Room> getAllRooms() {
         return List.copyOf(rooms);

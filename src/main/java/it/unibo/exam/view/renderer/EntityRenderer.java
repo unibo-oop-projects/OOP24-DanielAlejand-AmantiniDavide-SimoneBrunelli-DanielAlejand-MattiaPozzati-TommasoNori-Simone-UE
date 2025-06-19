@@ -2,7 +2,6 @@ package it.unibo.exam.view.renderer;
 
 import it.unibo.exam.model.entity.Entity;
 import it.unibo.exam.utility.geometry.Point2D;
-import it.unibo.exam.utility.geometry.Rectangle;
 
 import java.awt.Graphics2D;
 import java.awt.Color;
@@ -28,9 +27,9 @@ public abstract class EntityRenderer {
      * @param color the color to fill the rectangle
      */
     protected void drawEntityRectangle(final Graphics2D g, final Entity entity, final Color color) {
-        final Rectangle hitbox = entity.getHitbox(); //NOPMD
         final Point2D position = entity.getPosition();
         final Point2D dimension = entity.getDimension();
+        
 
         g.setColor(color);
         g.fillRect(

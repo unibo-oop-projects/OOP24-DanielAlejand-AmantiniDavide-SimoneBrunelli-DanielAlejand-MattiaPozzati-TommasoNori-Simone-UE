@@ -1,10 +1,13 @@
 package it.unibo.exam.controller;
 
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
 import it.unibo.exam.controller.input.KeyHandler;
 import it.unibo.exam.controller.position.PlayerPositionManager;
 import it.unibo.exam.model.entity.Player;
-import it.unibo.exam.model.entity.enviroments.Room;
 import it.unibo.exam.model.entity.enviroments.Door;
+import it.unibo.exam.model.entity.enviroments.Room;
 import it.unibo.exam.model.game.GameState;
 import it.unibo.exam.utility.generator.RoomGenerator;
 import it.unibo.exam.utility.geometry.Point2D;
@@ -14,9 +17,10 @@ import it.unibo.exam.view.GameRenderer;
  * Main controller of the game.
  * It handles the game loop and the main logic of the game.
  * It is responsible for updating the game state of the game.
- * Fixed version with proper NPC handling and input.
+ * Fixed version with proper NPC handling and logging.
  */
 public class MainController {
+    private static final Logger LOGGER = Logger.getLogger(MainController.class.getName());
 
     private static final int FPS = 60;
     private static final double SECOND = 1_000_000_000.0;
@@ -73,7 +77,6 @@ public class MainController {
 
     /**
      * Gets the game renderer for external rendering calls.
-     * 
      * @return the game renderer
      */
     public GameRenderer getGameRenderer() {
@@ -82,7 +85,6 @@ public class MainController {
 
     /**
      * Gets the key handler for external input management.
-     * 
      * @return the key handler
      */
     public KeyHandler getKeyHandler() {
@@ -107,13 +109,10 @@ public class MainController {
                 accumulatedTime -= nsPerUpdate;
             }
 
-            // Rendering is now handled externally by GamePanel
-            // The render() method is removed as it's no longer needed
-
             try {
                 Thread.sleep(1);
             } catch (final InterruptedException e) {
-                e.printStackTrace(); //NOPMD AvoidPrintStackTrace
+                LOGGER.log(Level.WARNING, "Game loop interrupted", e);
             }
         }
     }
@@ -135,39 +134,28 @@ public class MainController {
      */
     private void checkWin() {
         // Implementation for win condition check
-        // Can be expanded based on game requirements
     }
 
     /**
-     * Check interaction with doors and npc's.
+     * Check interaction with doors and NPCs.
      * @param player Player
      * @param room Current Room
      */
     private void checkInteraction(final Player player, final Room room) {
-        // Check for collisions with doors - using just pressed for single activation
         if (keyHandler.isInteractJustPressed()) {
             room.getDoors().forEach(door -> {
                 if (isNearDoor(player, door)) {
-                    // Change room
                     gameState.changeRoom(door.getToId());
-
-                    // Position player appropriately in the new room
                     positionPlayerAfterRoomChange(door);
-
-                    //TODO
-                    System.out.println("Moved from room " + door.getFromId() + " to room " + door.getToId()); //NOPMD
+                    LOGGER.info("Moved from room " + door.getFromId() + " to room " + door.getToId());
                 }
             });
 
-            // Check for collisions with NPCs - ONLY in puzzle rooms
             if (room.getRoomType() == RoomGenerator.PUZZLE_ROOM && room.getNpc() != null
-            && isNearNpc(player, room.getNpc())) {
-                // Interact with NPC
+                && isNearNpc(player, room.getNpc())) {
                 room.getNpc().interact();
-
                 final int roomId = gameState.getCurrentRoom().getId();
                 startMinigame(roomId);
-
                 endMinigame(true);
             }
         }
@@ -254,11 +242,7 @@ public class MainController {
         final int speed = player.getSpeed();
         final Point2D currentPos = player.getPosition();
         final Point2D playerSize = player.getDimension();
-
-        // Store original position in case we need to revert
-        final int originalX = currentPos.getX(); //NOPMD
-        final int originalY = currentPos.getY(); //NOPMD
-
+        
         boolean moved = false;
 
         if (keyHandler.isUpPressed()) {
