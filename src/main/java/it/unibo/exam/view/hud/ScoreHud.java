@@ -19,15 +19,15 @@ import java.util.List;
  */
 public class ScoreHud {
 
-    private static final int START_Y = 30;
-    private static final int LINE_HEIGHT = 24;
-    private static final int PADDING = 10;
-    private static final int PANEL_WIDTH = 240;
-    private static final int ARC_RADIUS = 15;
-    private static final int RIGHT_MARGIN = 24;
-    private static final Color BG_COLOR = new Color(0, 0, 0, 150);
-    private static final Font TITLE_FONT = new Font("Dialog", Font.BOLD, 16);
-    private static final Font TEXT_FONT = new Font("Dialog", Font.PLAIN, 14);
+    private static final int START_Y       = 30;
+    private static final int LINE_HEIGHT   = 24;
+    private static final int PADDING       = 10;
+    private static final int PANEL_WIDTH   = 240;
+    private static final int ARC_RADIUS    = 15;
+    private static final int RIGHT_MARGIN  = 24;
+    private static final Color BG_COLOR    = new Color(0, 0, 0, 150);
+    private static final Font TITLE_FONT   = new Font("Dialog", Font.BOLD, 16);
+    private static final Font TEXT_FONT    = new Font("Dialog", Font.PLAIN, 14);
 
     private final GameState gameState;
 
@@ -50,12 +50,11 @@ public class ScoreHud {
      * @param g the graphics context used for drawing the HUD
      */
     public void draw(final Graphics2D g) {
-        Player player = gameState.getPlayer();
-        List<Room> rooms = gameState.getAllRooms();
-
-        int totalWidth = g.getClipBounds().width;
-        int x = totalWidth - PANEL_WIDTH - PADDING - RIGHT_MARGIN;
-        int backgroundHeight = (rooms.size() + 2) * LINE_HEIGHT + PADDING * 2;
+        final Player           player           = gameState.getPlayer();
+        final List<Room>       rooms            = gameState.getAllRooms();
+        final int              totalWidth       = g.getClipBounds().width;
+        final int              x                = totalWidth - PANEL_WIDTH - PADDING - RIGHT_MARGIN;
+        final int              backgroundHeight = (rooms.size() + 2) * LINE_HEIGHT + PADDING * 2;
 
         g.setColor(BG_COLOR);
         g.fillRoundRect(
@@ -73,8 +72,8 @@ public class ScoreHud {
 
         g.setFont(TEXT_FONT);
         int y = START_Y + LINE_HEIGHT;
-        for (Room room : rooms) {
-            RoomScoreData data = player.getRoomScore(room.getId());
+        for (final Room room : rooms) {
+            final RoomScoreData data = player.getRoomScore(room.getId());
 
             String check = "[ ]";
             String time  = "--";
@@ -86,17 +85,17 @@ public class ScoreHud {
                 pts   = data.getPointsGained() + " pts";
             }
 
-            String line = String.format("%s %s | %s | %s",
-                                        check,
-                                        room.getName(),
-                                        time,
-                                        pts);
+            final String line = String.format("%s %s | %s | %s",
+                                              check,
+                                              room.getName(),
+                                              time,
+                                              pts);
             g.drawString(line, x, y);
             y += LINE_HEIGHT;
         }
 
         g.setFont(TITLE_FONT);
-        String total = "Total: " + player.getTotalScore() + " pts";
+        final String total = "Total: " + player.getTotalScore() + " pts";
         g.drawString(total, x, y + LINE_HEIGHT / 2);
     }
 }

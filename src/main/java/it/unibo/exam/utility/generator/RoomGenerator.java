@@ -1,7 +1,6 @@
 package it.unibo.exam.utility.generator;
 
 import java.util.List;
-
 import it.unibo.exam.model.entity.enviroments.Door;
 import it.unibo.exam.model.entity.enviroments.Room;
 import it.unibo.exam.utility.geometry.Point2D;
@@ -22,7 +21,19 @@ public class RoomGenerator extends EntityGenerator<Room> {
      */
     public static final int MAIN_ROOM = 1;
 
-    private DoorGenerator dg;
+    /**
+     * Display names for each room, indexed by room ID.
+     */
+    private static final String[] ROOM_NAMES = {
+        "2.12",
+        "Bar",
+        "Lab",
+        "Gym",
+        "Garden",
+    };
+
+
+    private final DoorGenerator dg;
 
     /**
      * Constructor.
@@ -47,7 +58,7 @@ public class RoomGenerator extends EntityGenerator<Room> {
      * @param room the room to update
      */
     public void updateRoomDoors(final int roomId, final Room room) {
-        List<Door> newDoors = dg.generate(roomId);
+        final List<Door> newDoors = dg.generate(roomId);
         room.updateDoors(newDoors);
     }
 
@@ -58,13 +69,12 @@ public class RoomGenerator extends EntityGenerator<Room> {
      */
     @Override
     public Room generate(final int id) {
-        Room room = new Room(
+        final Room room = new Room(
             id,
             dg.generate(id),
             id == 0 ? MAIN_ROOM : PUZZLE_ROOM
         );
-        String[] roomNames = { "2.12", "Bar", "Lab", "Gym", "Garden" };
-        room.setName(roomNames[id]);
+        room.setName(ROOM_NAMES[id]);
         return room;
     }
 }

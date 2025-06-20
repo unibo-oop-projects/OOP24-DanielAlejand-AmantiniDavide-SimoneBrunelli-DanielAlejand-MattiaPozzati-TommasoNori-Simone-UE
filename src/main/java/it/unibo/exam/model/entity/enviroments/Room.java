@@ -3,7 +3,6 @@ package it.unibo.exam.model.entity.enviroments;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import it.unibo.exam.model.entity.Npc;
 import it.unibo.exam.model.entity.minigame.Minigame;
 import it.unibo.exam.utility.generator.RoomGenerator;
@@ -12,7 +11,6 @@ import it.unibo.exam.utility.generator.RoomGenerator;
  * A simple Room class representing a room.
  */
 public class Room {
-    @SuppressWarnings("checkstyle:DesignForExtension")
     private final int id;
     private String name;
     private Minigame minigame;
@@ -77,7 +75,6 @@ public class Room {
     /**
      * @return the doors of the room
      */
-    @SuppressFBWarnings(value = "EI", justification = "Safe final list")
     public List<Door> getDoors() {
         return new ArrayList<>(doors);
     }
@@ -93,7 +90,6 @@ public class Room {
      * @return the npc of the room
      * @throws IllegalStateException if the room has no npc
      */
-    @SuppressFBWarnings("EI_EXPOSE_REP")
     public Npc getNpc() {
         if (roomType == RoomGenerator.MAIN_ROOM) {
             throw new IllegalStateException("Main room has no npc");
@@ -105,7 +101,6 @@ public class Room {
      * Attaches an NPC to this room.
      * @param npc the NPC to attach
      */
-    @SuppressFBWarnings("EI_EXPOSE_REP")
     public void attachNpc(final Npc npc) {
         if (roomType == RoomGenerator.MAIN_ROOM) {
             throw new IllegalStateException("Main room has no npc");

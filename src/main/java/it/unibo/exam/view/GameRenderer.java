@@ -11,8 +11,6 @@ import it.unibo.exam.utility.generator.RoomGenerator;
 
 import java.awt.Graphics2D;
 import java.awt.Color;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 /**
  * Handles rendering of the game elements such as rooms and players.
  * Updated with entity-specific renderers.
@@ -172,10 +170,6 @@ public class GameRenderer {
      *
      * @return the ScoreHud used for rendering the HUD
      */
-    @SuppressFBWarnings(
-        value = "EI_EXPOSE_REP",
-        justification = "Temporary accessor; remove when GamePanel calls renderHud directly"
-    )
     public ScoreHud getScoreHud() {
         return scoreHud;
     }

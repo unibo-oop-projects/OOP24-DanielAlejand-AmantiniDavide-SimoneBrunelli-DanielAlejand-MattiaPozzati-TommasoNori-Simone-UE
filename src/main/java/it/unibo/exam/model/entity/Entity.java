@@ -1,6 +1,5 @@
 package it.unibo.exam.model.entity;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import it.unibo.exam.utility.geometry.Point2D;
 import it.unibo.exam.utility.geometry.Rectangle;
 
@@ -61,7 +60,6 @@ public class Entity {
     /**
      * @return copy of entity's position
      */
-    @SuppressFBWarnings(value = "EI", justification = "position need to be updated")
     public Point2D getPosition() {
         return position;
     }

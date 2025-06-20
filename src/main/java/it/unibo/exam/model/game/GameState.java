@@ -5,7 +5,6 @@ import java.util.stream.IntStream;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import it.unibo.exam.model.entity.Player;
 import it.unibo.exam.model.entity.Npc;
 import it.unibo.exam.model.entity.enviroments.Room;
@@ -248,7 +247,6 @@ public class GameState {
     /**
      * @return the player instance
      */
-    @SuppressFBWarnings(value = "EI", justification = "Player need to be updated")
     public Player getPlayer() {
         return player;
     }

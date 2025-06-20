@@ -29,7 +29,6 @@ public abstract class EntityRenderer {
     protected void drawEntityRectangle(final Graphics2D g, final Entity entity, final Color color) {
         final Point2D position = entity.getPosition();
         final Point2D dimension = entity.getDimension();
-        
 
         g.setColor(color);
         g.fillRect(

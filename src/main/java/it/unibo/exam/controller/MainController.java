@@ -242,7 +242,6 @@ public class MainController {
         final int speed = player.getSpeed();
         final Point2D currentPos = player.getPosition();
         final Point2D playerSize = player.getDimension();
-        
         boolean moved = false;
 
         if (keyHandler.isUpPressed()) {

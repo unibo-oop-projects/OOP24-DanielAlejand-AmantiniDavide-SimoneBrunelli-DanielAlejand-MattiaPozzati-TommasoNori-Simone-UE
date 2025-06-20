@@ -16,24 +16,27 @@ public class Player extends MovementEntity {
     private final Map<Integer, RoomScoreData> roomScores = new HashMap<>();
 
     /**
-     * Constructs a Player.
+     * Constructs a Player at the default spawn position.
      *
-     * @param enviromentSize the size of the environment
+     * @param environmentSize the size of the environment
      */
-    public Player(final Point2D enviromentSize) {
-        super(enviromentSize);
-        setPosition(PlayerPositionManager.getDefaultSpawnPosition(enviromentSize));
+    public Player(final Point2D environmentSize) {
+        super(PlayerPositionManager.getDefaultSpawnPosition(environmentSize),
+              environmentSize);
     }
 
     /**
      * Records or updates the score data for a completed room.
      *
      * @param roomId       the ID of the room
-     * @param timeTaken    time taken to complete the room (seconds or ms)
+     * @param timeTaken    time taken to complete the room (in seconds)
      * @param pointsGained points earned in the room
      */
-    public void addRoomScore(final int roomId, final int timeTaken, final int pointsGained) {
-        roomScores.put(roomId, new RoomScoreData(roomId, timeTaken, pointsGained, true));
+    public void addRoomScore(final int roomId,
+                             final int timeTaken,
+                             final int pointsGained) {
+        roomScores.put(roomId,
+            new RoomScoreData(roomId, timeTaken, pointsGained, true));
     }
 
     /**
@@ -47,7 +50,7 @@ public class Player extends MovementEntity {
     }
 
     /**
-     * Returns a read-only map of all room scores.
+     * Returns an immutable map of all room scores.
      * The map key is the room's ID.
      *
      * @return an immutable map from room IDs to RoomScoreData
@@ -63,8 +66,8 @@ public class Player extends MovementEntity {
      */
     public int getTotalScore() {
         return roomScores.values().stream()
-                .mapToInt(RoomScoreData::getPointsGained)
-                .sum();
+                         .mapToInt(RoomScoreData::getPointsGained)
+                         .sum();
     }
 
     /**
@@ -75,6 +78,8 @@ public class Player extends MovementEntity {
      */
     public boolean allRoomsCompleted(final int numRooms) {
         return roomScores.size() == numRooms
-           && roomScores.values().stream().allMatch(RoomScoreData::isCompleted);
+            && roomScores.values()
+                         .stream()
+                         .allMatch(RoomScoreData::isCompleted);
     }
 }

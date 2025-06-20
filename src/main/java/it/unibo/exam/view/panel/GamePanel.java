@@ -12,6 +12,7 @@ import java.awt.RenderingHints;
 import java.awt.Dimension;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.logging.Logger;
 
 /**
  * Main game panel that handles rendering of the game world.
@@ -20,20 +21,21 @@ import java.awt.event.ComponentEvent;
 public final class GamePanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = Logger.getLogger(GamePanel.class.getName());
 
     private final MainController mainController;
-    private final GameRenderer gameRenderer;
-    private final Point2D initialSize;
+    private final GameRenderer   gameRenderer;
+    private final Point2D        initialSize;
 
     /**
      * Constructor for GamePanel.
-     * 
+     *
      * @param initialSize the initial size of the game panel
      */
     public GamePanel(final Point2D initialSize) {
-        this.initialSize = initialSize;
+        this.initialSize   = initialSize;
         this.mainController = new MainController(initialSize);
-        this.gameRenderer = mainController.getGameRenderer();
+        this.gameRenderer  = mainController.getGameRenderer();
 
         // Defer initialization to avoid calling overridable methods during construction
         SwingUtilities.invokeLater(this::completeInitialization);
@@ -41,7 +43,7 @@ public final class GamePanel extends JPanel {
 
     /**
      * Alternative constructor that takes Dimension.
-     * 
+     *
      * @param initialSize the initial size as a Dimension
      */
     public GamePanel(final Dimension initialSize) {
@@ -88,11 +90,9 @@ public final class GamePanel extends JPanel {
      * Starts the game controller in a separate thread.
      */
     private void startGameController() {
-        final Thread gameThread = new Thread(() -> {
-            mainController.start();
-        }, "GameControllerThread");
-
-        gameThread.setDaemon(true); // Ensure thread stops when main application stops
+        final Thread gameThread = new Thread(mainController::start,
+                                             "GameControllerThread");
+        gameThread.setDaemon(true);
         gameThread.start();
     }
 
@@ -105,7 +105,7 @@ public final class GamePanel extends JPanel {
 
     /**
      * Overrides paintComponent to render the game.
-     * 
+     *
      * @param g the graphics context
      */
     @Override
@@ -114,16 +114,13 @@ public final class GamePanel extends JPanel {
 
         final Graphics2D g2d = (Graphics2D) g.create();
         try {
-            // Enable anti-aliasing for smoother graphics
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                 RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setRenderingHint(RenderingHints.KEY_RENDERING,
+                                 RenderingHints.VALUE_RENDER_QUALITY);
 
-            // Render the game world
             gameRenderer.renderGame(g2d);
-
-            // Render the HUD on top
             gameRenderer.renderHud(g2d);
-
         } finally {
             g2d.dispose();
         }
@@ -134,7 +131,7 @@ public final class GamePanel extends JPanel {
 
     /**
      * Gets the main controller for external access if needed.
-     * 
+     *
      * @return the main controller
      */
     public MainController getMainController() {
@@ -147,7 +144,7 @@ public final class GamePanel extends JPanel {
         SwingUtilities.invokeLater(() -> {
             final Dimension size = getSize();
             if (size.width > 0 && size.height > 0) {
-                System.out.println("GamePanel addNotify - size: " + size.width + "x" + size.height);
+                LOGGER.info("GamePanel addNotify - size: " + size.width + "x" + size.height);
                 mainController.resize(new Point2D(size.width, size.height));
             }
         });
@@ -156,9 +153,12 @@ public final class GamePanel extends JPanel {
     @Override
     public void paint(final Graphics g) {
         final Dimension currentSize = getSize();
-        if (currentSize.width != initialSize.getX() || currentSize.height != initialSize.getY()) {
-            mainController.resize(new Point2D(currentSize.width, currentSize.height));
-            initialSize.setXY(currentSize.width, currentSize.height);
+        if (currentSize.width != initialSize.getX()
+         || currentSize.height != initialSize.getY()) {
+            mainController.resize(new Point2D(currentSize.width,
+                                              currentSize.height));
+            initialSize.setXY(currentSize.width,
+                              currentSize.height);
         }
         super.paint(g);
     }
