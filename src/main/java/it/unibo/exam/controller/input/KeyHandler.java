@@ -5,6 +5,7 @@ import java.awt.event.KeyListener;
 
 /**
  * Handles keyboard input for the application.
+ * Improved version with better interaction handling.
  */
 public final class KeyHandler implements KeyListener {
     private boolean upPressed;
@@ -12,6 +13,7 @@ public final class KeyHandler implements KeyListener {
     private boolean leftPressed;
     private boolean rightPressed;
     private boolean interactPressed;
+    private boolean interactJustPressed; // For single-press actions
 
     /**
      * @return true if up key is pressed
@@ -49,6 +51,17 @@ public final class KeyHandler implements KeyListener {
     }
 
     /**
+     * @return true if interact key was just pressed (single press detection)
+     */
+    public boolean isInteractJustPressed() {
+        if (interactJustPressed) {
+            interactJustPressed = false; // Reset after reading
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -75,6 +88,9 @@ public final class KeyHandler implements KeyListener {
             rightPressed = true;
         }
         if (code == KeyEvent.VK_E) {
+            if (!interactPressed) { // Only set just pressed if it wasn't already pressed
+                interactJustPressed = true;
+            }
             interactPressed = true;
         }
     }

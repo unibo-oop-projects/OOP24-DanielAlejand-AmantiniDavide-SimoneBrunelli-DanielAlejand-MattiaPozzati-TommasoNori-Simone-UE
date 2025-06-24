@@ -3,25 +3,25 @@ package it.unibo.exam.model.entity.enviroments;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import it.unibo.exam.model.entity.Npc;
 import it.unibo.exam.model.entity.minigame.Minigame;
 import it.unibo.exam.utility.generator.RoomGenerator;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
- * A simple Room class rappresenting a room.
+ * A simple Room class representing a room.
  */
 public class Room {
-
     private final int id;
+    private String name;
     private Minigame minigame;
     private final int roomType;
     private Npc npc;
-    private final List<Door> doors;
-
+    private List<Door> doors;
 
     /**
-     * Contractor.
+     * Constructor.
      * @param id the id of the room
      * @param doors the doors of the room
      * @param roomType the type of the room
@@ -30,6 +30,15 @@ public class Room {
         this.id = id;
         this.doors = new ArrayList<>(doors);
         this.roomType = roomType;
+        this.name = "Room " + id;
+    }
+
+    /**
+     * Updates the doors in this room.
+     * @param newDoors the new list of doors
+     */
+    public final void updateDoors(final List<Door> newDoors) {
+        this.doors = new ArrayList<>(newDoors);
     }
 
     /**
@@ -40,11 +49,26 @@ public class Room {
     }
 
     /**
+     * @return the name of the room
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the display name of this room.
+     * @param name the new display name
+     */
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    /**
      * @return the minigame of the room
      * @throws IllegalStateException if the room has no minigame
      */
     public Minigame getMinigame() {
-        if (roomType == 1) {
+        if (roomType == RoomGenerator.MAIN_ROOM) {
             throw new IllegalStateException("This room has no minigame");
         }
         return minigame;
@@ -53,7 +77,6 @@ public class Room {
     /**
      * @return the doors of the room
      */
-    @SuppressFBWarnings(value = "EI", justification = "Safe final list")
     public List<Door> getDoors() {
         return new ArrayList<>(doors);
     }
@@ -69,16 +92,21 @@ public class Room {
      * @return the npc of the room
      * @throws IllegalStateException if the room has no npc
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", 
+                       justification = "NPC reference is needed for game interaction, defensive copy would break game logic")
     public Npc getNpc() {
-        if (roomType == 1) {
-            throw new IllegalStateException("This room has no npc");
+        if (roomType == RoomGenerator.MAIN_ROOM) {
+            throw new IllegalStateException("Main room has no npc");
         }
         return npc;
     }
 
     /**
-     * @param npc NPC
+     * Attaches an NPC to this room.
+     * @param npc the NPC to attach
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", 
+                       justification = "NPC is designed to be shared and modified by room, defensive copy not needed")
     public void attachNpc(final Npc npc) {
         if (roomType == RoomGenerator.MAIN_ROOM) {
             throw new IllegalStateException("Main room has no npc");
@@ -87,7 +115,8 @@ public class Room {
     }
 
     /**
-     * @param mg minigame
+     * Attaches a minigame to this room.
+     * @param mg the minigame to attach
      */
     public void attacMinigame(final Minigame mg) {
         if (roomType == RoomGenerator.MAIN_ROOM) {
@@ -95,5 +124,4 @@ public class Room {
         }
         this.minigame = mg;
     }
-
 }
