@@ -1,7 +1,6 @@
 package it.unibo.exam.utility.factory;
 
 import it.unibo.exam.model.entity.minigame.Minigame;
-import it.unibo.exam.model.entity.minigame.KahootMinigame;
 
 /**
  * Factory class for creating different types of minigames based on room ID.
@@ -29,8 +28,8 @@ public final class MinigameFactory {
     public static Minigame createMinigame(final int roomId) {
         switch (roomId) {
             //TODO Scrivete con le vostre stanze, marrani
-            case 1: // Bar
-                return new KahootMinigame();
+            // Bar
+            // case 1: return new KahootMinigame();
             // case 2: return "return new MAZE()";
             default:
                 throw new IllegalArgumentException("Invalid room ID for minigame: " + roomId
@@ -48,7 +47,7 @@ public final class MinigameFactory {
     public static String getMinigameName(final int roomId) {
         switch (roomId) {
             //TODO Scrivete con le vostre stanze, marrani
-            case 1: return "Quiz Kahoot";
+            // case 1: return "Quiz Kahoot";
             // case 2: return "aMAZEing";
             default:
                 throw new IllegalArgumentException("Invalid room ID: " + roomId);
@@ -64,8 +63,8 @@ public final class MinigameFactory {
      */
     public static String getMinigameDescription(final int roomId) {
         switch (roomId) {
-            case 1: return "Answer all questions correctly to win!";
             //TODO Scrivete con le vostre stanze, marrani
+            // case 1: return "Answer all questions correctly to win!";
             // case 2: return "Solve 10 math problems!";
             // case 3: return "Click when it turns green!";
             // case 4: return "Find all matching pairs of cards!";

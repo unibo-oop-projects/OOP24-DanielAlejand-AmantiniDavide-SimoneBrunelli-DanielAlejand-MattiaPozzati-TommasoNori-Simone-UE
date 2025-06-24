@@ -29,8 +29,8 @@ public class MinigameManager {
      * @param parentFrame the parent frame for centering minigame windows
      */
     public MinigameManager(final MainController mainController, final JFrame parentFrame) {
-        this.mainController = Objects.requireNonNull(mainController);
-        this.parentFrame = Objects.requireNonNull(parentFrame);
+        this.mainController = Objects.requireNonNull(mainController, "mainController cannot be null");
+        this.parentFrame = Objects.requireNonNull(parentFrame, "parentFrame cannot be null");
     }
 
     /**

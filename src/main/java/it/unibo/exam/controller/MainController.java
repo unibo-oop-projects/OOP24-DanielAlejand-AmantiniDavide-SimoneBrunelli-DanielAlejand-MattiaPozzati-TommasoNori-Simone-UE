@@ -58,7 +58,7 @@ public class MainController {
         this.gameState = new GameState(environmentSize);
         this.gameRenderer = new GameRenderer(gameState);
         this.environmentSize = new Point2D(environmentSize);
-        
+
         if (parentFrame != null) {
             this.minigameManager = new MinigameManager(this, parentFrame);
         }
@@ -209,16 +209,16 @@ public class MainController {
             // Check NPC interactions (only in puzzle rooms)
             if (room.getRoomType() == RoomGenerator.PUZZLE_ROOM && room.getNpc() != null
                 && isNearNpc(player, room.getNpc())) {
-                
+
                 // Check if this room has already been completed
                 if (gameState.getPlayer().getRoomScore(room.getId()) != null) {
                     LOGGER.info("Room " + room.getId() + " already completed!");
                     return;
                 }
-                
+
                 room.getNpc().interact();
                 final int roomId = gameState.getCurrentRoom().getId();
-                
+
                 // Start the appropriate minigame for this room
                 if (minigameManager != null) {
                     minigameManager.startMinigame(roomId);
@@ -301,43 +301,37 @@ public class MainController {
         final int speed = player.getSpeed();
         final Point2D currentPos = player.getPosition();
         final Point2D playerSize = player.getDimension();
-        boolean moved = false;
 
         if (keyHandler.isUpPressed()) {
             final int newY = currentPos.getY() - speed;
-            if (newY >= 10) {
+            // Check bounds
+            if (newY >= 10) { // 10 pixel margin from top
                 player.move(0, -speed);
-                moved = true;
             }
         }
         if (keyHandler.isDownPressed()) {
             final int newY = currentPos.getY() + speed;
-            if (newY + playerSize.getY() <= environmentSize.getY() - 10) {
+            // Check bounds
+            if (newY + playerSize.getY() <= environmentSize.getY() - 10) { // 10 pixel margin from bottom
                 player.move(0, speed);
-                moved = true;
             }
         }
         if (keyHandler.isLeftPressed()) {
             final int newX = currentPos.getX() - speed;
-            if (newX >= 10) {
+            // Check bounds
+            if (newX >= 10) { // 10 pixel margin from left
                 player.move(-speed, 0);
-                moved = true;
             }
         }
         if (keyHandler.isRightPressed()) {
             final int newX = currentPos.getX() + speed;
-            if (newX + playerSize.getX() <= environmentSize.getX() - 10) {
+            // Check bounds
+            if (newX + playerSize.getX() <= environmentSize.getX() - 10) { // 10 pixel margin from right
                 player.move(speed, 0);
-                moved = true;
+                ensurePlayerInBounds(player);
             }
         }
-
-        if (moved) {
-            ensurePlayerInBounds(player);
-            player.getHitbox();
-        }
     }
-
     /**
      * Ensures the player stays within bounds (safety check).
      * @param player the player to check
@@ -382,12 +376,12 @@ public class MainController {
             final int timeTaken = (int) ((System.currentTimeMillis() - minigameStartTime) / 1000);
             final int pointsGained = calculatePoints(timeTaken);
             gameState.getPlayer().addRoomScore(currentMinigameRoomId, timeTaken, pointsGained);
-            LOGGER.info("Minigame completed successfully! Room " + currentMinigameRoomId + 
-                       ", Time: " + timeTaken + "s, Points: " + pointsGained);
+            LOGGER.info("Minigame completed successfully! Room " + currentMinigameRoomId 
+            + ", Time: " + timeTaken + "s, Points: " + pointsGained);
         } else if (minigameActive) {
             LOGGER.info("Minigame failed for room " + currentMinigameRoomId);
         }
-        
+
         minigameActive = false;
         currentMinigameRoomId = -1;
     }
