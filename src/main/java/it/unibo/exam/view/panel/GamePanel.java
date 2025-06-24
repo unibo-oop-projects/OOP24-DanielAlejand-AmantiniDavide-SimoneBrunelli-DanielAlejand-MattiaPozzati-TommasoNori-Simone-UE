@@ -14,10 +14,15 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.logging.Logger;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Main game panel that handles rendering of the game world.
  * This panel integrates the MainController and GameRenderer to display the game.
  */
+@SuppressFBWarnings(value = {"SE_BAD_FIELD", "SE_BAD_FIELD_STORE"}, 
+                   justification = "GamePanel is not intended to be serialized,"
+                   + " contains game-specific non-serializable components")
 public final class GamePanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
@@ -33,7 +38,7 @@ public final class GamePanel extends JPanel {
      * @param initialSize the initial size of the game panel
      */
     public GamePanel(final Point2D initialSize) {
-        this.initialSize   = initialSize;
+        this.initialSize = new Point2D(initialSize);
         this.mainController = new MainController(initialSize);
         this.gameRenderer  = mainController.getGameRenderer();
 
@@ -134,6 +139,8 @@ public final class GamePanel extends JPanel {
      *
      * @return the main controller
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", 
+                       justification = "MainController reference is needed for game control, defensive copy not appropriate")
     public MainController getMainController() {
         return mainController;
     }

@@ -54,7 +54,7 @@ public class DoorRenderer extends EntityRenderer {
         );
 
         // Draw door identifier
-        final String doorText = door.isOpen() ? "D" : "D";
+        final String doorText = "D";
         drawCenteredText(g, door, doorText, Color.WHITE);
 
         // Draw room ID indicator

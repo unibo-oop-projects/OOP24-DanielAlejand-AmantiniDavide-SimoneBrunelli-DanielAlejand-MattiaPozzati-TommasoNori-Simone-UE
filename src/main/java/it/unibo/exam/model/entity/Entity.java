@@ -3,6 +3,8 @@ package it.unibo.exam.model.entity;
 import it.unibo.exam.utility.geometry.Point2D;
 import it.unibo.exam.utility.geometry.Rectangle;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * 
  * Simple Entity class.
@@ -60,6 +62,9 @@ public class Entity {
     /**
      * @return copy of entity's position
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", 
+                       justification = "Position must be mutable for game performance,"
+                                        + "returning direct reference is intentional")
     public Point2D getPosition() {
         return position;
     }

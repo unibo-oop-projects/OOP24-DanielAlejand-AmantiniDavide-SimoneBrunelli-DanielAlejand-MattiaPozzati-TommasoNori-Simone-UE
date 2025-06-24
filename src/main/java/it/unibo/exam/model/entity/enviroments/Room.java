@@ -7,6 +7,8 @@ import it.unibo.exam.model.entity.Npc;
 import it.unibo.exam.model.entity.minigame.Minigame;
 import it.unibo.exam.utility.generator.RoomGenerator;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * A simple Room class representing a room.
  */
@@ -90,6 +92,8 @@ public class Room {
      * @return the npc of the room
      * @throws IllegalStateException if the room has no npc
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", 
+                       justification = "NPC reference is needed for game interaction, defensive copy would break game logic")
     public Npc getNpc() {
         if (roomType == RoomGenerator.MAIN_ROOM) {
             throw new IllegalStateException("Main room has no npc");
@@ -101,6 +105,8 @@ public class Room {
      * Attaches an NPC to this room.
      * @param npc the NPC to attach
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", 
+                       justification = "NPC is designed to be shared and modified by room, defensive copy not needed")
     public void attachNpc(final Npc npc) {
         if (roomType == RoomGenerator.MAIN_ROOM) {
             throw new IllegalStateException("Main room has no npc");

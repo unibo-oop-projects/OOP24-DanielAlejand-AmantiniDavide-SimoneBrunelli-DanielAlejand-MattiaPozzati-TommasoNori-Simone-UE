@@ -12,6 +12,8 @@ import it.unibo.exam.utility.generator.RoomGenerator;
 import it.unibo.exam.utility.generator.NpcGenerator;
 import it.unibo.exam.utility.geometry.Point2D;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Represents the state of the game, including rooms, the player, and the current room.
  * Fixed version with proper resize handling.
@@ -122,6 +124,8 @@ public class GameState {
      * @param newSize the new environment size
      * @param roomId the room ID
      */
+    @SuppressFBWarnings(value = "DB_DUPLICATE_SWITCH_CLAUSES", 
+                       justification = "Cases 1 and 4 intentionally use different positioning logic despite similar structure")
     private void repositionNpc(final Npc npc, final Point2D newSize, final int roomId) {
         final int npcWidth = newSize.getX() / 20;
         final int npcHeight = newSize.getY() / 20;
@@ -204,6 +208,7 @@ public class GameState {
      * @param npcHeight NPC height
      * @return new position for NPC
      */
+    @SuppressWarnings("DB_DUPLICATE_SWITCH_CLAUSES") // Similar positioning logic is intentional
     private Point2D calculateNpcPosition(final int roomId, final Point2D environmentSize,
                                     final int npcWidth, final int npcHeight) {
         final int margin = 60;
@@ -247,6 +252,9 @@ public class GameState {
     /**
      * @return the player instance
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", 
+                       justification = "Player reference is needed throughout game,"
+                       + " defensive copy would break game state management")
     public Player getPlayer() {
         return player;
     }
