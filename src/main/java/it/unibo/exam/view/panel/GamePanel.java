@@ -6,6 +6,10 @@ import it.unibo.exam.view.GameRenderer;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+import javax.swing.JFrame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -14,11 +18,9 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.logging.Logger;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 /**
  * Main game panel that handles rendering of the game world.
- * This panel integrates the MainController and GameRenderer to display the game.
+ * Updated to support minigame integration with proper parent frame reference.
  */
 @SuppressFBWarnings(value = {"SE_BAD_FIELD", "SE_BAD_FIELD_STORE"}, 
                    justification = "GamePanel is not intended to be serialized,"
@@ -31,15 +33,18 @@ public final class GamePanel extends JPanel {
     private final MainController mainController;
     private final GameRenderer   gameRenderer;
     private final Point2D        initialSize;
+    private final JFrame         parentFrame;
 
     /**
-     * Constructor for GamePanel.
+     * Constructor for GamePanel with parent frame reference.
      *
      * @param initialSize the initial size of the game panel
+     * @param parentFrame the parent frame for minigame windows
      */
-    public GamePanel(final Point2D initialSize) {
-        this.initialSize = new Point2D(initialSize);
-        this.mainController = new MainController(initialSize);
+    public GamePanel(final Point2D initialSize, final JFrame parentFrame) {
+        this.initialSize   = initialSize;
+        this.parentFrame   = parentFrame;
+        this.mainController = new MainController(initialSize, parentFrame);
         this.gameRenderer  = mainController.getGameRenderer();
 
         // Defer initialization to avoid calling overridable methods during construction
@@ -47,12 +52,50 @@ public final class GamePanel extends JPanel {
     }
 
     /**
-     * Alternative constructor that takes Dimension.
+     * Alternative constructor that takes Dimension and parent frame.
      *
      * @param initialSize the initial size as a Dimension
+     * @param parentFrame the parent frame for minigame windows
      */
+    public GamePanel(final Dimension initialSize, final JFrame parentFrame) {
+        this(new Point2D(initialSize.width, initialSize.height), parentFrame);
+    }
+
+    /**
+     * Backward compatibility constructor (without parent frame).
+     * Minigames will not work properly without a parent frame.
+     *
+     * @param initialSize the initial size of the game panel
+     * @deprecated Use constructor with parent frame for minigame support
+     */
+    @Deprecated
+    public GamePanel(final Point2D initialSize) {
+        this(initialSize, null);
+        LOGGER.warning("GamePanel created without parent frame - minigames may not work properly");
+    }
+
+    /**
+     * Backward compatibility constructor (without parent frame).
+     *
+     * @param initialSize the initial size as a Dimension
+     * @deprecated Use constructor with parent frame for minigame support
+     */
+    @Deprecated
     public GamePanel(final Dimension initialSize) {
-        this(new Point2D(initialSize.width, initialSize.height));
+        this(new Point2D(initialSize.width, initialSize.height), null);
+    }
+
+    /**
+     * Sets the parent frame after construction if not set in constructor.
+     * This allows minigames to work properly.
+     *
+     * @param parentFrame the parent frame
+     */
+    public void setParentFrame(final JFrame parentFrame) {
+        if (parentFrame != null) {
+            mainController.setParentFrame(parentFrame);
+            LOGGER.info("Parent frame set for GamePanel - minigames now enabled");
+        }
     }
 
     /**
@@ -102,7 +145,7 @@ public final class GamePanel extends JPanel {
     }
 
     /**
-     * Stops the game controller.
+     * Stops the game controller and any running minigames.
      */
     public void stopGame() {
         mainController.stop();
@@ -143,6 +186,15 @@ public final class GamePanel extends JPanel {
                        justification = "MainController reference is needed for game control, defensive copy not appropriate")
     public MainController getMainController() {
         return mainController;
+    }
+
+    /**
+     * Gets the parent frame reference.
+     *
+     * @return the parent frame or null if not set
+     */
+    public JFrame getParentFrame() {
+        return parentFrame;
     }
 
     @Override
