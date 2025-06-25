@@ -3,6 +3,9 @@ package it.unibo.exam.model.entity;
 import it.unibo.exam.controller.position.PlayerPositionManager;
 import it.unibo.exam.model.data.RoomScoreData;
 import it.unibo.exam.utility.geometry.Point2D;
+import it.unibo.exam.model.score.ScoreListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +17,7 @@ public class Player extends MovementEntity {
 
     /** Stores RoomScoreData for each room the player completes. */
     private final Map<Integer, RoomScoreData> roomScores = new HashMap<>();
+    private final List<ScoreListener> scoreListeners = new ArrayList<>();
 
     /**
      * Constructs a Player at the default spawn position.
@@ -82,4 +86,15 @@ public class Player extends MovementEntity {
                          .stream()
                          .allMatch(RoomScoreData::isCompleted);
     }
+
+        /** Register to receive score updates. */
+    public void addScoreListener(ScoreListener listener) {
+        scoreListeners.add(listener);
+    }
+
+    /** Unregister from score updates. */
+    public void removeScoreListener(ScoreListener listener) {
+        scoreListeners.remove(listener);
+    }
+
 }
