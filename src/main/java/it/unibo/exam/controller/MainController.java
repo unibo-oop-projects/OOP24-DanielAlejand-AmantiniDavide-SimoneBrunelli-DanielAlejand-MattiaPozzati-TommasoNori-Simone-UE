@@ -12,6 +12,11 @@ import it.unibo.exam.model.game.GameState;
 import it.unibo.exam.utility.generator.RoomGenerator;
 import it.unibo.exam.utility.geometry.Point2D;
 import it.unibo.exam.view.GameRenderer;
+import it.unibo.exam.model.scoring.TieredScoringStrategy;
+import it.unibo.exam.model.scoring.TimeBonusDecorator;
+import it.unibo.exam.model.scoring.CapDecorator;
+import it.unibo.exam.model.scoring.ScoringStrategy;
+import it.unibo.exam.view.hud.ScoreHud;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -32,6 +37,7 @@ public class MainController {
     private final KeyHandler keyHandler;
     private final GameState gameState;
     private final GameRenderer gameRenderer;
+    private final ScoringStrategy scoring;
     private boolean running;
     private Point2D environmentSize;
 
@@ -47,6 +53,16 @@ public class MainController {
         this.gameState = new GameState(enviromentSize);
         this.gameRenderer = new GameRenderer(gameState);
         this.environmentSize = new Point2D(enviromentSize);
+
+                // ——— scoring strategy setup ———
+        ScoringStrategy strat = new TieredScoringStrategy();
+        strat = new TimeBonusDecorator(strat, /*threshold=*/15, /*bonus=*/20);
+        strat = new CapDecorator(strat, /*max=*/120);
+        this.scoring = strat;
+
+        Player player = gameState.getPlayer();
+        ScoreHud hud   = gameRenderer.getScoreHud();
+        player.addScoreListener(hud);
     }
 
     /**
@@ -309,34 +325,25 @@ public class MainController {
         currentMinigameRoomId = roomId;
     }
 
-    /**
-     * Ends the current minigame and updates the player's score if successful.
-     * @param success true if the minigame was completed successfully
-     */
+/**
+ * Ends the current minigame and awards points via the configured ScoringStrategy.
+ *
+ * @param success true if the minigame was completed successfully
+ */
     public void endMinigame(final boolean success) {
         if (minigameActive && currentMinigameRoomId >= 0 && success) {
-            final int timeTaken = (int) ((System.currentTimeMillis() - minigameStartTime) / 1000);
-            final int pointsGained = calculatePoints(timeTaken);
-            gameState.getPlayer().addRoomScore(currentMinigameRoomId, timeTaken, pointsGained);
+            // calculate how long it took in seconds
+            int timeTaken = (int)((System.currentTimeMillis() - minigameStartTime) / 1000);
+            // delegate to our Strategy+Decorator chain
+            int pointsGained = scoring.calculate(timeTaken, currentMinigameRoomId);
+            // store and notify observers
+            gameState.getPlayer()
+                    .addRoomScore(currentMinigameRoomId, timeTaken, pointsGained);
         }
+        // reset state
         minigameActive = false;
         currentMinigameRoomId = -1;
     }
+
  
-    /**
-     * Calculates points for a minigame in a room based on time taken.
-     * @param timeTaken time taken to complete (in seconds)
-     * @return the number of points to award
-     */
-    private int calculatePoints(final int timeTaken) {
-        /*if (timeTaken < FAST_THRESHOLD) {
-            return POINTS_FAST;
-        }
-        if (timeTaken < MEDIUM_THRESHOLD) {
-            return POINTS_MEDIUM;
-        }
-        return POINTS_SLOW;
-        */
-        return 1;
-    }
 }
