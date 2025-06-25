@@ -30,18 +30,25 @@ public class Player extends MovementEntity {
     }
 
     /**
-     * Records or updates the score data for a completed room.
-     *
-     * @param roomId       the ID of the room
-     * @param timeTaken    time taken to complete the room (in seconds)
-     * @param pointsGained points earned in the room
+     * Records or updates the score data for a completed room,
+     * then notifies any listeners of the new total.
      */
     public void addRoomScore(final int roomId,
-                             final int timeTaken,
-                             final int pointsGained) {
+                            final int timeTaken,
+                            final int pointsGained) {
+        // 1) store/update the room score as before
         roomScores.put(roomId,
             new RoomScoreData(roomId, timeTaken, pointsGained, true));
+
+        // 2) recompute total
+        int total = getTotalScore();
+
+        // 3) notify all observers
+        for (ScoreListener listener : scoreListeners) {
+            listener.onScoreChanged(total);
+        }
     }
+
 
     /**
      * Retrieves the score data for a specific room.
