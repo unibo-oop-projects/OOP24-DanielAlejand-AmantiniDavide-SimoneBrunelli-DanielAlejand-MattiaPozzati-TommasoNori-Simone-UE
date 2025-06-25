@@ -14,4 +14,3 @@ public class TieredScoringStrategy implements ScoringStrategy {
         return POINTS_SLOW;
     }
 }
-
