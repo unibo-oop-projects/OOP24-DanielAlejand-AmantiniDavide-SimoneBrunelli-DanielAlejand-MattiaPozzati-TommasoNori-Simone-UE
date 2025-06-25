@@ -29,12 +29,6 @@ public class MainController {
     private static final int FPS = 60;
     private static final double SECOND = 1_000_000_000.0;
 
-    private static final int FAST_THRESHOLD = 30;
-    private static final int MEDIUM_THRESHOLD = 60;
-    private static final int POINTS_FAST = 100;
-    private static final int POINTS_MEDIUM = 70;
-    private static final int POINTS_SLOW = 40;
-
     private final KeyHandler keyHandler;
     private final GameState gameState;
     private final GameRenderer gameRenderer;
@@ -335,12 +329,14 @@ public class MainController {
      * @return the number of points to award
      */
     private int calculatePoints(final int timeTaken) {
-        if (timeTaken < FAST_THRESHOLD) {
+        /*if (timeTaken < FAST_THRESHOLD) {
             return POINTS_FAST;
         }
         if (timeTaken < MEDIUM_THRESHOLD) {
             return POINTS_MEDIUM;
         }
         return POINTS_SLOW;
+        */
+        return 1;
     }
 }
