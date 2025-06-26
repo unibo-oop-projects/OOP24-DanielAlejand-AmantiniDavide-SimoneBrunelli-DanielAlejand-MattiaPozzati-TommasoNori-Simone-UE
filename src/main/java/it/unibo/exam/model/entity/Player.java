@@ -16,8 +16,8 @@ import java.util.Map;
 public class Player extends MovementEntity {
 
     /** Stores RoomScoreData for each room the player completes. */
-    private final Map<Integer, RoomScoreData> roomScores = new HashMap<>();
-    private final List<ScoreListener> scoreListeners = new ArrayList<>();
+    private final Map<Integer, RoomScoreData> roomScores     = new HashMap<>();
+    private final List<ScoreListener>         scoreListeners = new ArrayList<>();
 
     /**
      * Constructs a Player at the default spawn position.
@@ -32,23 +32,22 @@ public class Player extends MovementEntity {
     /**
      * Records or updates the score data for a completed room,
      * then notifies any listeners of the new total.
+     *
+     * @param roomId        the ID of the room
+     * @param timeTaken     time taken to complete the room (in seconds)
+     * @param pointsGained  points earned in the room
      */
     public void addRoomScore(final int roomId,
-                            final int timeTaken,
-                            final int pointsGained) {
-        // 1) store/update the room score as before
+                             final int timeTaken,
+                             final int pointsGained) {
         roomScores.put(roomId,
             new RoomScoreData(roomId, timeTaken, pointsGained, true));
 
-        // 2) recompute total
-        int total = getTotalScore();
-
-        // 3) notify all observers
-        for (ScoreListener listener : scoreListeners) {
+        final int total = getTotalScore();
+        for (final ScoreListener listener : scoreListeners) {
             listener.onScoreChanged(total);
         }
     }
-
 
     /**
      * Retrieves the score data for a specific room.
@@ -94,14 +93,21 @@ public class Player extends MovementEntity {
                          .allMatch(RoomScoreData::isCompleted);
     }
 
-        /** Register to receive score updates. */
-    public void addScoreListener(ScoreListener listener) {
+    /**
+     * Register to receive score updates.
+     *
+     * @param listener the ScoreListener to register
+     */
+    public void addScoreListener(final ScoreListener listener) {
         scoreListeners.add(listener);
     }
 
-    /** Unregister from score updates. */
-    public void removeScoreListener(ScoreListener listener) {
+    /**
+     * Unregister from score updates.
+     *
+     * @param listener the ScoreListener to remove
+     */
+    public void removeScoreListener(final ScoreListener listener) {
         scoreListeners.remove(listener);
     }
-
 }

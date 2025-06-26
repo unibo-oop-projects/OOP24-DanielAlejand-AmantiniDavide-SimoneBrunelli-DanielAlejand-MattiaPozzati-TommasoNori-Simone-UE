@@ -33,6 +33,9 @@ public class MainController {
 
     private static final int FPS = 60;
     private static final double SECOND = 1_000_000_000.0;
+    private static final int VERY_FAST_THRESHOLD   = 15;
+    private static final int VERY_FAST_BONUS       = 20;
+    private static final int MAX_POINTS_PER_ROOM   = 120;
 
     private final KeyHandler keyHandler;
     private final GameState gameState;
@@ -56,12 +59,12 @@ public class MainController {
 
                 // ——— scoring strategy setup ———
         ScoringStrategy strat = new TieredScoringStrategy();
-        strat = new TimeBonusDecorator(strat, /*threshold=*/15, /*bonus=*/20);
-        strat = new CapDecorator(strat, /*max=*/120);
+        strat = new TimeBonusDecorator(strat, /*threshold=*/VERY_FAST_THRESHOLD, /*bonus=*/VERY_FAST_BONUS);
+        strat = new CapDecorator(strat, /*max=*/MAX_POINTS_PER_ROOM);
         this.scoring = strat;
 
-        Player player = gameState.getPlayer();
-        ScoreHud hud   = gameRenderer.getScoreHud();
+        final Player player = gameState.getPlayer();
+        final ScoreHud hud   = gameRenderer.getScoreHud();
         player.addScoreListener(hud);
     }
 
@@ -333,9 +336,9 @@ public class MainController {
     public void endMinigame(final boolean success) {
         if (minigameActive && currentMinigameRoomId >= 0 && success) {
             // calculate how long it took in seconds
-            int timeTaken = (int)((System.currentTimeMillis() - minigameStartTime) / 1000);
+            final int timeTaken = (int) ((System.currentTimeMillis() - minigameStartTime) / 1000);
             // delegate to our Strategy+Decorator chain
-            int pointsGained = scoring.calculate(timeTaken, currentMinigameRoomId);
+            final int pointsGained = scoring.calculate(timeTaken, currentMinigameRoomId);
             // store and notify observers
             gameState.getPlayer()
                     .addRoomScore(currentMinigameRoomId, timeTaken, pointsGained);

@@ -42,9 +42,11 @@ public class ScoreHud implements ScoreListener {
      * Called by Player whenever the total score changes.
      * We don't need to cache anything here, since draw() always pulls fresh data,
      * but this method fulfills the ScoreListener contract.
+     *
+     * @param newTotal the updated total score
      */
     @Override
-    public void onScoreChanged(int newTotal) {
+    public void onScoreChanged(final int newTotal) {
         // no-op: draw() uses up-to-date data from gameState.getPlayer()
     }
 
@@ -52,6 +54,8 @@ public class ScoreHud implements ScoreListener {
      * Draws the progress HUD on the provided graphics context.
      * All rooms are listed; unplayed rooms show placeholders,
      * completed rooms display actual time and points.
+     *
+     * @param g the Graphics2D context used for drawing the HUD
      */
     public void draw(final Graphics2D g) {
         final Player     player           = gameState.getPlayer();
@@ -89,17 +93,19 @@ public class ScoreHud implements ScoreListener {
                 pts   = data.getPointsGained() + " pts";
             }
 
-            String line = String.format("%s %s | %s | %s",
-                                        check,
-                                        room.getName(),
-                                        time,
-                                        pts);
+            final String line = String.format(
+                "%s %s | %s | %s",
+                check,
+                room.getName(),
+                time,
+                pts
+            );
             g.drawString(line, x, y);
             y += LINE_HEIGHT;
         }
 
         g.setFont(TITLE_FONT);
-        String total = "Total: " + player.getTotalScore() + " pts";
+        final String total = "Total: " + player.getTotalScore() + " pts";
         g.drawString(total, x, y + LINE_HEIGHT / 2);
     }
 }
