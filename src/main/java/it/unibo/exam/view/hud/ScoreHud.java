@@ -4,6 +4,7 @@ import it.unibo.exam.model.game.GameState;
 import it.unibo.exam.model.entity.Player;
 import it.unibo.exam.model.entity.enviroments.Room;
 import it.unibo.exam.model.data.RoomScoreData;
+import it.unibo.exam.model.score.ScoreListener;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -12,12 +13,9 @@ import java.util.List;
 
 /**
  * Displays the player's progress through all game rooms in a heads-up display.
- * <p>
- * The HUD shows each room's name, completion status, time taken, and points earned,
- * aligned to the top-right corner with a floating margin.
- * </p>
+ * Implements ScoreListener so it can be registered on Player and redraw if needed.
  */
-public class ScoreHud {
+public class ScoreHud implements ScoreListener {
 
     private static final int START_Y       = 30;
     private static final int LINE_HEIGHT   = 24;
@@ -41,20 +39,30 @@ public class ScoreHud {
     }
 
     /**
-     * Draws the progress HUD on the provided graphics context.
-     * <p>
-     * All rooms are listed; unplayed rooms show default placeholders,
-     * and completed rooms display their actual time and points.
-     * </p>
+     * Called by Player whenever the total score changes.
+     * We don't need to cache anything here, since draw() always pulls fresh data,
+     * but this method fulfills the ScoreListener contract.
      *
-     * @param g the graphics context used for drawing the HUD
+     * @param newTotal the updated total score
+     */
+    @Override
+    public void onScoreChanged(final int newTotal) {
+        // no-op: draw() uses up-to-date data from gameState.getPlayer()
+    }
+
+    /**
+     * Draws the progress HUD on the provided graphics context.
+     * All rooms are listed; unplayed rooms show placeholders,
+     * completed rooms display actual time and points.
+     *
+     * @param g the Graphics2D context used for drawing the HUD
      */
     public void draw(final Graphics2D g) {
-        final Player           player           = gameState.getPlayer();
-        final List<Room>       rooms            = gameState.getAllRooms();
-        final int              totalWidth       = g.getClipBounds().width;
-        final int              x                = totalWidth - PANEL_WIDTH - PADDING - RIGHT_MARGIN;
-        final int              backgroundHeight = (rooms.size() + 2) * LINE_HEIGHT + PADDING * 2;
+        final Player     player           = gameState.getPlayer();
+        final List<Room> rooms            = gameState.getAllRooms();
+        final int        totalWidth       = g.getClipBounds().width;
+        final int        x                = totalWidth - PANEL_WIDTH - PADDING - RIGHT_MARGIN;
+        final int        backgroundHeight = (rooms.size() + 2) * LINE_HEIGHT + PADDING * 2;
 
         g.setColor(BG_COLOR);
         g.fillRoundRect(
@@ -85,11 +93,13 @@ public class ScoreHud {
                 pts   = data.getPointsGained() + " pts";
             }
 
-            final String line = String.format("%s %s | %s | %s",
-                                              check,
-                                              room.getName(),
-                                              time,
-                                              pts);
+            final String line = String.format(
+                "%s %s | %s | %s",
+                check,
+                room.getName(),
+                time,
+                pts
+            );
             g.drawString(line, x, y);
             y += LINE_HEIGHT;
         }

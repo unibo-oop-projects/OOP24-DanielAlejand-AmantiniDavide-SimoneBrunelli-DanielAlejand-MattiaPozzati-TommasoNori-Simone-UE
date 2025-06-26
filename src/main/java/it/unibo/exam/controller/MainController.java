@@ -15,6 +15,11 @@ import it.unibo.exam.model.game.GameState;
 import it.unibo.exam.utility.generator.RoomGenerator;
 import it.unibo.exam.utility.geometry.Point2D;
 import it.unibo.exam.view.GameRenderer;
+import it.unibo.exam.model.scoring.TieredScoringStrategy;
+import it.unibo.exam.model.scoring.TimeBonusDecorator;
+import it.unibo.exam.model.scoring.CapDecorator;
+import it.unibo.exam.model.scoring.ScoringStrategy;
+import it.unibo.exam.view.hud.ScoreHud;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -29,19 +34,17 @@ public class MainController {
 
     private static final int FPS = 60;
     private static final double SECOND = 1_000_000_000.0;
+    private static final int VERY_FAST_THRESHOLD   = 15;
+    private static final int VERY_FAST_BONUS       = 20;
+    private static final int MAX_POINTS_PER_ROOM   = 120;
 
-    private static final int FAST_THRESHOLD = 30;
-    private static final int MEDIUM_THRESHOLD = 60;
-    private static final int POINTS_FAST = 100;
-    private static final int POINTS_MEDIUM = 70;
-    private static final int POINTS_SLOW = 40;
-
-    private final KeyHandler keyHandler;
-    private final GameState gameState;
-    private final GameRenderer gameRenderer;
-    private MinigameManager minigameManager;
-    private boolean running;
-    private Point2D environmentSize;
+    private final KeyHandler      keyHandler;
+    private final GameState       gameState;
+    private final GameRenderer    gameRenderer;
+    private final MinigameManager minigameManager;
+    private final ScoringStrategy scoring;
+    private boolean               running;
+    private Point2D               environmentSize;
 
     private long minigameStartTime;
     private boolean minigameActive;
@@ -49,24 +52,39 @@ public class MainController {
 
     /**
      * Constructor with parent frame for minigame integration.
-     * 
+     *
      * @param environmentSize size of the Game panel
-     * @param parentFrame parent frame for minigame windows
+     * @param parentFrame    parent frame for minigame windows
      */
     public MainController(final Point2D environmentSize, final JFrame parentFrame) {
-        this.keyHandler = new KeyHandler();
-        this.gameState = new GameState(environmentSize);
-        this.gameRenderer = new GameRenderer(gameState);
+        // Core setup
+        this.keyHandler      = new KeyHandler();
+        this.gameState       = new GameState(environmentSize);
+        this.gameRenderer    = new GameRenderer(gameState);
         this.environmentSize = new Point2D(environmentSize);
 
+        // —— MinigameManager setup ——
         if (parentFrame != null) {
             this.minigameManager = new MinigameManager(this, parentFrame);
+        } else {
+            this.minigameManager = null;
         }
+
+        // —— Scoring Strategy + Decorators ——
+        ScoringStrategy strat = new TieredScoringStrategy();
+        strat = new TimeBonusDecorator(strat, VERY_FAST_THRESHOLD, VERY_FAST_BONUS);
+        strat = new CapDecorator(strat, MAX_POINTS_PER_ROOM);
+        this.scoring = strat;
+
+        // —— Observer wiring ——
+        final Player player = gameState.getPlayer();
+        final ScoreHud hud   = gameRenderer.getScoreHud();
+        player.addScoreListener(hud);
     }
 
     /**
      * Constructor with default null parent frame (for backward compatibility).
-     * 
+     *
      * @param environmentSize size of the Game panel
      */
     public MainController(final Point2D environmentSize) {
@@ -74,9 +92,10 @@ public class MainController {
     }
 
     /**
-     * Sets the parent frame for minigame windows after construction.
-     * 
-     * @param parentFrame the parent frame
+     * Sets (or resets) the parent frame used by the MinigameManager.
+     * This is only needed if you couldn’t supply the frame at construction time.
+     *
+     * @param parentFrame the JFrame to use as parent for all minigame windows
      */
     public void setParentFrame(final JFrame parentFrame) {
         if (parentFrame != null && this.minigameManager == null) {
@@ -244,9 +263,9 @@ public class MainController {
         final Point2D doorSize = door.getDimension();
 
         return playerPos.getX() + playerSize.getX() >= doorPos.getX() - proximityBuffer
-        && playerPos.getX() <= doorPos.getX() + doorSize.getX() + proximityBuffer 
-        && playerPos.getY() + playerSize.getY() >= doorPos.getY() - proximityBuffer 
-        && playerPos.getY() <= doorPos.getY() + doorSize.getY() + proximityBuffer;
+            && playerPos.getX() <= doorPos.getX() + doorSize.getX() + proximityBuffer 
+            && playerPos.getY() + playerSize.getY() >= doorPos.getY() - proximityBuffer 
+            && playerPos.getY() <= doorPos.getY() + doorSize.getY() + proximityBuffer;
     }
 
     /**
@@ -304,34 +323,31 @@ public class MainController {
 
         if (keyHandler.isUpPressed()) {
             final int newY = currentPos.getY() - speed;
-            // Check bounds
             if (newY >= 10) { // 10 pixel margin from top
                 player.move(0, -speed);
             }
         }
         if (keyHandler.isDownPressed()) {
             final int newY = currentPos.getY() + speed;
-            // Check bounds
             if (newY + playerSize.getY() <= environmentSize.getY() - 10) { // 10 pixel margin from bottom
                 player.move(0, speed);
             }
         }
         if (keyHandler.isLeftPressed()) {
             final int newX = currentPos.getX() - speed;
-            // Check bounds
             if (newX >= 10) { // 10 pixel margin from left
                 player.move(-speed, 0);
             }
         }
         if (keyHandler.isRightPressed()) {
             final int newX = currentPos.getX() + speed;
-            // Check bounds
             if (newX + playerSize.getX() <= environmentSize.getX() - 10) { // 10 pixel margin from right
                 player.move(speed, 0);
                 ensurePlayerInBounds(player);
             }
         }
     }
+
     /**
      * Ensures the player stays within bounds (safety check).
      * @param player the player to check
@@ -354,8 +370,6 @@ public class MainController {
         }
     }
 
-    // Point system methods
-
     /**
      * Starts timing for a minigame in the specified room.
      * @param roomId the room ID for the minigame
@@ -368,36 +382,28 @@ public class MainController {
     }
 
     /**
-     * Ends the current minigame and updates the player's score if successful.
+     * Ends the current minigame and awards points via the configured ScoringStrategy.
+     *
      * @param success true if the minigame was completed successfully
      */
     public void endMinigame(final boolean success) {
         if (minigameActive && currentMinigameRoomId >= 0 && success) {
+            // 1) compute elapsed time in seconds
             final int timeTaken = (int) ((System.currentTimeMillis() - minigameStartTime) / 1000);
-            final int pointsGained = calculatePoints(timeTaken);
+            // 2) compute points via Strategy+Decorator chain
+            final int pointsGained = scoring.calculate(timeTaken, currentMinigameRoomId);
+            // 3) store and notify observers
             gameState.getPlayer().addRoomScore(currentMinigameRoomId, timeTaken, pointsGained);
-            LOGGER.info("Minigame completed successfully! Room " + currentMinigameRoomId 
-            + ", Time: " + timeTaken + "s, Points: " + pointsGained);
+            // 4) log success
+            LOGGER.info("Minigame completed successfully! Room " 
+                + currentMinigameRoomId 
+                + ", Time: " + timeTaken + "s, Points: " + pointsGained);
         } else if (minigameActive) {
+            // log failure
             LOGGER.info("Minigame failed for room " + currentMinigameRoomId);
         }
-
-        minigameActive = false;
-        currentMinigameRoomId = -1;
-    }
- 
-    /**
-     * Calculates points for a minigame in a room based on time taken.
-     * @param timeTaken time taken to complete (in seconds)
-     * @return the number of points to award
-     */
-    private int calculatePoints(final int timeTaken) {
-        if (timeTaken < FAST_THRESHOLD) {
-            return POINTS_FAST;
-        }
-        if (timeTaken < MEDIUM_THRESHOLD) {
-            return POINTS_MEDIUM;
-        }
-        return POINTS_SLOW;
+        // 5) reset state
+        minigameActive         = false;
+        currentMinigameRoomId  = -1;
     }
 }
