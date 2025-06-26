@@ -3,8 +3,11 @@ package it.unibo.exam.controller;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
+import javax.swing.JFrame;
+
 import it.unibo.exam.controller.input.KeyHandler;
 import it.unibo.exam.controller.position.PlayerPositionManager;
+import it.unibo.exam.controller.minigame.MinigameManager;
 import it.unibo.exam.model.entity.Player;
 import it.unibo.exam.model.entity.enviroments.Door;
 import it.unibo.exam.model.entity.enviroments.Room;
@@ -22,9 +25,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Main controller of the game.
- * It handles the game loop and the main logic of the game.
- * It is responsible for updating the game state of the game.
- * Fixed version with proper NPC handling and logging.
+ * Updated version with integrated minigame system.
  */
 @SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC", 
                    justification = "Game loop thread safety is managed externally")
@@ -37,35 +38,70 @@ public class MainController {
     private static final int VERY_FAST_BONUS       = 20;
     private static final int MAX_POINTS_PER_ROOM   = 120;
 
-    private final KeyHandler keyHandler;
-    private final GameState gameState;
-    private final GameRenderer gameRenderer;
+    private final KeyHandler      keyHandler;
+    private final GameState       gameState;
+    private final GameRenderer    gameRenderer;
+    private final MinigameManager minigameManager;
     private final ScoringStrategy scoring;
-    private boolean running;
-    private Point2D environmentSize;
+    private boolean               running;
+    private Point2D               environmentSize;
 
     private long minigameStartTime;
     private boolean minigameActive;
     private int currentMinigameRoomId = -1;
 
     /**
-     * @param enviromentSize size of the Game panel
+     * Constructor with parent frame for minigame integration.
+     *
+     * @param environmentSize size of the Game panel
+     * @param parentFrame    parent frame for minigame windows
      */
-    public MainController(final Point2D enviromentSize) {
-        this.keyHandler = new KeyHandler();
-        this.gameState = new GameState(enviromentSize);
-        this.gameRenderer = new GameRenderer(gameState);
-        this.environmentSize = new Point2D(enviromentSize);
+    public MainController(final Point2D environmentSize, final JFrame parentFrame) {
+        // Core setup
+        this.keyHandler      = new KeyHandler();
+        this.gameState       = new GameState(environmentSize);
+        this.gameRenderer    = new GameRenderer(gameState);
+        this.environmentSize = new Point2D(environmentSize);
 
-                // ——— scoring strategy setup ———
+        // —— MinigameManager setup ——
+        if (parentFrame != null) {
+            this.minigameManager = new MinigameManager(this, parentFrame);
+        } else {
+            this.minigameManager = null;
+        }
+
+        // —— Scoring Strategy + Decorators ——
         ScoringStrategy strat = new TieredScoringStrategy();
-        strat = new TimeBonusDecorator(strat, /*threshold=*/VERY_FAST_THRESHOLD, /*bonus=*/VERY_FAST_BONUS);
-        strat = new CapDecorator(strat, /*max=*/MAX_POINTS_PER_ROOM);
+        strat = new TimeBonusDecorator(strat, VERY_FAST_THRESHOLD, VERY_FAST_BONUS);
+        strat = new CapDecorator(strat, MAX_POINTS_PER_ROOM);
         this.scoring = strat;
 
+        // —— Observer wiring ——
         final Player player = gameState.getPlayer();
         final ScoreHud hud   = gameRenderer.getScoreHud();
         player.addScoreListener(hud);
+    }
+
+    /**
+     * Constructor with default null parent frame (for backward compatibility).
+     *
+     * @param environmentSize size of the Game panel
+     */
+    public MainController(final Point2D environmentSize) {
+        this(environmentSize, null);
+    }
+
+    /**
+     * Sets (or resets) the parent frame used by the MinigameManager.
+     * This is only needed if you couldn’t supply the frame at construction time.
+     *
+     * @param parentFrame the JFrame to use as parent for all minigame windows
+     */
+    public void setParentFrame(final JFrame parentFrame) {
+        if (parentFrame != null && this.minigameManager == null) {
+            this.minigameManager = new MinigameManager(this, parentFrame);
+            LOGGER.info("MinigameManager initialized with parent frame");
+        }
     }
 
     /**
@@ -86,10 +122,13 @@ public class MainController {
     }
 
     /**
-     * Stops the game loop.
+     * Stops the game loop and any running minigames.
      */
     public void stop() {
         running = false;
+        if (minigameManager != null) {
+            minigameManager.stopCurrentMinigame();
+        }
     }
 
     /**
@@ -108,6 +147,14 @@ public class MainController {
      */
     public KeyHandler getKeyHandler() {
         return keyHandler;
+    }
+
+    /**
+     * Gets the minigame manager.
+     * @return the minigame manager
+     */
+    public MinigameManager getMinigameManager() {
+        return minigameManager;
     }
 
     /**
@@ -154,7 +201,12 @@ public class MainController {
      * Check win condition.
      */
     private void checkWin() {
-        // Implementation for win condition check
+        // Check if all puzzle rooms have been completed
+        final int totalPuzzleRooms = 4; // Rooms 1-4 are puzzle rooms
+        if (gameState.getPlayer().allRoomsCompleted(totalPuzzleRooms)) {
+            LOGGER.info("Player has completed all rooms! Game won!");
+            // You can implement a win screen or callback here
+        }
     }
 
     /**
@@ -164,6 +216,7 @@ public class MainController {
      */
     private void checkInteraction(final Player player, final Room room) {
         if (keyHandler.isInteractJustPressed()) {
+            // Check door interactions
             room.getDoors().forEach(door -> {
                 if (isNearDoor(player, door)) {
                     gameState.changeRoom(door.getToId());
@@ -172,12 +225,25 @@ public class MainController {
                 }
             });
 
+            // Check NPC interactions (only in puzzle rooms)
             if (room.getRoomType() == RoomGenerator.PUZZLE_ROOM && room.getNpc() != null
                 && isNearNpc(player, room.getNpc())) {
+
+                // Check if this room has already been completed
+                if (gameState.getPlayer().getRoomScore(room.getId()) != null) {
+                    LOGGER.info("Room " + room.getId() + " already completed!");
+                    return;
+                }
+
                 room.getNpc().interact();
                 final int roomId = gameState.getCurrentRoom().getId();
-                startMinigame(roomId);
-                endMinigame(true);
+
+                // Start the appropriate minigame for this room
+                if (minigameManager != null) {
+                    minigameManager.startMinigame(roomId);
+                } else {
+                    LOGGER.warning("MinigameManager not initialized - cannot start minigame");
+                }
             }
         }
     }
@@ -189,19 +255,17 @@ public class MainController {
      * @return true if player is close enough to interact
      */
     private boolean isNearDoor(final Player player, final Door door) {
-        // Expand the door's interaction area
-        final int proximityBuffer = 30; // pixels
+        final int proximityBuffer = 30;
 
         final Point2D playerPos = player.getPosition();
         final Point2D playerSize = player.getDimension();
         final Point2D doorPos = door.getPosition();
         final Point2D doorSize = door.getDimension();
 
-        // Check if player is within expanded door area
         return playerPos.getX() + playerSize.getX() >= doorPos.getX() - proximityBuffer
-        && playerPos.getX() <= doorPos.getX() + doorSize.getX() + proximityBuffer 
-        && playerPos.getY() + playerSize.getY() >= doorPos.getY() - proximityBuffer 
-        && playerPos.getY() <= doorPos.getY() + doorSize.getY() + proximityBuffer;
+            && playerPos.getX() <= doorPos.getX() + doorSize.getX() + proximityBuffer 
+            && playerPos.getY() + playerSize.getY() >= doorPos.getY() - proximityBuffer 
+            && playerPos.getY() <= doorPos.getY() + doorSize.getY() + proximityBuffer;
     }
 
     /**
@@ -218,12 +282,11 @@ public class MainController {
         final Point2D npcPos = npc.getPosition();
         final Point2D npcSize = npc.getDimension();
 
-        // Check if player is within expanded NPC area
         return playerPos.getX() + playerSize.getX() >= npcPos.getX() - proximityBuffer
             && playerPos.getX() <= npcPos.getX() + npcSize.getX() + proximityBuffer 
             && playerPos.getY() + playerSize.getY() >= npcPos.getY() - proximityBuffer 
             && playerPos.getY() <= npcPos.getY() + npcSize.getY() + proximityBuffer;
-        }
+    }
 
     /**
      * Positions the player after changing rooms based on the door used.
@@ -234,7 +297,6 @@ public class MainController {
         final Player player = gameState.getPlayer();
         final Room newRoom = gameState.getCurrentRoom();
 
-        // Find the corresponding door in the new room (door leading back)
         Door correspondingDoor = null;
         for (final Door door : newRoom.getDoors()) {
             if (door.getToId() == usedDoor.getFromId()) {
@@ -244,20 +306,15 @@ public class MainController {
         }
 
         if (correspondingDoor != null) {
-            // Position player near the corresponding door but inside the room
             PlayerPositionManager.positionPlayerAfterTransition(player, correspondingDoor, environmentSize);
         } else {
-            // Fallback to center positioning
             player.setPosition(PlayerPositionManager.getDefaultSpawnPosition(environmentSize));
         }
     }
 
     /**
      * Moves the player based on input.
-     * This method should be called every frame to update the player's position.
-     * It checks for input from the user and updates the player's position accordingly.
-     * It also checks for collisions with walls and other entities.
-     * @param player 
+     * @param player the player to move
      */
     private void movePlayer(final Player player) {
         final int speed = player.getSpeed();
@@ -266,34 +323,31 @@ public class MainController {
 
         if (keyHandler.isUpPressed()) {
             final int newY = currentPos.getY() - speed;
-            // Check bounds
             if (newY >= 10) { // 10 pixel margin from top
                 player.move(0, -speed);
             }
         }
         if (keyHandler.isDownPressed()) {
             final int newY = currentPos.getY() + speed;
-            // Check bounds
             if (newY + playerSize.getY() <= environmentSize.getY() - 10) { // 10 pixel margin from bottom
                 player.move(0, speed);
             }
         }
         if (keyHandler.isLeftPressed()) {
             final int newX = currentPos.getX() - speed;
-            // Check bounds
             if (newX >= 10) { // 10 pixel margin from left
                 player.move(-speed, 0);
             }
         }
         if (keyHandler.isRightPressed()) {
             final int newX = currentPos.getX() + speed;
-            // Check bounds
             if (newX + playerSize.getX() <= environmentSize.getX() - 10) { // 10 pixel margin from right
                 player.move(speed, 0);
                 ensurePlayerInBounds(player);
             }
         }
     }
+
     /**
      * Ensures the player stays within bounds (safety check).
      * @param player the player to check
@@ -316,8 +370,6 @@ public class MainController {
         }
     }
 
-    // Point system methods
-
     /**
      * Starts timing for a minigame in the specified room.
      * @param roomId the room ID for the minigame
@@ -326,27 +378,32 @@ public class MainController {
         minigameStartTime = System.currentTimeMillis();
         minigameActive = true;
         currentMinigameRoomId = roomId;
+        LOGGER.info("Started minigame timing for room " + roomId);
     }
 
-/**
- * Ends the current minigame and awards points via the configured ScoringStrategy.
- *
- * @param success true if the minigame was completed successfully
- */
+    /**
+     * Ends the current minigame and awards points via the configured ScoringStrategy.
+     *
+     * @param success true if the minigame was completed successfully
+     */
     public void endMinigame(final boolean success) {
         if (minigameActive && currentMinigameRoomId >= 0 && success) {
-            // calculate how long it took in seconds
+            // 1) compute elapsed time in seconds
             final int timeTaken = (int) ((System.currentTimeMillis() - minigameStartTime) / 1000);
-            // delegate to our Strategy+Decorator chain
+            // 2) compute points via Strategy+Decorator chain
             final int pointsGained = scoring.calculate(timeTaken, currentMinigameRoomId);
-            // store and notify observers
-            gameState.getPlayer()
-                    .addRoomScore(currentMinigameRoomId, timeTaken, pointsGained);
+            // 3) store and notify observers
+            gameState.getPlayer().addRoomScore(currentMinigameRoomId, timeTaken, pointsGained);
+            // 4) log success
+            LOGGER.info("Minigame completed successfully! Room " 
+                + currentMinigameRoomId 
+                + ", Time: " + timeTaken + "s, Points: " + pointsGained);
+        } else if (minigameActive) {
+            // log failure
+            LOGGER.info("Minigame failed for room " + currentMinigameRoomId);
         }
-        // reset state
-        minigameActive = false;
-        currentMinigameRoomId = -1;
+        // 5) reset state
+        minigameActive         = false;
+        currentMinigameRoomId  = -1;
     }
-
- 
 }

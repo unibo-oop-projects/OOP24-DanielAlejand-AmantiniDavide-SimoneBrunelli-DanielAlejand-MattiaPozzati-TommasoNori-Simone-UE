@@ -6,6 +6,10 @@ import it.unibo.exam.view.GameRenderer;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+import javax.swing.JFrame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -14,11 +18,9 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.logging.Logger;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 /**
  * Main game panel that handles rendering of the game world.
- * This panel integrates the MainController and GameRenderer to display the game.
+ * Updated to support minigame integration with proper parent frame reference.
  */
 @SuppressFBWarnings(value = {"SE_BAD_FIELD", "SE_BAD_FIELD_STORE"}, 
                    justification = "GamePanel is not intended to be serialized,"
@@ -31,15 +33,23 @@ public final class GamePanel extends JPanel {
     private final MainController mainController;
     private final GameRenderer   gameRenderer;
     private final Point2D        initialSize;
+    private final JFrame         parentFrame;
 
     /**
-     * Constructor for GamePanel.
+     * Constructor for GamePanel with parent frame reference.
+     * Creates defensive copies of mutable parameters to prevent external modification.
      *
-     * @param initialSize the initial size of the game panel
+     * @param initialSize the initial size of the game panel (will be copied)
+     * @param parentFrame the parent frame for minigame windows (reference retained)
      */
-    public GamePanel(final Point2D initialSize) {
-        this.initialSize = new Point2D(initialSize);
-        this.mainController = new MainController(initialSize);
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", 
+                       justification = "JFrame reference intentionally retained for UI operations")
+    public GamePanel(final Point2D initialSize, final JFrame parentFrame) {
+        // Defensive copy of Point2D to prevent external modification
+        this.initialSize   = new Point2D(initialSize.getX(), initialSize.getY());
+        // JFrame reference retained intentionally for minigame support
+        this.parentFrame   = parentFrame;
+        this.mainController = new MainController(this.initialSize, parentFrame);
         this.gameRenderer  = mainController.getGameRenderer();
 
         // Defer initialization to avoid calling overridable methods during construction
@@ -47,12 +57,50 @@ public final class GamePanel extends JPanel {
     }
 
     /**
-     * Alternative constructor that takes Dimension.
+     * Alternative constructor that takes Dimension and parent frame.
      *
      * @param initialSize the initial size as a Dimension
+     * @param parentFrame the parent frame for minigame windows
      */
+    public GamePanel(final Dimension initialSize, final JFrame parentFrame) {
+        this(new Point2D(initialSize.width, initialSize.height), parentFrame);
+    }
+
+    /**
+     * Backward compatibility constructor (without parent frame).
+     * Minigames will not work properly without a parent frame.
+     *
+     * @param initialSize the initial size of the game panel
+     * @deprecated Use constructor with parent frame for minigame support
+     */
+    @Deprecated
+    public GamePanel(final Point2D initialSize) {
+        this(initialSize, null);
+        LOGGER.warning("GamePanel created without parent frame - minigames may not work properly");
+    }
+
+    /**
+     * Backward compatibility constructor (without parent frame).
+     *
+     * @param initialSize the initial size as a Dimension
+     * @deprecated Use constructor with parent frame for minigame support
+     */
+    @Deprecated
     public GamePanel(final Dimension initialSize) {
-        this(new Point2D(initialSize.width, initialSize.height));
+        this(new Point2D(initialSize.width, initialSize.height), null);
+    }
+
+    /**
+     * Sets the parent frame after construction if not set in constructor.
+     * This allows minigames to work properly.
+     *
+     * @param parentFrame the parent frame
+     */
+    public void setParentFrame(final JFrame parentFrame) {
+        if (parentFrame != null) {
+            mainController.setParentFrame(parentFrame);
+            LOGGER.info("Parent frame set for GamePanel - minigames now enabled");
+        }
     }
 
     /**
@@ -102,7 +150,7 @@ public final class GamePanel extends JPanel {
     }
 
     /**
-     * Stops the game controller.
+     * Stops the game controller and any running minigames.
      */
     public void stopGame() {
         mainController.stop();
@@ -145,6 +193,19 @@ public final class GamePanel extends JPanel {
         return mainController;
     }
 
+    /**
+     * Gets the parent frame reference for minigame operations.
+     * 
+     * @return the parent frame or null if not set
+     * @implNote Returns direct reference to internal frame - caller should not modify
+     */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", 
+                       justification = "Parent frame reference needed for minigame centering,"
+                       + "modification by caller is acceptable")
+    public JFrame getParentFrame() {
+        return parentFrame;
+    }
+
     @Override
     public void addNotify() {
         super.addNotify();
@@ -162,10 +223,10 @@ public final class GamePanel extends JPanel {
         final Dimension currentSize = getSize();
         if (currentSize.width != initialSize.getX()
          || currentSize.height != initialSize.getY()) {
-            mainController.resize(new Point2D(currentSize.width,
-                                              currentSize.height));
-            initialSize.setXY(currentSize.width,
-                              currentSize.height);
+            // Notify controller of resize with new Point2D instance
+            mainController.resize(new Point2D(currentSize.width, currentSize.height));
+            // We don't modify initialSize anymore since it should remain immutable
+            // The initial size is preserved as originally set
         }
         super.paint(g);
     }

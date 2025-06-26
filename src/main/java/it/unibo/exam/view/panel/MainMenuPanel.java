@@ -18,10 +18,9 @@ import javax.swing.JPanel;
 
 /**
  * Main menu panel for the game, displays play, options and exit buttons.
- * Updated to integrate with GamePanel.
- * @version 1.2
+ * Updated to properly support minigame integration by passing parent frame reference.
  */
-public final class MainMenuPanel extends JPanel {
+public class MainMenuPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
     private static final int WIDTHBUTTON = 800;
@@ -50,6 +49,7 @@ public final class MainMenuPanel extends JPanel {
         // Panel layout for align the buttons
         super.setLayout(new BorderLayout());
         super.setPreferredSize(window.getSize());
+
         // Creates the panel where the buttons will stay
         final JPanel buttonPanel = createButtonPanel();
         final GridBagConstraints gbc = new GridBagConstraints();
@@ -57,7 +57,7 @@ public final class MainMenuPanel extends JPanel {
         gbc.gridy = 0;
         gbc.insets = new Insets(BUTTONSPACING, 0, BUTTONSPACING, 0); // Space between buttons
         gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER; // Move the buttons ins the centre
+        gbc.anchor = GridBagConstraints.CENTER; // Move the buttons in the centre
 
         // Buttons creation
         final JButton playButton = new JButton("Gioca");
@@ -69,27 +69,27 @@ public final class MainMenuPanel extends JPanel {
         optionsButton.setPreferredSize(buttonSize);
         exitButton.setPreferredSize(buttonSize);
 
-        //Button's font
+        // Button's font
         final Font buttonFont = new Font("Arial", Font.BOLD, BUTTONFONTSIZE);
         playButton.setFont(buttonFont);
         optionsButton.setFont(buttonFont);
         exitButton.setFont(buttonFont);
 
-        //Adding the buttons to the panel
+        // Adding the buttons to the panel
         buttonPanel.add(playButton, gbc);
-        gbc.gridy++; //Move the next button lower
+        gbc.gridy++; // Move the next button lower
         buttonPanel.add(optionsButton, gbc);
-        gbc.gridy++; //Move the next button lower
+        gbc.gridy++; // Move the next button lower
         buttonPanel.add(exitButton, gbc);
 
-        //Adding the panel to the window
+        // Adding the panel to the window
         super.add(buttonPanel, BorderLayout.CENTER);
 
-        //Action listener fo the button 'Play'
+        // Action listener for the button 'Play'
         playButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                //Once you press 'Play', menu panel get removed and the game starts 
+                // Once you press 'Play', menu panel gets removed and the game starts 
                 startGame(window);
             }
         });
@@ -98,7 +98,7 @@ public final class MainMenuPanel extends JPanel {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 // Options not implemented yet
-                JOptionPane.showMessageDialog(window, "Opzioni non implementate ancora.");
+                JOptionPane.showMessageDialog(window, "Options not implemented yet.");
             }
         });
 
@@ -107,7 +107,7 @@ public final class MainMenuPanel extends JPanel {
             public void actionPerformed(final ActionEvent e) {
                 // Show confirmation dialog
                 final int confirmed = JOptionPane.showConfirmDialog(window,
-                        "Sei sicuro di voler uscire?", "Conferma uscita", JOptionPane.YES_NO_OPTION); 
+                        "Are you sure you want to exit?", "Confirm Exit", JOptionPane.YES_NO_OPTION); 
 
                 if (confirmed == JOptionPane.YES_OPTION) {
                     // Stop game if running
@@ -123,6 +123,7 @@ public final class MainMenuPanel extends JPanel {
 
     /**
      * Starts the game by removing the menu and adding the game panel.
+     * Updated to pass the parent frame reference for minigame support.
      * 
      * @param window the parent window
      */
@@ -130,10 +131,12 @@ public final class MainMenuPanel extends JPanel {
         // Remove the menu panel
         window.getContentPane().removeAll();
 
-        // Create and add the game panel
+        // Create and add the game panel WITH parent frame reference
         final Dimension windowSize = window.getSize();
         final Point2D gameSize = new Point2D(windowSize.width, windowSize.height);
-        gamePanel = new GamePanel(gameSize);
+
+        // IMPORTANT: Pass the window reference to enable minigames
+        gamePanel = new GamePanel(gameSize, window);
 
         window.add(gamePanel);
 
@@ -144,7 +147,7 @@ public final class MainMenuPanel extends JPanel {
         window.revalidate();
         window.repaint();
 
-        // Optional: Add ESC key listener to return to menu
+        // Add ESC key listener to return to menu
         addReturnToMenuListener(window);
     }
 
@@ -176,10 +179,10 @@ public final class MainMenuPanel extends JPanel {
      */
     private void returnToMenu(final JFrame window) {
         final int confirmed = JOptionPane.showConfirmDialog(window,
-                "Tornare al menu principale?", "Conferma", JOptionPane.YES_NO_OPTION);
+                "Return to main menu?", "Confirm", JOptionPane.YES_NO_OPTION);
 
         if (confirmed == JOptionPane.YES_OPTION) {
-            // Stop the game
+            // Stop the game and any running minigames
             if (gamePanel != null) {
                 gamePanel.stopGame();
                 gamePanel = null;

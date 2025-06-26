@@ -3,11 +3,10 @@ package it.unibo.exam.model.entity.enviroments;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import it.unibo.exam.model.entity.Npc;
 import it.unibo.exam.model.entity.minigame.Minigame;
 import it.unibo.exam.utility.generator.RoomGenerator;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * A simple Room class representing a room.
@@ -105,7 +104,7 @@ public class Room {
      * Attaches an NPC to this room.
      * @param npc the NPC to attach
      */
-    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", 
+     @SuppressFBWarnings(value = "EI_EXPOSE_REP2", 
                        justification = "NPC is designed to be shared and modified by room, defensive copy not needed")
     public void attachNpc(final Npc npc) {
         if (roomType == RoomGenerator.MAIN_ROOM) {
