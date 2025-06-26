@@ -41,7 +41,7 @@ public class MainController {
     private final KeyHandler      keyHandler;
     private final GameState       gameState;
     private final GameRenderer    gameRenderer;
-    private final MinigameManager minigameManager;
+    private MinigameManager minigameManager;
     private final ScoringStrategy scoring;
     private boolean               running;
     private Point2D               environmentSize;
@@ -382,28 +382,41 @@ public class MainController {
     }
 
     /**
-     * Ends the current minigame and awards points via the configured ScoringStrategy.
+     * Ends the current minigame with a known duration and awards points.
      *
-     * @param success true if the minigame was completed successfully
+     * @param success   true if the minigame was completed successfully
+     * @param timeTaken the time taken (in seconds) to complete the minigame
      */
-    public void endMinigame(final boolean success) {
+    public void endMinigame(final boolean success, final int timeTaken) {
         if (minigameActive && currentMinigameRoomId >= 0 && success) {
-            // 1) compute elapsed time in seconds
-            final int timeTaken = (int) ((System.currentTimeMillis() - minigameStartTime) / 1000);
-            // 2) compute points via Strategy+Decorator chain
+            // compute points via Strategy+Decorator chain
             final int pointsGained = scoring.calculate(timeTaken, currentMinigameRoomId);
-            // 3) store and notify observers
+            // store and notify observers
             gameState.getPlayer().addRoomScore(currentMinigameRoomId, timeTaken, pointsGained);
-            // 4) log success
-            LOGGER.info("Minigame completed successfully! Room " 
-                + currentMinigameRoomId 
-                + ", Time: " + timeTaken + "s, Points: " + pointsGained);
+            // log success
+            LOGGER.info("Minigame completed successfully! Room "
+                        + currentMinigameRoomId
+                        + ", Time: " + timeTaken + "s, Points: " + pointsGained);
         } else if (minigameActive) {
             // log failure
             LOGGER.info("Minigame failed for room " + currentMinigameRoomId);
         }
-        // 5) reset state
-        minigameActive         = false;
-        currentMinigameRoomId  = -1;
+        // reset state
+        minigameActive        = false;
+        currentMinigameRoomId = -1;
     }
+
+    /**
+     * Ends the current minigame by computing its duration from the start timestamp.
+     *
+     * @deprecated use {@link #endMinigame(boolean,int)} instead so you can supply
+     *             the real minigame duration explicitly.
+     * @param success true if the minigame was completed successfully
+     */
+    @Deprecated
+    public void endMinigame(final boolean success) {
+        final int timeTaken = (int) ((System.currentTimeMillis() - minigameStartTime) / 1000);
+        endMinigame(success, timeTaken);
+    }
+
 }
