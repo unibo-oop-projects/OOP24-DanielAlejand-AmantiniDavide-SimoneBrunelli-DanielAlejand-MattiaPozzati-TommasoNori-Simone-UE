@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
+import it.unibo.exam.controller.minigame.bar.strategy.RandomShuffleStrategy;
+import it.unibo.exam.controller.minigame.bar.strategy.ShuffleStrategy;
 
 /**
  * The model for the Sort-&-Serve bar puzzle.
@@ -19,15 +20,17 @@ public final class BarModel {
     /**
      * Creates a BarModel with the given configuration.
      *
-     * @param numGlasses  how many glasses to create
-     * @param capacity    how many layers each glass holds
-     * @param colors      exactly numGlasses distinct colors, each to be repeated capacity times
-     * @param shuffleSeed the RNG seed to use when shuffling layers
+     * @param numGlasses      how many glasses to create
+     * @param capacity        how many layers each glass holds
+     * @param colors          exactly numGlasses distinct colors
+     * @param shuffleSeed     the RNG seed to use when shuffling layers
+     * @param shuffleStrategy the algorithm to apply when shuffling the layers
      */
     public BarModel(final int numGlasses,
                     final int capacity,
                     final List<Color> colors,
-                    final long shuffleSeed) {
+                    final long shuffleSeed,
+                    final ShuffleStrategy shuffleStrategy) {
         this.numGlasses = numGlasses;
         this.capacity   = capacity;
 
@@ -43,8 +46,8 @@ public final class BarModel {
             }
         }
 
-        Collections.shuffle(pool, new Random(shuffleSeed));
-        final Iterator<Color> it = pool.iterator();
+        final List<Color> shuffled = shuffleStrategy.shuffle(pool, shuffleSeed);
+        final Iterator<Color> it = shuffled.iterator();
         for (final Glass g : this.glasses) {
             for (int layer = 0; layer < this.capacity; layer++) {
                 g.addLayer(it.next());
@@ -100,6 +103,7 @@ public final class BarModel {
             Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW
         );
         private long shuffleSeed    = System.currentTimeMillis();
+        private ShuffleStrategy shuffleStrategy = new RandomShuffleStrategy();
 
         /**
          * Sets how many glasses the puzzle will have.
@@ -146,6 +150,15 @@ public final class BarModel {
         }
 
         /**
+         * @param strategy the shuffle algorithm to use
+         * @return this Builder
+         */
+        public Builder shuffleStrategy(final ShuffleStrategy strategy) {
+            this.shuffleStrategy = strategy;
+            return this;
+        }
+
+        /**
          * Builds a new BarModel using the configured parameters.
          *
          * @return a new BarModel instance with the current settings
@@ -155,7 +168,8 @@ public final class BarModel {
                 this.numGlasses,
                 this.capacity,
                 this.colors,
-                this.shuffleSeed
+                this.shuffleSeed,
+                this.shuffleStrategy
             );
         }
     }

@@ -1,5 +1,6 @@
 package it.unibo.exam.controller.minigame.bar;
 
+import it.unibo.exam.controller.minigame.bar.strategy.RandomShuffleStrategy;
 import it.unibo.exam.model.entity.minigame.bar.BarModel;
 import it.unibo.exam.view.bar.BarPanel;
 
@@ -24,6 +25,7 @@ public final class BarMinigame {
             .capacity(4)
             .colors(Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW)
             .shuffleSeed(System.currentTimeMillis())
+            .shuffleStrategy(new RandomShuffleStrategy())
             .build();
 
         final BarPanel panel = new BarPanel(model);
