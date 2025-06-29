@@ -58,4 +58,18 @@ public final class Glass {
         return new ArrayDeque<>(layers);
     }
 
+    /**
+     * @param capacity the expected size of the stack
+     * @return true if this glass has exactly 'capacity' layers
+     *         and they’re all the same color
+     */
+    public boolean isUniform(final int capacity) {
+        if (layers.size() != capacity) {
+            return false;
+        }
+        final Color top = layers.peek();
+        // allMatch requires a stream, so:
+        return layers.stream().allMatch(c -> c.equals(top));
+    }
+
 }

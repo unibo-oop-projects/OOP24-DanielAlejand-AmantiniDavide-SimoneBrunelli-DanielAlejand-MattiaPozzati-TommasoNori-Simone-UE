@@ -1,25 +1,42 @@
 package it.unibo.exam.controller.minigame.bar;
 
-import it.unibo.exam.controller.minigame.bar.strategy.RandomShuffleStrategy;
 import it.unibo.exam.model.entity.minigame.bar.BarModel;
+import it.unibo.exam.model.entity.minigame.bar.PuzzleListener;
 import it.unibo.exam.view.bar.BarPanel;
-
 import java.awt.Color;
 import javax.swing.JFrame;
-import javax.swing.WindowConstants;
+import javax.swing.SwingUtilities;
+import it.unibo.exam.model.entity.minigame.MinigameCallback;
+import it.unibo.exam.controller.minigame.bar.strategy.RandomShuffleStrategy;
+
 
 /**
- * A “Sort & Serve” puzzle: pour colored layers between glasses
- * until each glass holds only one color.
+ * A “Sort & Serve” bar‐puzzle minigame.
+ * Displays four glasses of mixed colored layers that the player
+ * must pour until each glass is uniform.
+ * Fires a callback on completion.
  */
 public final class BarMinigame {
 
     private JFrame frame;
+    private final MinigameCallback callback;
 
     /**
-     * Launches the bar-puzzle window.
+     * Creates a new BarMinigame.
+     *
+     * @param callback the callback to invoke when the puzzle completes
      */
-    public void start() {
+    public BarMinigame(final MinigameCallback callback) {
+        this.callback = callback;
+    }
+
+    /**
+     * Starts the puzzle by building the model, wiring up listeners,
+     * and showing the UI in its own JFrame.
+     *
+     * @param parent the parent window for centering this minigame frame
+     */
+    public void start(final JFrame parent) {
         final BarModel model = new BarModel.Builder()
             .numGlasses(4)
             .capacity(4)
@@ -30,16 +47,29 @@ public final class BarMinigame {
 
         final BarPanel panel = new BarPanel(model);
 
+        // repaint on each pour, notify on completion
+        model.addListener(new PuzzleListener() {
+            @Override
+            public void onPoured(final int from, final int to) {
+                SwingUtilities.invokeLater(panel::repaint);
+            }
+            @Override
+            public void onCompleted() {
+                callback.onComplete(true, 0);
+                stop();
+            }
+        });
+
         frame = new JFrame("Sort & Serve");
         frame.add(panel);
         frame.pack();
-        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
+        frame.setLocationRelativeTo(parent);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setVisible(true);
     }
 
     /**
-     * Stops the puzzle, disposing of its window.
+     * Stops the puzzle, disposing its window.
      */
     public void stop() {
         if (frame != null) {

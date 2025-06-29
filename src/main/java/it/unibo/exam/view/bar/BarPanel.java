@@ -9,6 +9,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JPanel;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Panel that renders the Sort & Serve bar puzzle and handles mouse input.
  */
@@ -20,6 +22,13 @@ public final class BarPanel extends JPanel {
     private static final int LAYER_BASE_HEIGHT      = 40;
     private static final int EXTRA_PANEL_HEIGHT_PAD = 60;
 
+    /**
+     * The puzzle model this panel visualizes.
+     */
+    @SuppressFBWarnings(
+      value = "EI2",
+      justification = "MVC: panel must keep a reference to its model for rendering"
+    )
     private final transient BarModel model;
     private int selected = -1;
 

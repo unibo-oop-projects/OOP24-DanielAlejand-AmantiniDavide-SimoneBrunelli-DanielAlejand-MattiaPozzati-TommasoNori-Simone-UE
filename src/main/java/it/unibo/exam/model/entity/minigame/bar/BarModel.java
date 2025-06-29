@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import it.unibo.exam.controller.minigame.bar.strategy.RandomShuffleStrategy;
 import it.unibo.exam.controller.minigame.bar.strategy.ShuffleStrategy;
 
@@ -16,6 +17,7 @@ public final class BarModel {
     private final List<Glass> glasses;
     private final int numGlasses;
     private final int capacity;
+    private final List<PuzzleListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
      * Creates a BarModel with the given configuration.
@@ -63,12 +65,26 @@ public final class BarModel {
      * @return true if the move was valid and performed; false otherwise
      */
     public boolean attemptPour(final int from, final int to) {
-        final Glass a = this.glasses.get(from);
-        final Glass b = this.glasses.get(to);
+        final Glass a = glasses.get(from);
+        final Glass b = glasses.get(to);
         if (!a.canPourInto(b)) {
             return false;
         }
         a.pourInto(b);
+
+        // fire pour event
+        for (final PuzzleListener lst : listeners) {
+            lst.onPoured(from, to);
+        }
+
+        // check for completion
+        final boolean nowCompleted = glasses.stream()
+                                            .allMatch(g -> g.isUniform(capacity));
+        if (nowCompleted) {
+            for (final PuzzleListener lst : listeners) {
+                lst.onCompleted();
+            }
+        }
         return true;
     }
 
@@ -93,7 +109,25 @@ public final class BarModel {
         return this.capacity;
     }
 
-        /**
+    /**
+     * Registers a listener to receive pour/completion events.
+     *
+     * @param listener the listener to add
+     */
+    public void addListener(final PuzzleListener listener) {
+        listeners.add(listener);
+    }
+
+    /**
+     * Unregisters a previously-added listener.
+     *
+     * @param listener the listener to remove
+     */
+    public void removeListener(final PuzzleListener listener) {
+        listeners.remove(listener);
+    }
+
+    /**
      * Fluent builder for BarModel.
      */
     public static final class Builder {
