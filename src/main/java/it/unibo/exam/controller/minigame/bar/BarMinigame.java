@@ -4,8 +4,6 @@ import it.unibo.exam.model.entity.minigame.bar.BarModel;
 import it.unibo.exam.view.bar.BarPanel;
 
 import java.awt.Color;
-import java.util.Arrays;
-import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
@@ -21,18 +19,12 @@ public final class BarMinigame {
      * Launches the bar-puzzle window.
      */
     public void start() {
-        final List<Color> initial = Arrays.asList(
-            Color.RED,    Color.RED,    Color.RED,    Color.RED,
-            Color.GREEN,  Color.GREEN,  Color.GREEN,  Color.GREEN,
-            Color.BLUE,   Color.BLUE,   Color.BLUE,   Color.BLUE,
-            Color.YELLOW, Color.YELLOW, Color.YELLOW, Color.YELLOW
-        );
-
-        final BarModel model = new BarModel(
-            /* numGlasses = */ 4,
-            /* capacity   = */ 4,
-            initial
-        );
+        final BarModel model = new BarModel.Builder()
+            .numGlasses(4)
+            .capacity(4)
+            .colors(Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW)
+            .shuffleSeed(System.currentTimeMillis())
+            .build();
 
         final BarPanel panel = new BarPanel(model);
 
