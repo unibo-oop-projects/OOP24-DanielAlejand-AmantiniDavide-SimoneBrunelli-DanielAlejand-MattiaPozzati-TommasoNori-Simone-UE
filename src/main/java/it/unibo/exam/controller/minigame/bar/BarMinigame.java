@@ -1,13 +1,16 @@
 package it.unibo.exam.controller.minigame.bar;
 
+
 import it.unibo.exam.model.entity.minigame.bar.BarModel;
 import it.unibo.exam.model.entity.minigame.bar.PuzzleListener;
 import it.unibo.exam.view.bar.BarPanel;
-import java.awt.Color;
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
+import it.unibo.exam.model.entity.minigame.Minigame;
 import it.unibo.exam.model.entity.minigame.MinigameCallback;
 import it.unibo.exam.controller.minigame.bar.strategy.RandomShuffleStrategy;
+
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import java.awt.Color;
 
 
 /**
@@ -16,27 +19,21 @@ import it.unibo.exam.controller.minigame.bar.strategy.RandomShuffleStrategy;
  * must pour until each glass is uniform.
  * Fires a callback on completion.
  */
-public final class BarMinigame {
+public final class BarMinigame implements Minigame {
 
     private JFrame frame;
-    private final MinigameCallback callback;
+    private MinigameCallback callback;
+
+    /** No‐arg constructor for factory instantiation. */
+    public BarMinigame() { }
 
     /**
-     * Creates a new BarMinigame.
-     *
-     * @param callback the callback to invoke when the puzzle completes
+     * {@inheritDoc}
      */
-    public BarMinigame(final MinigameCallback callback) {
+    @Override
+    public void start(final JFrame parent, final MinigameCallback callback) {
         this.callback = callback;
-    }
 
-    /**
-     * Starts the puzzle by building the model, wiring up listeners,
-     * and showing the UI in its own JFrame.
-     *
-     * @param parent the parent window for centering this minigame frame
-     */
-    public void start(final JFrame parent) {
         final BarModel model = new BarModel.Builder()
             .numGlasses(4)
             .capacity(4)
@@ -55,12 +52,12 @@ public final class BarMinigame {
             }
             @Override
             public void onCompleted() {
-                callback.onComplete(true, 0);
+                BarMinigame.this.callback.onComplete(true, 0);
                 stop();
             }
         });
 
-        frame = new JFrame("Sort & Serve");
+        frame = new JFrame(getName());
         frame.add(panel);
         frame.pack();
         frame.setLocationRelativeTo(parent);
@@ -69,11 +66,28 @@ public final class BarMinigame {
     }
 
     /**
-     * Stops the puzzle, disposing its window.
+     * {@inheritDoc}
      */
+    @Override
     public void stop() {
         if (frame != null) {
             frame.dispose();
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getName() {
+        return "Sort & Serve";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDescription() {
+        return "Pour colored layers so each glass is uniform.";
     }
 }
