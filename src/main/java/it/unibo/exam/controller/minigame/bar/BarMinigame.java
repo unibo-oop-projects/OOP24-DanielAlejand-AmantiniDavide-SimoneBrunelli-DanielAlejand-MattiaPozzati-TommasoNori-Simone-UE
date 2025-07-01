@@ -51,14 +51,16 @@ public final class BarMinigame implements Minigame {
      * No‐arg constructor for factory instantiation (uses default scoring).
      */
     public BarMinigame() {
-        this(new TimeBonusDecorator(
+        this(
             new CapDecorator(
-                new TieredScoringStrategy(),
+                new TimeBonusDecorator(
+                    new TieredScoringStrategy(),
+                    BONUS_TIME_THRESHOLD_SECONDS,
+                    BONUS_POINTS
+                ),
                 MAX_POINTS_CAP
-            ),
-            BONUS_TIME_THRESHOLD_SECONDS,
-            BONUS_POINTS
-        ));
+            )
+        );
     }
 
     /**
@@ -162,23 +164,22 @@ public final class BarMinigame implements Minigame {
             public void onPoured(final int from, final int to) {
                 SwingUtilities.invokeLater(panel::repaint);
             }
+
             @Override
             public void onCompleted() {
                 final long elapsedMillis  = System.currentTimeMillis() - startTimeMillis;
                 final int  elapsedSeconds = (int) (elapsedMillis / 1_000L);
-                final int  score          =
-                    scoringStrategy.calculate(elapsedSeconds, ROOM_ID);
+                final int  score          = scoringStrategy.calculate(elapsedSeconds, ROOM_ID);
 
                 JOptionPane.showMessageDialog(frame,
                     "Puzzle completed!\nMoves: " + moveCount
-                  + "\nTime: "   + elapsedSeconds + " seconds"
-                  + "\nScore: "  + score
+                    + "\nTime: "   + elapsedSeconds + " seconds"
+                    + "\nScore: "  + score
                 );
-                BarMinigame.this.callback.onComplete(true, score);
-                stop();
+                BarMinigame.this.callback.onComplete(true, elapsedSeconds); // or score, depending on your interface
+                BarMinigame.this.stop();
             }
         });
-
         return panel;
     }
 
