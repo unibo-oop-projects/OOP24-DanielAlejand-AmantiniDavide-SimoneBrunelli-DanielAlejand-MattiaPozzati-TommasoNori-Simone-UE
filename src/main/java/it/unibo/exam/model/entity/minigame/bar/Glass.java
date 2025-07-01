@@ -10,7 +10,17 @@ import java.util.Deque;
  */
 public final class Glass {
 
-    private final Deque<Color> layers = new ArrayDeque<>();
+    private final Deque<Color> layers;
+    private final int capacity;
+
+    /**
+     * Constructs a glass with a fixed capacity.
+     * @param capacity maximum number of layers this glass can hold
+     */
+    public Glass(final int capacity) {
+        this.capacity = capacity;
+        this.layers = new ArrayDeque<>();
+    }
 
     /**
      * Adds one layer of the given color on top of this glass.
@@ -23,15 +33,18 @@ public final class Glass {
 
     /**
      * Checks whether the top layer of this glass can be poured into another.
-     * It is valid if this glass is non-empty and either the target glass
-     * is empty or its top layer matches this top layer.
+     * It is valid if this glass is non-empty, the target is not full,
+     * and either the target glass is empty or its top layer matches this top layer.
      *
      * @param other the target glass
      * @return {@code true} if a pour from this to {@code other} is allowed
      */
     public boolean canPourInto(final Glass other) {
-        return !layers.isEmpty()
-            && (other.layers.isEmpty() || other.layers.peek().equals(layers.peek()));
+        // Cannot pour if this glass is empty or if target is full!
+        if (layers.isEmpty() || other.layers.size() >= other.capacity) {
+            return false;
+        }
+        return other.layers.isEmpty() || other.layers.peek().equals(layers.peek());
     }
 
     /**
@@ -71,5 +84,4 @@ public final class Glass {
         // allMatch requires a stream, so:
         return layers.stream().allMatch(c -> c.equals(top));
     }
-
 }

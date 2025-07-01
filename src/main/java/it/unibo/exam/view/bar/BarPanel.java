@@ -1,13 +1,20 @@
 package it.unibo.exam.view.bar;
 
+import it.unibo.exam.controller.minigame.bar.GlassClickListener;
 import it.unibo.exam.model.entity.minigame.bar.BarModel;
 import it.unibo.exam.model.entity.minigame.bar.Glass;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JPanel;
+import java.awt.BasicStroke;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -21,6 +28,7 @@ public final class BarPanel extends JPanel {
     private static final int CELL_WIDTH             = 120;
     private static final int LAYER_BASE_HEIGHT      = 40;
     private static final int EXTRA_PANEL_HEIGHT_PAD = 60;
+    private GlassClickListener clickListener;
 
     /**
      * The puzzle model this panel visualizes.
@@ -37,6 +45,8 @@ public final class BarPanel extends JPanel {
      */
     public BarPanel(final BarModel model) {
         this.model = model;
+        setFocusable(true);
+        requestFocusInWindow();
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(final MouseEvent e) {
@@ -44,20 +54,29 @@ public final class BarPanel extends JPanel {
                 if (idx < 0 || idx >= model.getNumGlasses()) {
                     return;
                 }
-                if (selected < 0) {
-                    selected = idx;
-                } else {
-                    model.attemptPour(selected, idx);
-                    selected = -1;
-                    repaint();
+                if (clickListener != null) {
+                    clickListener.glassClicked(idx);
                 }
             }
         });
     }
 
+    public int getSelected() {
+        return selected; 
+    }
+
+    public void setSelected(final int idx) {
+        selected = idx;
+    }
+
+    public void clearSelection() {
+        selected = -1;
+    }
+
     @Override
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
+
         final int totalGlasses = model.getNumGlasses();
         final int panelWidth   = getWidth();
         final int panelHeight  = getHeight();
@@ -66,15 +85,22 @@ public final class BarPanel extends JPanel {
         final int cellHeight = panelHeight - EXTRA_PANEL_HEIGHT_PAD;
         final int perLayerHt = cellHeight / model.getCapacity();
 
+        // Cast to Graphics2D to set stroke thickness
+        final Graphics2D g2 = (Graphics2D) g;
+
         for (int i = 0; i < totalGlasses; i++) {
             final int x = GAP + i * (cellWidth + GAP);
             final int y = GAP;
             final Glass glass = model.getGlasses().get(i);
 
+            // --- DRAW LAYERS FROM BOTTOM TO TOP ---
+            List<Color> toDraw = new ArrayList<>(glass.getLayers());
+            Collections.reverse(toDraw); // bottom layer first
+
             int layerIndex = 0;
-            for (final Color c : glass.getLayers()) {
-                g.setColor(c);
-                g.fillRect(
+            for (final Color c : toDraw) {
+                g2.setColor(c);
+                g2.fillRect(
                     x,
                     y + (model.getCapacity() - 1 - layerIndex) * perLayerHt,
                     cellWidth,
@@ -83,10 +109,20 @@ public final class BarPanel extends JPanel {
                 layerIndex++;
             }
 
-            g.setColor(i == selected ? Color.MAGENTA : Color.BLACK);
-            g.drawRect(x, y, cellWidth, cellHeight);
+            // Draw the border (selected/thicker if selected)
+            if (i == selected) {
+                g2.setColor(Color.MAGENTA);
+                g2.setStroke(new BasicStroke(5)); // 5 pixels thick
+            } else {
+                g2.setColor(Color.BLACK);
+                g2.setStroke(new BasicStroke(1)); // 1 pixel for normal
+            }
+            g2.drawRect(x, y, cellWidth, cellHeight);
         }
+        // Optionally, reset stroke after the loop:
+        g2.setStroke(new BasicStroke(1));
     }
+
 
     @Override
     public Dimension getPreferredSize() {
@@ -95,4 +131,9 @@ public final class BarPanel extends JPanel {
             model.getCapacity() * LAYER_BASE_HEIGHT + EXTRA_PANEL_HEIGHT_PAD
         );
     }
+
+        public void setGlassClickListener(final GlassClickListener listener) {
+        this.clickListener = listener;
+    }
+
 }

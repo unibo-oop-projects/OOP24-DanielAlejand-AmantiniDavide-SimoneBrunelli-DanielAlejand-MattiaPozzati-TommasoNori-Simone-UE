@@ -28,7 +28,7 @@ public final class BarModel {
      * @param shuffleSeed     the RNG seed to use when shuffling layers
      * @param shuffleStrategy the algorithm to apply when shuffling the layers
      */
-    public BarModel(final int numGlasses,
+        public BarModel(final int numGlasses,
                     final int capacity,
                     final List<Color> colors,
                     final long shuffleSeed,
@@ -38,10 +38,10 @@ public final class BarModel {
 
         this.glasses = new ArrayList<>(this.numGlasses);
         for (int i = 0; i < this.numGlasses; i++) {
-            this.glasses.add(new Glass());
+            this.glasses.add(new Glass(this.capacity));
         }
-
-        final List<Color> pool = new ArrayList<>(this.numGlasses * this.capacity);
+        final int coloredGlasses = this.numGlasses - 2; // one extra empty glass
+        final List<Color> pool = new ArrayList<>(coloredGlasses * this.capacity);
         for (final Color c : colors) {
             for (int i = 0; i < this.capacity; i++) {
                 pool.add(c);
@@ -50,10 +50,15 @@ public final class BarModel {
 
         final List<Color> shuffled = shuffleStrategy.shuffle(pool, shuffleSeed);
         final Iterator<Color> it = shuffled.iterator();
-        for (final Glass g : this.glasses) {
-            for (int layer = 0; layer < this.capacity; layer++) {
-                g.addLayer(it.next());
+        for (int i = 0; i < this.numGlasses; i++) {
+            Glass g = this.glasses.get(i);
+            // Fill only the first (numGlasses - 1) glasses
+            if (i < coloredGlasses) {
+                for (int layer = 0; layer < this.capacity; layer++) {
+                    g.addLayer(it.next());
+                }
             }
+            // else: leave last glass empty
         }
     }
 
