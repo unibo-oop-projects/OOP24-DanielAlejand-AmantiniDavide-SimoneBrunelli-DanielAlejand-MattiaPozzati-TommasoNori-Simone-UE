@@ -12,11 +12,16 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.imageio.ImageIO;
+import java.util.logging.Logger;
+
 
 /**
  * Panel that renders the Sort & Serve bar puzzle and handles mouse input.
@@ -31,7 +36,13 @@ public final class BarPanel extends JPanel {
     private static final int TOP_BOTTOM_PAD    = 80;  // Padding above/below the row
     private static final int SIDE_PAD          = 80;  // Padding left/right
     private static final int GAP               = 28;  // Gap between bottles
+    private static final int GLASS_OVERLAY_RED   = 255;
+    private static final int GLASS_OVERLAY_GREEN = 255;
+    private static final int GLASS_OVERLAY_BLUE  = 255;
+    private static final int GLASS_OVERLAY_ALPHA = 90;   // Opacity for the frosted effect
     private static final int SELECTED_BORDER_THICKNESS = 5;
+    private static final Logger LOGGER = Logger.getLogger(BarPanel.class.getName());
+
 
     /**
      * The puzzle model this panel visualizes.
@@ -41,6 +52,11 @@ public final class BarPanel extends JPanel {
       justification = "MVC: panel must keep a reference to its model for rendering"
     )
     private final transient BarModel model;
+
+    /**
+     * The background image drawn behind the bottles.
+     */
+    private transient Image backgroundImage;
 
     /**
      * Called when the user clicks a glass.
@@ -61,6 +77,17 @@ public final class BarPanel extends JPanel {
      */
     public BarPanel(final BarModel model) {
         this.model = model;
+
+        // --- LOAD BACKGROUND IMAGE ---
+        try {
+            // Adjust the path as needed. Example: "/img/bar-bg.png"
+            backgroundImage = ImageIO.read(getClass().getResource("/img/barminigame.png"));
+        } catch (IOException | IllegalArgumentException e) {
+            // LOGGER.info("Background URL: " + url);
+            LOGGER.warning("Resource NOT FOUND!");
+            backgroundImage = null;
+        }
+
         setFocusable(true);
         requestFocusInWindow();
         addMouseListener(new MouseAdapter() {
@@ -132,6 +159,11 @@ public final class BarPanel extends JPanel {
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
 
+        // --- DRAW THE BACKGROUND FIRST ---
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
+
         final int totalGlasses = model.getNumGlasses();
         final int bottleWidth  = getBottleWidth();
         final int bottleHeight = getBottleHeight();
@@ -149,6 +181,14 @@ public final class BarPanel extends JPanel {
             final int y     = startY;
             final Glass glass = model.getGlasses().get(i);
 
+            // --- DRAW TRANSPARENT GLASS OVERLAY BEFORE LAYERS ---
+            g2.setColor(new Color(
+                GLASS_OVERLAY_RED,
+                GLASS_OVERLAY_GREEN,
+                GLASS_OVERLAY_BLUE,
+                GLASS_OVERLAY_ALPHA)); // White with alpha for "frosted" effect
+            g2.fillRect(x, y, bottleWidth, bottleHeight);
+
             // --- DRAW LAYERS FROM BOTTOM TO TOP ---
             final List<Color> toDraw = new ArrayList<>(glass.getLayers());
             Collections.reverse(toDraw);
@@ -165,13 +205,13 @@ public final class BarPanel extends JPanel {
                 layerIndex++;
             }
 
-            // Draw the border (thicker if selected)
+            // Draw the border (thicker if selected, otherwise 3px)
             if (i == selected) {
                 g2.setColor(Color.MAGENTA);
                 g2.setStroke(new BasicStroke(SELECTED_BORDER_THICKNESS));
             } else {
                 g2.setColor(Color.BLACK);
-                g2.setStroke(new BasicStroke(1));
+                g2.setStroke(new BasicStroke(3));
             }
             g2.drawRect(x, y, bottleWidth, bottleHeight);
         }
