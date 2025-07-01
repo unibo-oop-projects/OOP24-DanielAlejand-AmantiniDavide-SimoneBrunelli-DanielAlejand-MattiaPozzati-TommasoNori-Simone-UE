@@ -6,9 +6,15 @@ import it.unibo.exam.view.bar.BarPanel;
 import it.unibo.exam.model.entity.minigame.Minigame;
 import it.unibo.exam.model.entity.minigame.MinigameCallback;
 import it.unibo.exam.controller.minigame.bar.strategy.*;
+import it.unibo.exam.model.scoring.ScoringStrategy;
+import it.unibo.exam.model.scoring.CapDecorator;
+import it.unibo.exam.model.scoring.TieredScoringStrategy;
+import it.unibo.exam.model.scoring.TimeBonusDecorator;
+
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+import javax.swing.JOptionPane;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -19,10 +25,11 @@ import javax.swing.JComponent;
 
 /**
  * A “Sort & Serve” bar‐puzzle minigame.
- * Displays five glasses (four filled, one empty) of mixed colored layers that the player
+ * Displays glasses of mixed colored layers that the player
  * must pour until each glass is uniform.
  * Fires a callback on completion.
  * Allows restart ('R') with the original shuffle for fairness.
+ * Now includes a flexible points system via Strategy and Decorator.
  */
 public final class BarMinigame implements Minigame {
 
@@ -30,10 +37,34 @@ public final class BarMinigame implements Minigame {
     private MinigameCallback callback;
     private long initialSeed;        // The seed used to create the initial puzzle
     private final int capacity = 4;  // Number of layers per glass
-    private final int totalGlasses = 6; // Four colors, one empty
+    private final int totalGlasses = 6; // Four colors, two empty
+    private final int roomID = 1; // Unique identifier for this minigame
 
-    /** No‐arg constructor for factory instantiation. */
-    public BarMinigame() { }
+    // Score tracking
+    private int moveCount = 0;
+    private long startTimeMillis = 0;
+
+    // Scoring strategy (can be injected or use default)
+    private final ScoringStrategy scoringStrategy;
+
+    /** No‐arg constructor for factory instantiation (uses default scoring) */
+    public BarMinigame() {
+        this(
+        new TimeBonusDecorator(
+            new CapDecorator(
+                new TieredScoringStrategy(),
+                100 // max points
+            ),
+            30, // seconds for the time bonus
+            10  // bonus points if under threshold
+        )
+    );
+    }
+
+    /** Full constructor allows custom scoring strategy */
+    public BarMinigame(ScoringStrategy scoringStrategy) {
+        this.scoringStrategy = scoringStrategy;
+    }
 
     /**
      * {@inheritDoc}
@@ -54,6 +85,10 @@ public final class BarMinigame implements Minigame {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setVisible(true);
 
+        // Track time and moves
+        this.moveCount = 0;
+        this.startTimeMillis = System.currentTimeMillis();
+
         // Bind 'R' to restart the puzzle with the same shuffle (not a new random one)
         frame.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
             .put(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), "restart");
@@ -61,7 +96,6 @@ public final class BarMinigame implements Minigame {
             .put("restart", new AbstractAction() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    // Always get the current panel from the frame's content pane
                     if (frame.getContentPane().getComponentCount() > 0) {
                         java.awt.Component current = frame.getContentPane().getComponent(0);
                         if (current instanceof BarPanel) {
@@ -88,6 +122,10 @@ public final class BarMinigame implements Minigame {
         frame.revalidate();
         frame.repaint();
         panel.requestFocusInWindow();
+
+        // Reset score tracking
+        this.moveCount = 0;
+        this.startTimeMillis = System.currentTimeMillis();
     }
 
     /**
@@ -97,16 +135,14 @@ public final class BarMinigame implements Minigame {
      * @return a new, ready-to-use BarPanel
      */
     private BarPanel buildAndShowPanel(final long seed) {
-        // Build the model (five glasses: four colored, one empty)
         final BarModel model = new BarModel.Builder()
             .numGlasses(totalGlasses)
             .capacity(capacity)
             .colors(Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW)
             .shuffleSeed(seed)
-            .shuffleStrategy(new RandomShuffleStrategy())
+            .shuffleStrategy(new RandomShuffleStrategy()) // or SolvableShuffleStrategy()
             .build();
 
-        // Create the panel and wire up user input
         final BarPanel panel = new BarPanel(model);
 
         // Listen for glass clicks (selection/pour logic)
@@ -114,7 +150,9 @@ public final class BarMinigame implements Minigame {
             if (panel.getSelected() < 0) {
                 panel.setSelected(idx);
             } else {
-                model.attemptPour(panel.getSelected(), idx);
+                if (model.attemptPour(panel.getSelected(), idx)) {
+                    moveCount++; // Only count valid pours
+                }
                 panel.clearSelection();
             }
             panel.repaint();
@@ -128,7 +166,14 @@ public final class BarMinigame implements Minigame {
             }
             @Override
             public void onCompleted() {
-                BarMinigame.this.callback.onComplete(true, 0);
+                long elapsedMillis = System.currentTimeMillis() - startTimeMillis;
+                int elapsedSeconds = (int) (elapsedMillis / 1000);
+                int score = scoringStrategy.calculate(elapsedSeconds, roomID);
+                JOptionPane.showMessageDialog(frame,
+                        "Puzzle completed!\nMoves: " + moveCount +
+                        "\nTime: " + elapsedSeconds + " seconds" +
+                        "\nScore: " + score);
+                BarMinigame.this.callback.onComplete(true, score);
                 stop();
             }
         });

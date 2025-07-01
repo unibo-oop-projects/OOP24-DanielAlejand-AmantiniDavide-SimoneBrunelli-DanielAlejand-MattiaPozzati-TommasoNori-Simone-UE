@@ -77,11 +77,14 @@ public final class Glass {
      *         and they’re all the same color
      */
     public boolean isUniform(final int capacity) {
+        if (layers.isEmpty()) {
+            return true; // Treat empty glasses as always uniform!
+        }
         if (layers.size() != capacity) {
             return false;
         }
         final Color top = layers.peek();
-        // allMatch requires a stream, so:
         return layers.stream().allMatch(c -> c.equals(top));
     }
+
 }
