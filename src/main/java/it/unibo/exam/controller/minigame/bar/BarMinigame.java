@@ -5,23 +5,22 @@ import it.unibo.exam.model.entity.minigame.bar.PuzzleListener;
 import it.unibo.exam.view.bar.BarPanel;
 import it.unibo.exam.model.entity.minigame.Minigame;
 import it.unibo.exam.model.entity.minigame.MinigameCallback;
-import it.unibo.exam.controller.minigame.bar.strategy.*;
-import it.unibo.exam.model.scoring.ScoringStrategy;
+import it.unibo.exam.controller.minigame.bar.strategy.RandomShuffleStrategy;
 import it.unibo.exam.model.scoring.CapDecorator;
-import it.unibo.exam.model.scoring.TieredScoringStrategy;
+import it.unibo.exam.model.scoring.ScoringStrategy;
 import it.unibo.exam.model.scoring.TimeBonusDecorator;
-
-
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-import javax.swing.JOptionPane;
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.util.Random;
+import it.unibo.exam.model.scoring.TieredScoringStrategy;
 
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.util.Objects;
+import java.util.Random;
 
 /**
  * A “Sort & Serve” bar‐puzzle minigame.
@@ -33,37 +32,43 @@ import javax.swing.JComponent;
  */
 public final class BarMinigame implements Minigame {
 
-    private JFrame frame;
-    private MinigameCallback callback;
-    private long initialSeed;        // The seed used to create the initial puzzle
-    private final int capacity = 4;  // Number of layers per glass
-    private final int totalGlasses = 6; // Four colors, two empty
-    private final int roomID = 1; // Unique identifier for this minigame
+    private static final int BONUS_TIME_THRESHOLD_SECONDS = 30;
+    private static final int BONUS_POINTS                 = 10;
+    private static final int MAX_POINTS_CAP               = 100;
+    private static final int CAPACITY       = 4;
+    private static final int TOTAL_GLASSES  = 6;
+    private static final int ROOM_ID        = 1;
+    private static final Random RNG = new Random();
 
-    // Score tracking
-    private int moveCount = 0;
-    private long startTimeMillis = 0;
-
-    // Scoring strategy (can be injected or use default)
+    private JFrame             frame;
+    private MinigameCallback   callback;
+    private long               initialSeed;
+    private int                moveCount;
+    private long               startTimeMillis;
     private final ScoringStrategy scoringStrategy;
 
-    /** No‐arg constructor for factory instantiation (uses default scoring) */
+    /**
+     * No‐arg constructor for factory instantiation (uses default scoring).
+     */
     public BarMinigame() {
-        this(
-        new TimeBonusDecorator(
+        this(new TimeBonusDecorator(
             new CapDecorator(
                 new TieredScoringStrategy(),
-                100 // max points
+                MAX_POINTS_CAP
             ),
-            30, // seconds for the time bonus
-            10  // bonus points if under threshold
-        )
-    );
+            BONUS_TIME_THRESHOLD_SECONDS,
+            BONUS_POINTS
+        ));
     }
 
-    /** Full constructor allows custom scoring strategy */
-    public BarMinigame(ScoringStrategy scoringStrategy) {
-        this.scoringStrategy = scoringStrategy;
+    /**
+     * Full constructor allows custom scoring strategy.
+     *
+     * @param scoringStrategy the strategy used to compute final score
+     */
+    public BarMinigame(final ScoringStrategy scoringStrategy) {
+        this.scoringStrategy = Objects.requireNonNull(scoringStrategy,
+            "scoringStrategy must not be null");
     }
 
     /**
@@ -71,13 +76,11 @@ public final class BarMinigame implements Minigame {
      */
     @Override
     public void start(final JFrame parent, final MinigameCallback callback) {
-        this.callback = callback;
-        this.initialSeed = new Random().nextLong();
+        this.callback    = Objects.requireNonNull(callback, "callback must not be null");
+        this.initialSeed = RNG.nextLong();
 
-        // Build and show the initial puzzle panel using the random seed
-        BarPanel panel = buildAndShowPanel(initialSeed);
+        final BarPanel panel = buildAndShowPanel(initialSeed);
 
-        // Set up the game window
         frame = new JFrame(getName());
         frame.add(panel);
         frame.pack();
@@ -85,47 +88,44 @@ public final class BarMinigame implements Minigame {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setVisible(true);
 
-        // Track time and moves
-        this.moveCount = 0;
-        this.startTimeMillis = System.currentTimeMillis();
+        moveCount       = 0;
+        startTimeMillis = System.currentTimeMillis();
 
-        // Bind 'R' to restart the puzzle with the same shuffle (not a new random one)
-        frame.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-            .put(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), "restart");
-        frame.getRootPane().getActionMap()
-            .put("restart", new AbstractAction() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (frame.getContentPane().getComponentCount() > 0) {
-                        java.awt.Component current = frame.getContentPane().getComponent(0);
-                        if (current instanceof BarPanel) {
-                            restart((BarPanel) current);
-                        }
-                    }
-                }
-            });
+        frame.getRootPane()
+             .getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+             .put(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), "restart");
+        frame.getRootPane()
+             .getActionMap()
+             .put("restart", new AbstractAction() {
+                 @Override
+                 public void actionPerformed(final ActionEvent e) {
+                     // only if there's at least one component in the content pane
+                     if (frame.getContentPane().getComponentCount() > 0) {
+                         final java.awt.Component current =
+                             frame.getContentPane().getComponent(0);
+                         if (current instanceof BarPanel) {
+                             restart((BarPanel) current);
+                         }
+                     }
+                 }
+             });
     }
 
     /**
      * Restarts the puzzle panel with the original shuffle/seed.
-     * Keeps the starting state consistent, for fairness and repeatability.
      *
      * @param oldPanel the panel to remove before adding the new one
      */
-    private void restart(BarPanel oldPanel) {
+    private void restart(final BarPanel oldPanel) {
         frame.remove(oldPanel);
-
-        // Rebuild the model and panel using the same seed as the original puzzle
-        BarPanel panel = buildAndShowPanel(initialSeed);
-
+        final BarPanel panel = buildAndShowPanel(initialSeed);
         frame.add(panel);
         frame.revalidate();
         frame.repaint();
         panel.requestFocusInWindow();
 
-        // Reset score tracking
-        this.moveCount = 0;
-        this.startTimeMillis = System.currentTimeMillis();
+        moveCount       = 0;
+        startTimeMillis = System.currentTimeMillis();
     }
 
     /**
@@ -136,43 +136,44 @@ public final class BarMinigame implements Minigame {
      */
     private BarPanel buildAndShowPanel(final long seed) {
         final BarModel model = new BarModel.Builder()
-            .numGlasses(totalGlasses)
-            .capacity(capacity)
+            .numGlasses(TOTAL_GLASSES)
+            .capacity(CAPACITY)
             .colors(Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW)
             .shuffleSeed(seed)
-            .shuffleStrategy(new RandomShuffleStrategy()) // or SolvableShuffleStrategy()
+            .shuffleStrategy(new RandomShuffleStrategy())
             .build();
 
         final BarPanel panel = new BarPanel(model);
 
-        // Listen for glass clicks (selection/pour logic)
         panel.setGlassClickListener(idx -> {
             if (panel.getSelected() < 0) {
                 panel.setSelected(idx);
             } else {
                 if (model.attemptPour(panel.getSelected(), idx)) {
-                    moveCount++; // Only count valid pours
+                    moveCount++;
                 }
                 panel.clearSelection();
             }
             panel.repaint();
         });
 
-        // Listen for model events (Observer pattern)
         model.addListener(new PuzzleListener() {
             @Override
-            public void onPoured(int from, int to) {
+            public void onPoured(final int from, final int to) {
                 SwingUtilities.invokeLater(panel::repaint);
             }
             @Override
             public void onCompleted() {
-                long elapsedMillis = System.currentTimeMillis() - startTimeMillis;
-                int elapsedSeconds = (int) (elapsedMillis / 1000);
-                int score = scoringStrategy.calculate(elapsedSeconds, roomID);
+                final long elapsedMillis  = System.currentTimeMillis() - startTimeMillis;
+                final int  elapsedSeconds = (int) (elapsedMillis / 1_000L);
+                final int  score          =
+                    scoringStrategy.calculate(elapsedSeconds, ROOM_ID);
+
                 JOptionPane.showMessageDialog(frame,
-                        "Puzzle completed!\nMoves: " + moveCount +
-                        "\nTime: " + elapsedSeconds + " seconds" +
-                        "\nScore: " + score);
+                    "Puzzle completed!\nMoves: " + moveCount
+                  + "\nTime: "   + elapsedSeconds + " seconds"
+                  + "\nScore: "  + score
+                );
                 BarMinigame.this.callback.onComplete(true, score);
                 stop();
             }
@@ -194,6 +195,8 @@ public final class BarMinigame implements Minigame {
 
     /**
      * {@inheritDoc}
+     *
+     * @return the name of this minigame
      */
     @Override
     public String getName() {
@@ -202,6 +205,8 @@ public final class BarMinigame implements Minigame {
 
     /**
      * {@inheritDoc}
+     *
+     * @return a short description of this minigame
      */
     @Override
     public String getDescription() {

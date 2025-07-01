@@ -3,51 +3,60 @@ package it.unibo.exam.view.bar;
 import it.unibo.exam.controller.minigame.bar.GlassClickListener;
 import it.unibo.exam.model.entity.minigame.bar.BarModel;
 import it.unibo.exam.model.entity.minigame.bar.Glass;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+import javax.swing.JPanel;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import javax.swing.JPanel;
-import java.awt.BasicStroke;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
-
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.List;
 
 /**
  * Panel that renders the Sort & Serve bar puzzle and handles mouse input.
  */
 public final class BarPanel extends JPanel {
 
-    private static final long serialVersionUID = 1L;
-    private static final int GAP                    = 20;
-    private static final int CELL_WIDTH             = 120;
-    private static final int LAYER_BASE_HEIGHT      = 40;
-    private static final int EXTRA_PANEL_HEIGHT_PAD = 60;
-    private GlassClickListener clickListener;
+    private static final long serialVersionUID           = 1L;
+    private static final int  GAP                       = 20;
+    private static final int  CELL_WIDTH                = 120;
+    private static final int  LAYER_BASE_HEIGHT         = 40;
+    private static final int  EXTRA_PANEL_HEIGHT_PAD    = 60;
+    private static final int  SELECTED_BORDER_THICKNESS = 5;
 
+    private final transient BarModel model;
     /**
-     * The puzzle model this panel visualizes.
+     * Called when the user clicks a glass.
+     * Marked transient because this panel is never serialized,
+     * and the listener need not be Serializable.
      */
     @SuppressFBWarnings(
-      value = "EI2",
-      justification = "MVC: panel must keep a reference to its model for rendering"
+      value = "SE_BAD_FIELD",
+      justification = "Panel is never serialized; listener need not be Serializable"
     )
-    private final transient BarModel model;
-    private int selected = -1;
+    private transient GlassClickListener       clickListener;
+    private int                      selected = -1;
 
     /**
+     * Constructs a panel for the given BarModel.
+     *
      * @param model the puzzle model to render and interact with
      */
+    @SuppressFBWarnings(
+        value = "EI2",
+        justification = "MVC: panel must keep a reference to its model for rendering"
+    )
     public BarPanel(final BarModel model) {
         this.model = model;
         setFocusable(true);
         requestFocusInWindow();
-        this.addMouseListener(new MouseAdapter() {
+        addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(final MouseEvent e) {
                 final int idx = e.getX() / (getWidth() / model.getNumGlasses());
@@ -61,14 +70,27 @@ public final class BarPanel extends JPanel {
         });
     }
 
+    /**
+     * Returns the currently selected glass index, or -1 if none.
+     *
+     * @return the index of the selected glass, or -1
+     */
     public int getSelected() {
-        return selected; 
+        return selected;
     }
 
+    /**
+     * Highlights the given glass index.
+     *
+     * @param idx the index to select (0-based)
+     */
     public void setSelected(final int idx) {
         selected = idx;
     }
 
+    /**
+     * Clears any current selection.
+     */
     public void clearSelection() {
         selected = -1;
     }
@@ -85,17 +107,16 @@ public final class BarPanel extends JPanel {
         final int cellHeight = panelHeight - EXTRA_PANEL_HEIGHT_PAD;
         final int perLayerHt = cellHeight / model.getCapacity();
 
-        // Cast to Graphics2D to set stroke thickness
         final Graphics2D g2 = (Graphics2D) g;
 
         for (int i = 0; i < totalGlasses; i++) {
-            final int x = GAP + i * (cellWidth + GAP);
-            final int y = GAP;
+            final int x     = GAP + i * (cellWidth + GAP);
+            final int y     = GAP;
             final Glass glass = model.getGlasses().get(i);
 
             // --- DRAW LAYERS FROM BOTTOM TO TOP ---
-            List<Color> toDraw = new ArrayList<>(glass.getLayers());
-            Collections.reverse(toDraw); // bottom layer first
+            final List<Color> toDraw = new ArrayList<>(glass.getLayers());
+            Collections.reverse(toDraw);
 
             int layerIndex = 0;
             for (final Color c : toDraw) {
@@ -109,20 +130,20 @@ public final class BarPanel extends JPanel {
                 layerIndex++;
             }
 
-            // Draw the border (selected/thicker if selected)
+            // Draw the border (thicker if selected)
             if (i == selected) {
                 g2.setColor(Color.MAGENTA);
-                g2.setStroke(new BasicStroke(5)); // 5 pixels thick
+                g2.setStroke(new BasicStroke(SELECTED_BORDER_THICKNESS));
             } else {
                 g2.setColor(Color.BLACK);
-                g2.setStroke(new BasicStroke(1)); // 1 pixel for normal
+                g2.setStroke(new BasicStroke(1));
             }
             g2.drawRect(x, y, cellWidth, cellHeight);
         }
-        // Optionally, reset stroke after the loop:
+
+        // Reset stroke to default
         g2.setStroke(new BasicStroke(1));
     }
-
 
     @Override
     public Dimension getPreferredSize() {
@@ -132,8 +153,12 @@ public final class BarPanel extends JPanel {
         );
     }
 
-        public void setGlassClickListener(final GlassClickListener listener) {
+    /**
+     * Registers a listener to be notified when a glass is clicked.
+     *
+     * @param listener the listener to add
+     */
+    public void setGlassClickListener(final GlassClickListener listener) {
         this.clickListener = listener;
     }
-
 }

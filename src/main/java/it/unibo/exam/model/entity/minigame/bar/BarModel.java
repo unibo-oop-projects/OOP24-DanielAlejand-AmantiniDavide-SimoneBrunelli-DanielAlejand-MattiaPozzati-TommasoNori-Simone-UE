@@ -51,7 +51,7 @@ public final class BarModel {
         final List<Color> shuffled = shuffleStrategy.shuffle(pool, shuffleSeed);
         final Iterator<Color> it = shuffled.iterator();
         for (int i = 0; i < this.numGlasses; i++) {
-            Glass g = this.glasses.get(i);
+            final Glass g = this.glasses.get(i);
             // Fill only the first (numGlasses - 1) glasses
             if (i < coloredGlasses) {
                 for (int layer = 0; layer < this.capacity; layer++) {
