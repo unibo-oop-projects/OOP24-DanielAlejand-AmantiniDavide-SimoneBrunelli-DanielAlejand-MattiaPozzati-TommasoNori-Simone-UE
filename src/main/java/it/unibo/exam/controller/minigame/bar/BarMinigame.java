@@ -17,6 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.Objects;
@@ -38,6 +39,8 @@ public final class BarMinigame implements Minigame {
     private static final int CAPACITY       = 4;
     private static final int TOTAL_GLASSES  = 6;
     private static final int ROOM_ID        = 1;
+    private static final int FRAME_WIDTH    = 1000; // Preferred width for the minigame window
+    private static final int FRAME_HEIGHT   = 600;  // Preferred height for the minigame window
     private static final Random RNG = new Random();
 
     private JFrame             frame;
@@ -85,6 +88,11 @@ public final class BarMinigame implements Minigame {
 
         frame = new JFrame(getName());
         frame.add(panel);
+
+        // --- Set preferred window size and make it non-resizable ---
+        frame.setPreferredSize(new Dimension(FRAME_WIDTH, FRAME_HEIGHT));
+        frame.setResizable(false);
+
         frame.pack();
         frame.setLocationRelativeTo(parent);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -94,24 +102,24 @@ public final class BarMinigame implements Minigame {
         startTimeMillis = System.currentTimeMillis();
 
         frame.getRootPane()
-             .getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-             .put(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), "restart");
+            .getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+            .put(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), "restart");
         frame.getRootPane()
-             .getActionMap()
-             .put("restart", new AbstractAction() {
-                 @Override
-                 public void actionPerformed(final ActionEvent e) {
-                     // only if there's at least one component in the content pane
-                     if (frame.getContentPane().getComponentCount() > 0) {
-                         final java.awt.Component current =
-                             frame.getContentPane().getComponent(0);
-                         if (current instanceof BarPanel) {
-                             restart((BarPanel) current);
-                         }
-                     }
-                 }
-             });
+            .getActionMap()
+            .put("restart", new AbstractAction() {
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    if (frame.getContentPane().getComponentCount() > 0) {
+                        final java.awt.Component current =
+                            frame.getContentPane().getComponent(0);
+                        if (current instanceof BarPanel) {
+                            restart((BarPanel) current);
+                        }
+                    }
+                }
+            });
     }
+
 
     /**
      * Restarts the puzzle panel with the original shuffle/seed.

@@ -24,13 +24,24 @@ import java.util.List;
 public final class BarPanel extends JPanel {
 
     private static final long serialVersionUID           = 1L;
-    private static final int  GAP                       = 20;
-    private static final int  CELL_WIDTH                = 120;
-    private static final int  LAYER_BASE_HEIGHT         = 40;
-    private static final int  EXTRA_PANEL_HEIGHT_PAD    = 60;
-    private static final int  SELECTED_BORDER_THICKNESS = 5;
 
+    // Centering & Sizing constants
+    private static final int MAX_BOTTLE_WIDTH  = 80;  // Max width per bottle
+    private static final int MAX_BOTTLE_HEIGHT = 200; // Max height per bottle
+    private static final int TOP_BOTTOM_PAD    = 80;  // Padding above/below the row
+    private static final int SIDE_PAD          = 80;  // Padding left/right
+    private static final int GAP               = 28;  // Gap between bottles
+    private static final int SELECTED_BORDER_THICKNESS = 5;
+
+    /**
+     * The puzzle model this panel visualizes.
+     */
+    @SuppressFBWarnings(
+      value = "EI2",
+      justification = "MVC: panel must keep a reference to its model for rendering"
+    )
     private final transient BarModel model;
+
     /**
      * Called when the user clicks a glass.
      * Marked transient because this panel is never serialized,
@@ -40,18 +51,14 @@ public final class BarPanel extends JPanel {
       value = "SE_BAD_FIELD",
       justification = "Panel is never serialized; listener need not be Serializable"
     )
-    private transient GlassClickListener       clickListener;
-    private int                      selected = -1;
+    private transient GlassClickListener clickListener;
+    private int selected = -1;
 
     /**
      * Constructs a panel for the given BarModel.
      *
      * @param model the puzzle model to render and interact with
      */
-    @SuppressFBWarnings(
-        value = "EI2",
-        justification = "MVC: panel must keep a reference to its model for rendering"
-    )
     public BarPanel(final BarModel model) {
         this.model = model;
         setFocusable(true);
@@ -59,8 +66,13 @@ public final class BarPanel extends JPanel {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(final MouseEvent e) {
-                final int idx = e.getX() / (getWidth() / model.getNumGlasses());
-                if (idx < 0 || idx >= model.getNumGlasses()) {
+                final int totalGlasses = model.getNumGlasses();
+                final int bottleWidth = getBottleWidth();
+                final int totalWidth = totalGlasses * bottleWidth + (totalGlasses - 1) * GAP;
+                final int startX = (getWidth() - totalWidth) / 2;
+
+                final int idx = (e.getX() - startX) / (bottleWidth + GAP);
+                if (idx < 0 || idx >= totalGlasses) {
                     return;
                 }
                 if (clickListener != null) {
@@ -68,6 +80,27 @@ public final class BarPanel extends JPanel {
                 }
             }
         });
+    }
+
+    /**
+     * Helper to compute the bottle width based on current panel size and max/min.
+     *
+     * @return the current bottle width
+     */
+    private int getBottleWidth() {
+        final int totalGlasses = model.getNumGlasses();
+        final int available = getWidth() - 2 * SIDE_PAD - GAP * (totalGlasses - 1);
+        return Math.min(MAX_BOTTLE_WIDTH, available / totalGlasses);
+    }
+
+    /**
+     * Helper to compute the bottle height based on current panel size and max/min.
+     *
+     * @return the current bottle height
+     */
+    private int getBottleHeight() {
+        final int available = getHeight() - 2 * TOP_BOTTOM_PAD;
+        return Math.min(MAX_BOTTLE_HEIGHT, available);
     }
 
     /**
@@ -100,18 +133,20 @@ public final class BarPanel extends JPanel {
         super.paintComponent(g);
 
         final int totalGlasses = model.getNumGlasses();
-        final int panelWidth   = getWidth();
-        final int panelHeight  = getHeight();
+        final int bottleWidth  = getBottleWidth();
+        final int bottleHeight = getBottleHeight();
+        final int perLayerHt   = bottleHeight / model.getCapacity();
 
-        final int cellWidth  = (panelWidth - GAP * (totalGlasses + 1)) / totalGlasses;
-        final int cellHeight = panelHeight - EXTRA_PANEL_HEIGHT_PAD;
-        final int perLayerHt = cellHeight / model.getCapacity();
+        // Compute left margin to center all bottles
+        final int totalWidth = totalGlasses * bottleWidth + (totalGlasses - 1) * GAP;
+        final int startX     = (getWidth() - totalWidth) / 2;
+        final int startY     = (getHeight() - bottleHeight) / 2;
 
         final Graphics2D g2 = (Graphics2D) g;
 
         for (int i = 0; i < totalGlasses; i++) {
-            final int x     = GAP + i * (cellWidth + GAP);
-            final int y     = GAP;
+            final int x     = startX + i * (bottleWidth + GAP);
+            final int y     = startY;
             final Glass glass = model.getGlasses().get(i);
 
             // --- DRAW LAYERS FROM BOTTOM TO TOP ---
@@ -124,7 +159,7 @@ public final class BarPanel extends JPanel {
                 g2.fillRect(
                     x,
                     y + (model.getCapacity() - 1 - layerIndex) * perLayerHt,
-                    cellWidth,
+                    bottleWidth,
                     perLayerHt
                 );
                 layerIndex++;
@@ -138,7 +173,7 @@ public final class BarPanel extends JPanel {
                 g2.setColor(Color.BLACK);
                 g2.setStroke(new BasicStroke(1));
             }
-            g2.drawRect(x, y, cellWidth, cellHeight);
+            g2.drawRect(x, y, bottleWidth, bottleHeight);
         }
 
         // Reset stroke to default
@@ -147,9 +182,10 @@ public final class BarPanel extends JPanel {
 
     @Override
     public Dimension getPreferredSize() {
+        // Large enough for background, plus nicely spaced bottles
         return new Dimension(
-            model.getNumGlasses() * CELL_WIDTH,
-            model.getCapacity() * LAYER_BASE_HEIGHT + EXTRA_PANEL_HEIGHT_PAD
+            SIDE_PAD * 2 + model.getNumGlasses() * MAX_BOTTLE_WIDTH + (model.getNumGlasses() - 1) * GAP,
+            TOP_BOTTOM_PAD * 2 + MAX_BOTTLE_HEIGHT
         );
     }
 
