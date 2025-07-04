@@ -81,7 +81,7 @@ public final class BarPanel extends JPanel {
         // --- LOAD BACKGROUND IMAGE ---
         try {
             // Adjust the path as needed. Example: "/img/bar-bg.png"
-            backgroundImage = ImageIO.read(getClass().getResource("/img/barminigame.png"));
+            backgroundImage = ImageIO.read(getClass().getResource("/bar/backgrounds/barminigame.png"));
         } catch (IOException | IllegalArgumentException e) {
             // LOGGER.info("Background URL: " + url);
             LOGGER.warning("Resource NOT FOUND!");
