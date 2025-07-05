@@ -183,7 +183,7 @@ public class MainController {
      */
     private void checkWin() {
         // Check if all puzzle rooms have been completed
-        final int totalPuzzleRooms = 4; // Rooms 1-4 are puzzle rooms
+        final int totalPuzzleRooms = 5; // Rooms 1-5 are puzzle rooms
         if (gameState.getPlayer().allRoomsCompleted(totalPuzzleRooms)) {
             LOGGER.info("Player has completed all rooms! Game won!");
             // You can implement a win screen or callback here

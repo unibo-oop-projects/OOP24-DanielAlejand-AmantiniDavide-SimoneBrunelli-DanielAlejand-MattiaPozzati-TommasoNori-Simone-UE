@@ -1,5 +1,6 @@
 package it.unibo.exam.utility.factory;
 
+import it.unibo.exam.model.entity.minigame.KahootMinigame;
 import it.unibo.exam.model.entity.minigame.Minigame;
 
 /**
@@ -21,7 +22,7 @@ public final class MinigameFactory {
      * Room-Minigame mapping:
      * - Room 1 (Bar): Kahoot Quiz
      * 
-     * @param roomId the ID of the room (1-4)
+     * @param roomId the ID of the room (1-5)
      * @return the corresponding minigame instance
      * @throws IllegalArgumentException if the room ID is invalid
      */
@@ -29,11 +30,11 @@ public final class MinigameFactory {
         switch (roomId) {
             //TODO Scrivete con le vostre stanze, marrani
             // Bar
-            // case 1: return new KahootMinigame();
+            case 2: return new KahootMinigame();
             // case 2: return "return new MAZE()";
             default:
                 throw new IllegalArgumentException("Invalid room ID for minigame: " + roomId
-                                                 + ". Valid room IDs are 1-4.");
+                                                 + ". Valid room IDs are 1-5.");
         }
     }
 
@@ -47,7 +48,7 @@ public final class MinigameFactory {
     public static String getMinigameName(final int roomId) {
         switch (roomId) {
             //TODO Scrivete con le vostre stanze, marrani
-            // case 1: return "Quiz Kahoot";
+            case 2: return "Quiz Kahoot";
             // case 2: return "aMAZEing";
             default:
                 throw new IllegalArgumentException("Invalid room ID: " + roomId);
@@ -64,7 +65,7 @@ public final class MinigameFactory {
     public static String getMinigameDescription(final int roomId) {
         switch (roomId) {
             //TODO Scrivete con le vostre stanze, marrani
-            // case 1: return "Answer all questions correctly to win!";
+            case 2: return "Answer all questions";
             // case 2: return "Solve 10 math problems!";
             // case 3: return "Click when it turns green!";
             // case 4: return "Find all matching pairs of cards!";
@@ -80,6 +81,7 @@ public final class MinigameFactory {
      * @return true if the room has a minigame, false otherwise
      */
     public static boolean hasMinigame(final int roomId) {
-        return roomId >= 1 && roomId <= 4;
+        final int lastRoom = 5;
+        return roomId >= 1 && roomId <= lastRoom;
     }
 }

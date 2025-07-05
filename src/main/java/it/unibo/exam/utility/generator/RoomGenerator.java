@@ -25,13 +25,13 @@ public class RoomGenerator extends EntityGenerator<Room> {
      * Display names for each room, indexed by room ID.
      */
     private static final String[] ROOM_NAMES = {
+        "Hub",      // 0 - Main room (chiamato Hub invece di Main)
+        "Garden",
         "2.12",
-        "Bar",
         "Lab",
         "Gym",
-        "Garden",
+        "Bar",
     };
-
 
     private final DoorGenerator dg;
 
