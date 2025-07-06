@@ -1,8 +1,8 @@
 package it.unibo.exam.utility.factory;
 
-import it.unibo.exam.model.entity.minigame.KahootMinigame;
 import it.unibo.exam.model.entity.minigame.Minigame;
 import it.unibo.exam.controller.minigame.bar.BarMinigame;
+import it.unibo.exam.controller.minigame.kahoot.KahootMinigame;
 
 /**
  * Factory class for creating different types of minigames based on room ID.
@@ -38,7 +38,7 @@ public final class MinigameFactory {
             default:
                 throw new IllegalArgumentException(
                     "Invalid room ID for minigame: " + roomId
-                  + ". Valid room IDs are 1–4 (with Bar puzzle now at id 4)."
+                  + ". Valid room IDs are 1-4 (with Bar puzzle now at id 4)."
                 );
         }
     }
