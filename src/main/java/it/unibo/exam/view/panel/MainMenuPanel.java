@@ -10,6 +10,10 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.Insets;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -27,6 +31,11 @@ public class MainMenuPanel extends JPanel {
     private static final int HEIGHTBUTTON = 80;
     private static final int BUTTONFONTSIZE = 30;
     private static final int BUTTONSPACING = 20;
+
+    /**
+     * The background image drawn behind the bottles.
+     */
+    private transient Image backgroundImage;
 
     private GamePanel gamePanel; // Reference to track the game panel
 
@@ -50,8 +59,20 @@ public class MainMenuPanel extends JPanel {
         super.setLayout(new BorderLayout());
         super.setPreferredSize(window.getSize());
 
+        // --- LOAD BACKGROUND IMAGE ---
+        try {
+            var resource = getClass().getClassLoader().getResource("MainMenu/MainMenuBackGround.png");
+            if (resource == null) {
+                throw new IllegalArgumentException("Immagine non trovata!");
+            }
+            backgroundImage = ImageIO.read(resource);
+            } catch (IOException | IllegalArgumentException e) {
+                e.printStackTrace();
+            }
+
         // Creates the panel where the buttons will stay
         final JPanel buttonPanel = createButtonPanel();
+        buttonPanel.setOpaque(false);
         final GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -60,9 +81,9 @@ public class MainMenuPanel extends JPanel {
         gbc.anchor = GridBagConstraints.CENTER; // Move the buttons in the centre
 
         // Buttons creation
-        final JButton playButton = new JButton("Gioca");
-        final JButton optionsButton = new JButton("Opzioni");
-        final JButton exitButton = new JButton("Esci");
+        final JButton playButton = createStyledButton("Gioca");
+        final JButton optionsButton = createStyledButton("Opzioni");
+        final JButton exitButton = createStyledButton("Esci");
 
         final Dimension buttonSize = new Dimension(WIDTHBUTTON, HEIGHTBUTTON);
         playButton.setPreferredSize(buttonSize);
@@ -204,4 +225,50 @@ public class MainMenuPanel extends JPanel {
     private JPanel createButtonPanel() {
         return new JPanel(new GridBagLayout());
     }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
+    }
+
+    private JButton createStyledButton(final String text) {
+    final JButton button = new JButton(text);
+
+    button.setFocusPainted(false);
+    button.setBorderPainted(false);
+    button.setContentAreaFilled(false); // non riempie il background in modo "standard"
+    button.setOpaque(false); // importantissimo per la trasparenza
+    button.setForeground(new java.awt.Color(255, 255, 255, 220));
+    button.setFont(new Font("Arial", Font.BOLD, BUTTONFONTSIZE));
+    button.setPreferredSize(new Dimension(WIDTHBUTTON, HEIGHTBUTTON));
+    button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+     // Background semitrasparente iniziale (con alpha)
+    java.awt.Color baseColor = new java.awt.Color(60, 120, 200, 150);
+    java.awt.Color hoverColor = new java.awt.Color(80, 140, 220, 180);
+    java.awt.Color clickColor = new java.awt.Color(30, 90, 180, 200);
+
+    // Custom painting per sfondo trasparente
+    button.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
+        @Override
+        public void paint(Graphics g, javax.swing.JComponent c) {
+            Graphics g2 = g.create();
+            if (button.getModel().isPressed()) {
+                g2.setColor(clickColor);
+            } else if (button.getModel().isRollover()) {
+                g2.setColor(hoverColor);
+            } else {
+                g2.setColor(baseColor);
+            }
+            g2.fillRoundRect(0, 0, button.getWidth(), button.getHeight(), 30, 30);
+            g2.dispose();
+            super.paint(g, c);
+        }
+    });
+
+    return button;
+}
 }
