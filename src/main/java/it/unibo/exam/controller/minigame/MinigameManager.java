@@ -79,8 +79,9 @@ public class MinigameManager {
         LOGGER.info("Minigame completed for room " + roomId
                    + ". Success: " + success + ", Time: " + timeSeconds + "s");
 
-        // Notify the main controller of completion
-        mainController.endMinigame(success);
+        // pass the timeSeconds along:
+        mainController.endMinigame(success, timeSeconds);
+
 
         // Clear the current minigame reference
         currentMinigame = null;

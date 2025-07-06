@@ -3,6 +3,9 @@ package it.unibo.exam.model.entity;
 import it.unibo.exam.controller.position.PlayerPositionManager;
 import it.unibo.exam.model.data.RoomScoreData;
 import it.unibo.exam.utility.geometry.Point2D;
+import it.unibo.exam.model.score.ScoreListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,7 +16,8 @@ import java.util.Map;
 public class Player extends MovementEntity {
 
     /** Stores RoomScoreData for each room the player completes. */
-    private final Map<Integer, RoomScoreData> roomScores = new HashMap<>();
+    private final Map<Integer, RoomScoreData> roomScores     = new HashMap<>();
+    private final List<ScoreListener>         scoreListeners = new ArrayList<>();
 
     /**
      * Constructs a Player at the default spawn position.
@@ -26,17 +30,23 @@ public class Player extends MovementEntity {
     }
 
     /**
-     * Records or updates the score data for a completed room.
+     * Records or updates the score data for a completed room,
+     * then notifies any listeners of the new total.
      *
-     * @param roomId       the ID of the room
-     * @param timeTaken    time taken to complete the room (in seconds)
-     * @param pointsGained points earned in the room
+     * @param roomId        the ID of the room
+     * @param timeTaken     time taken to complete the room (in seconds)
+     * @param pointsGained  points earned in the room
      */
     public void addRoomScore(final int roomId,
                              final int timeTaken,
                              final int pointsGained) {
         roomScores.put(roomId,
             new RoomScoreData(roomId, timeTaken, pointsGained, true));
+
+        final int total = getTotalScore();
+        for (final ScoreListener listener : scoreListeners) {
+            listener.onScoreChanged(total);
+        }
     }
 
     /**
@@ -81,5 +91,23 @@ public class Player extends MovementEntity {
             && roomScores.values()
                          .stream()
                          .allMatch(RoomScoreData::isCompleted);
+    }
+
+    /**
+     * Register to receive score updates.
+     *
+     * @param listener the ScoreListener to register
+     */
+    public void addScoreListener(final ScoreListener listener) {
+        scoreListeners.add(listener);
+    }
+
+    /**
+     * Unregister from score updates.
+     *
+     * @param listener the ScoreListener to remove
+     */
+    public void removeScoreListener(final ScoreListener listener) {
+        scoreListeners.remove(listener);
     }
 }

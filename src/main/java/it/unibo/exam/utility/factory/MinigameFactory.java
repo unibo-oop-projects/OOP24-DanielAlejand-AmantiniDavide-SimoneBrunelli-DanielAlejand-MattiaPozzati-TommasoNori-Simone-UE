@@ -2,6 +2,7 @@ package it.unibo.exam.utility.factory;
 
 import it.unibo.exam.model.entity.minigame.KahootMinigame;
 import it.unibo.exam.model.entity.minigame.Minigame;
+import it.unibo.exam.controller.minigame.bar.BarMinigame;
 
 /**
  * Factory class for creating different types of minigames based on room ID.
@@ -20,9 +21,10 @@ public final class MinigameFactory {
      * Creates the appropriate minigame for the specified room.
      * 
      * Room-Minigame mapping:
-     * - Room 1 (Bar): Kahoot Quiz
+     * - Room 4: Sort & Serve (Bar puzzle)
      * 
      * @param roomId the ID of the room (1-5)
+
      * @return the corresponding minigame instance
      * @throws IllegalArgumentException if the room ID is invalid
      */
@@ -31,10 +33,13 @@ public final class MinigameFactory {
             //TODO Scrivete con le vostre stanze, marrani
             // Bar
             case 2: return new KahootMinigame();
-            // case 2: return "return new MAZE()";
+            case 4:
+                return new BarMinigame();    // ← hook in Sort & Serve for Bar room (id 4)
             default:
-                throw new IllegalArgumentException("Invalid room ID for minigame: " + roomId
-                                                 + ". Valid room IDs are 1-5.");
+                throw new IllegalArgumentException(
+                    "Invalid room ID for minigame: " + roomId
+                  + ". Valid room IDs are 1–4 (with Bar puzzle now at id 4)."
+                );
         }
     }
 
@@ -49,7 +54,10 @@ public final class MinigameFactory {
         switch (roomId) {
             //TODO Scrivete con le vostre stanze, marrani
             case 2: return "Quiz Kahoot";
-            // case 2: return "aMAZEing";
+
+            case 4:
+                return "Sort & Serve";       // ← human-readable name for Bar
+
             default:
                 throw new IllegalArgumentException("Invalid room ID: " + roomId);
         }
@@ -66,9 +74,8 @@ public final class MinigameFactory {
         switch (roomId) {
             //TODO Scrivete con le vostre stanze, marrani
             case 2: return "Answer all questions";
-            // case 2: return "Solve 10 math problems!";
-            // case 3: return "Click when it turns green!";
-            // case 4: return "Find all matching pairs of cards!";
+            case 4:
+                return "Pour colored layers until each glass is uniform.";
             default:
                 throw new IllegalArgumentException("Invalid room ID: " + roomId);
         }
@@ -78,7 +85,7 @@ public final class MinigameFactory {
      * Checks if a room has a minigame available.
      * 
      * @param roomId the ID of the room
-     * @return true if the room has a minigame, false otherwise
+     * @return {@code true} if the room has a minigame, {@code false} otherwise
      */
     public static boolean hasMinigame(final int roomId) {
         final int lastRoom = 5;
