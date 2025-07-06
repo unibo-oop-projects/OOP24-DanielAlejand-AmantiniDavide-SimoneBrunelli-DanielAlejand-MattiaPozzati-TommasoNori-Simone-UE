@@ -22,7 +22,7 @@ public final class QuizQuestion {
      * @throws IllegalArgumentException if parameters are invalid
      */
     public QuizQuestion(final String questionText, final List<String> answers, final int correctAnswer) {
-        if (questionText == null || questionText.trim().isEmpty()) {
+        if (questionText == null || questionText.isBlank()) {
             throw new IllegalArgumentException("Question text cannot be null or empty");
         }
         if (answers == null || answers.isEmpty()) {

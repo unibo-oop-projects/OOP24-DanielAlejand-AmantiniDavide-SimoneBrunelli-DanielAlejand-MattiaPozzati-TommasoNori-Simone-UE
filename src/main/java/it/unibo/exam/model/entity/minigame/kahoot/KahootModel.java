@@ -73,8 +73,6 @@ public final class KahootModel {
             gameCompleted = true;
             finalizeTime();
             notifyQuizCompleted();
-        } else {
-            notifyNextQuestion();
         }
 
         return isCorrect;
@@ -219,12 +217,6 @@ public final class KahootModel {
     private void notifyAnswerSubmitted(final boolean isCorrect, final String correctAnswer) {
         for (final KahootListener listener : listeners) {
             listener.onAnswerSubmitted(isCorrect, correctAnswer);
-        }
-    }
-
-    private void notifyNextQuestion() {
-        for (final KahootListener listener : listeners) {
-            listener.onNextQuestion(getCurrentQuestion());
         }
     }
 

@@ -41,10 +41,10 @@ public final class KahootMinigame implements Minigame, KahootListener {
     private static final int TEN_PIXELS = 10;
     private static final int TWENTY_PIXELS = 20;
     private static final int THIRTY_PIXELS = 30;
-    private static final int FORTY_PIXELS = 40;
     private static final int BUTTON_WIDTH = 150;
     private static final int BUTTON_HEIGHT = 40;
     private static final int THREAD_SLEEP_DELAY = 1000;
+    private static final String FONT_FAMILY = "Arial";
 
     private static final List<QuizQuestion> DEFAULT_QUESTIONS = List.of(
         new QuizQuestion("What is the capital of Italy?",
@@ -250,7 +250,7 @@ public final class KahootMinigame implements Minigame, KahootListener {
         final JLabel titleLabel = new JLabel(
             success ? "QUIZ COMPLETED!" : "QUIZ FAILED",
             SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, TITLE_FONT_SIZE));
+        titleLabel.setFont(new Font(FONT_FAMILY, Font.BOLD, TITLE_FONT_SIZE));
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setBorder(BorderFactory.createEmptyBorder(TWENTY_PIXELS, TEN_PIXELS, 
             TWENTY_PIXELS, TEN_PIXELS));
@@ -261,24 +261,24 @@ public final class KahootMinigame implements Minigame, KahootListener {
         statsPanel.setBorder(BorderFactory.createEmptyBorder(TEN_PIXELS, THIRTY_PIXELS, 
             TWENTY_PIXELS, THIRTY_PIXELS));
 
-        addStatsHeader(statsPanel, "SCORE", bgColor);
-        addStatLine(statsPanel, String.format("Correct Answers: %d/%d", correctAnswers, totalQuestions), bgColor);
-        addStatLine(statsPanel, String.format("Wrong Answers: %d", wrongAnswers), bgColor);
+        addStatsHeader(statsPanel, "SCORE");
+        addStatLine(statsPanel, String.format("Correct Answers: %d/%d", correctAnswers, totalQuestions));
+        addStatLine(statsPanel, String.format("Wrong Answers: %d", wrongAnswers));
 
-        final double percentage = (correctAnswers * 100.0) / totalQuestions;
-        addStatLine(statsPanel, String.format("Percentage: %.1f%%", percentage), bgColor);
+        final double percentage = correctAnswers * 100.0 / totalQuestions;
+        addStatLine(statsPanel, String.format("Percentage: %.1f%%", percentage));
 
         addSpacer(statsPanel);
 
-        addStatsHeader(statsPanel, "TIME ANALYSIS", bgColor);
-        addStatLine(statsPanel, String.format("Real Time: %d seconds", baseTime), bgColor);
+        addStatsHeader(statsPanel, "TIME ANALYSIS");
+        addStatLine(statsPanel, String.format("Real Time: %d seconds", baseTime));
 
         if (wrongAnswers > 0) {
             final int totalPenalty = wrongAnswers * PENALTY_SECONDS;
-            addStatLine(statsPanel, String.format("Penalty: +%d seconds", totalPenalty), bgColor);
-            addStatLine(statsPanel, String.format("(%d wrong - total: %d sec)", wrongAnswers, totalPenalty), bgColor);
+            addStatLine(statsPanel, String.format("Penalty: +%d seconds", totalPenalty));
+            addStatLine(statsPanel, String.format("(%d wrong - total: %d sec)", wrongAnswers, totalPenalty));
         } else {
-            addStatLine(statsPanel, "No penalties! Perfect!", bgColor);
+            addStatLine(statsPanel, "No penalties! Perfect!");
         }
 
         addSpacer(statsPanel);
@@ -286,16 +286,16 @@ public final class KahootMinigame implements Minigame, KahootListener {
         final JLabel finalTimeLabel = new JLabel(
             String.format("FINAL TIME: %d seconds", finalTime),
             SwingConstants.CENTER);
-        finalTimeLabel.setFont(new Font("Arial", Font.BOLD, FINAL_TIME_FONT_SIZE));
+        finalTimeLabel.setFont(new Font(FONT_FAMILY, Font.BOLD, FINAL_TIME_FONT_SIZE));
         finalTimeLabel.setForeground(Color.YELLOW);
         finalTimeLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
         finalTimeLabel.setBorder(BorderFactory.createEmptyBorder(TEN_PIXELS, 0, TEN_PIXELS, 0));
         statsPanel.add(finalTimeLabel);
 
         addSpacer(statsPanel);
-        addStatsHeader(statsPanel, "PERFORMANCE", bgColor);
+        addStatsHeader(statsPanel, "PERFORMANCE");
         // final String performance = getPerformanceRating(correctAnswers, totalQuestions, finalTime);
-        // addStatLine(statsPanel, performance, bgColor);
+        // addStatLine(statsPanel, performance);
 
         panel.add(titleLabel, BorderLayout.NORTH);
         panel.add(statsPanel, BorderLayout.CENTER);
@@ -308,11 +308,10 @@ public final class KahootMinigame implements Minigame, KahootListener {
      *
      * @param parent the parent panel
      * @param text the header text
-     * @param bgColor the background color
      */
-    private void addStatsHeader(final JPanel parent, final String text, final Color bgColor) {
+    private void addStatsHeader(final JPanel parent, final String text) {
         final JLabel header = new JLabel(text, SwingConstants.CENTER);
-        header.setFont(new Font("Arial", Font.BOLD, HEADER_FONT_SIZE));
+        header.setFont(new Font(FONT_FAMILY, Font.BOLD, HEADER_FONT_SIZE));
         header.setForeground(Color.YELLOW);
         header.setAlignmentX(JLabel.CENTER_ALIGNMENT);
         header.setBorder(BorderFactory.createEmptyBorder(FIVE_PIXELS, 0, FIVE_PIXELS, 0));
@@ -324,11 +323,10 @@ public final class KahootMinigame implements Minigame, KahootListener {
      *
      * @param parent the parent panel
      * @param text the stat text
-     * @param bgColor the background color
      */
-    private void addStatLine(final JPanel parent, final String text, final Color bgColor) {
+    private void addStatLine(final JPanel parent, final String text) {
         final JLabel label = new JLabel(text, SwingConstants.CENTER);
-        label.setFont(new Font("Arial", Font.PLAIN, STAT_FONT_SIZE));
+        label.setFont(new Font(FONT_FAMILY, Font.PLAIN, STAT_FONT_SIZE));
         label.setForeground(Color.WHITE);
         label.setAlignmentX(JLabel.CENTER_ALIGNMENT);
         parent.add(label);
@@ -341,7 +339,7 @@ public final class KahootMinigame implements Minigame, KahootListener {
      */
     private void addSpacer(final JPanel parent) {
         final JLabel spacer = new JLabel(" ");
-        spacer.setFont(new Font("Arial", Font.PLAIN, SPACER_FONT_SIZE));
+        spacer.setFont(new Font(FONT_FAMILY, Font.PLAIN, SPACER_FONT_SIZE));
         spacer.setAlignmentX(JLabel.CENTER_ALIGNMENT);
         parent.add(spacer);
     }
@@ -384,7 +382,7 @@ public final class KahootMinigame implements Minigame, KahootListener {
      */
     private void addOkButtonToDetailedResults(final JPanel resultsPanel) {
         final JButton okButton = new JButton("Continue");
-        okButton.setFont(new Font("Arial", Font.BOLD, BUTTON_FONT_SIZE));
+        okButton.setFont(new Font(FONT_FAMILY, Font.BOLD, BUTTON_FONT_SIZE));
         okButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         okButton.setBackground(Color.WHITE);
         okButton.setForeground(Color.BLACK);
