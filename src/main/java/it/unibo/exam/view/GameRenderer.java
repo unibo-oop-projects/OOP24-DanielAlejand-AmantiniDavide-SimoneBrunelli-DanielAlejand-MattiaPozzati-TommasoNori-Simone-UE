@@ -159,10 +159,13 @@ public class GameRenderer {
         final int x = 5, y = 5;
         g.drawRect(x, y, bounds.width - 10, bounds.height - 10);
 
-        // Draw room ID in corner
         g.setColor(Color.WHITE);
         final int offset = 25;
-        g.drawString("Room " + room.getId(), 10, offset);
+        if (room.getId() == 0) {
+            g.drawString("Hub", 10, offset);
+        } else {
+            g.drawString(room.getName(), 10, offset);
+        }
     }
 
     /**
