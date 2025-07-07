@@ -6,6 +6,10 @@ import it.unibo.exam.model.entity.minigame.kahoot.KahootModel;
 import it.unibo.exam.model.entity.minigame.kahoot.KahootListener;
 import it.unibo.exam.model.entity.minigame.kahoot.QuizQuestion;
 import it.unibo.exam.view.kahoot.KahootPanel;
+import it.unibo.exam.model.scoring.ScoringStrategy;
+import it.unibo.exam.model.scoring.TieredScoringStrategy;
+import it.unibo.exam.model.scoring.TimeBonusDecorator;
+import it.unibo.exam.model.scoring.CapDecorator;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -20,17 +24,25 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Controller for the Kahoot-style quiz minigame implementing MVC pattern.
- * Enhanced with detailed results display showing real time, penalties, and score breakdown.
+ * Enhanced with Strategy + Decorator pattern for flexible scoring system.
  */
 public final class KahootMinigame implements Minigame, KahootListener {
 
     private static final int WINDOW_WIDTH = 600;
     private static final int WINDOW_HEIGHT = 400;
     private static final int FEEDBACK_DELAY = 2000;
-    private static final int PENALTY_SECONDS = 1;
+    private static final int PENALTY_SECONDS = 10;
+    private static final int ROOM_ID = 2; // Kahoot is in room 2
+
+    // Scoring configuration constants
+    private static final int BONUS_TIME_THRESHOLD_SECONDS = 15; // Faster threshold for quiz
+    private static final int BONUS_POINTS = 15;
+    private static final int MAX_POINTS_CAP = 120;
+
     private static final int TITLE_FONT_SIZE = 24;
     private static final int HEADER_FONT_SIZE = 16;
     private static final int STAT_FONT_SIZE = 14;
@@ -63,26 +75,65 @@ public final class KahootMinigame implements Minigame, KahootListener {
     private MinigameCallback callback;
     private KahootModel model;
     private KahootPanel view;
+    private final ScoringStrategy scoringStrategy;
 
     /**
-     * Creates a new KahootMinigame with default questions.
+     * No-arg constructor for factory instantiation (uses default scoring).
+     * Configures scoring strategy with time bonus and point cap decorators.
      */
     public KahootMinigame() {
-        this(DEFAULT_QUESTIONS);
+        this(
+            new CapDecorator(
+                new TimeBonusDecorator(
+                    new TieredScoringStrategy(),
+                    BONUS_TIME_THRESHOLD_SECONDS,
+                    BONUS_POINTS
+                ),
+                MAX_POINTS_CAP
+            )
+        );
     }
 
     /**
-     * Creates a new KahootMinigame with custom questions.
+     * Full constructor allows custom scoring strategy.
+     *
+     * @param scoringStrategy the strategy used to compute final score
+     */
+    public KahootMinigame(final ScoringStrategy scoringStrategy) {
+        this.scoringStrategy = Objects.requireNonNull(scoringStrategy,
+            "scoringStrategy must not be null");
+    }
+
+    /**
+     * Creates a new KahootMinigame with custom questions and default scoring.
      *
      * @param questions the list of questions for the quiz
      */
     public KahootMinigame(final List<QuizQuestion> questions) {
+        this();
+        this.model = new KahootModel(questions);
+    }
+
+    /**
+     * Creates a new KahootMinigame with custom questions and scoring strategy.
+     *
+     * @param questions the list of questions for the quiz
+     * @param scoringStrategy the strategy used to compute final score
+     */
+    public KahootMinigame(final List<QuizQuestion> questions, final ScoringStrategy scoringStrategy) {
+        this.scoringStrategy = Objects.requireNonNull(scoringStrategy,
+            "scoringStrategy must not be null");
         this.model = new KahootModel(questions);
     }
 
     @Override
     public void start(final JFrame parent, final MinigameCallback callback) {
         this.callback = callback;
+
+        // Initialize model if not already done
+        if (this.model == null) {
+            this.model = new KahootModel(DEFAULT_QUESTIONS);
+        }
 
         createGameWindow(parent);
         setupMVC();
@@ -105,7 +156,7 @@ public final class KahootMinigame implements Minigame, KahootListener {
 
     @Override
     public String getDescription() {
-        return "Answer all questions correctly to win! Wrong answers add 1 second penalty.";
+        return "Answer all questions correctly to win! Wrong answers add 10 second penalty.";
     }
 
     @Override
@@ -196,7 +247,7 @@ public final class KahootMinigame implements Minigame, KahootListener {
     }
 
     /**
-     * Shows detailed final results with synchronized timing values.
+     * Shows detailed final results with strategy-based scoring calculation.
      */
     private void showDetailedFinalResults() {
         final boolean success = model.hasPassedQuiz();
@@ -206,10 +257,13 @@ public final class KahootMinigame implements Minigame, KahootListener {
         final int finalTime = model.getFinalTimeWithPenalty(PENALTY_SECONDS);
         final int totalQuestions = model.getTotalQuestions();
 
+        // Calculate score using the strategy pattern
+        final int calculatedScore = scoringStrategy.calculate(finalTime, ROOM_ID);
+
         gameFrame.getContentPane().removeAll();
 
         final JPanel resultsPanel = createDetailedResultsPanel(
-            success, baseTime, finalTime, correctAnswers, wrongAnswers, totalQuestions);
+            success, baseTime, finalTime, correctAnswers, wrongAnswers, totalQuestions, calculatedScore);
 
         gameFrame.add(resultsPanel);
         gameFrame.revalidate();
@@ -218,7 +272,8 @@ public final class KahootMinigame implements Minigame, KahootListener {
         new Thread(() -> {
             try {
                 Thread.sleep(THREAD_SLEEP_DELAY);
-                javax.swing.SwingUtilities.invokeLater(() -> addOkButtonToDetailedResults(resultsPanel));
+                javax.swing.SwingUtilities.invokeLater(() -> addOkButtonToDetailedResults(
+                    resultsPanel, finalTime));
             } catch (final InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -226,7 +281,7 @@ public final class KahootMinigame implements Minigame, KahootListener {
     }
 
     /**
-     * Creates a detailed results panel showing all statistics.
+     * Creates a detailed results panel showing all statistics including calculated score.
      *
      * @param success whether the quiz was passed
      * @param baseTime the base time taken
@@ -234,11 +289,13 @@ public final class KahootMinigame implements Minigame, KahootListener {
      * @param correctAnswers the number of correct answers
      * @param wrongAnswers the number of wrong answers
      * @param totalQuestions the total number of questions
+     * @param calculatedScore the score calculated by the scoring strategy
      * @return the detailed results panel
      */
     private JPanel createDetailedResultsPanel(final boolean success, final int baseTime,
                                             final int finalTime, final int correctAnswers,
-                                            final int wrongAnswers, final int totalQuestions) {
+                                            final int wrongAnswers, final int totalQuestions,
+                                            final int calculatedScore) {
         final JPanel panel = new JPanel(new BorderLayout());
 
         final Color bgColor = success
@@ -261,22 +318,22 @@ public final class KahootMinigame implements Minigame, KahootListener {
         statsPanel.setBorder(BorderFactory.createEmptyBorder(TEN_PIXELS, THIRTY_PIXELS, 
             TWENTY_PIXELS, THIRTY_PIXELS));
 
-        addStatsHeader(statsPanel, "SCORE");
+        addStatsHeader(statsPanel, "QUIZ RESULTS");
         addStatLine(statsPanel, String.format("Correct Answers: %d/%d", correctAnswers, totalQuestions));
         addStatLine(statsPanel, String.format("Wrong Answers: %d", wrongAnswers));
 
         final double percentage = correctAnswers * 100.0 / totalQuestions;
-        addStatLine(statsPanel, String.format("Percentage: %.1f%%", percentage));
+        addStatLine(statsPanel, String.format("Accuracy: %.1f%%", percentage));
 
         addSpacer(statsPanel);
 
         addStatsHeader(statsPanel, "TIME ANALYSIS");
-        addStatLine(statsPanel, String.format("Real Time: %d seconds", baseTime));
+        addStatLine(statsPanel, String.format("Base Time: %d seconds", baseTime));
 
         if (wrongAnswers > 0) {
             final int totalPenalty = wrongAnswers * PENALTY_SECONDS;
             addStatLine(statsPanel, String.format("Penalty: +%d seconds", totalPenalty));
-            addStatLine(statsPanel, String.format("(%d wrong - total: %d sec)", wrongAnswers, totalPenalty));
+            addStatLine(statsPanel, String.format("(%d wrong %d sec)", wrongAnswers, PENALTY_SECONDS));
         } else {
             addStatLine(statsPanel, "No penalties! Perfect!");
         }
@@ -293,9 +350,14 @@ public final class KahootMinigame implements Minigame, KahootListener {
         statsPanel.add(finalTimeLabel);
 
         addSpacer(statsPanel);
-        addStatsHeader(statsPanel, "PERFORMANCE");
-        // final String performance = getPerformanceRating(correctAnswers, totalQuestions, finalTime);
-        // addStatLine(statsPanel, performance);
+
+        addStatsHeader(statsPanel, "SCORING");
+        addStatLine(statsPanel, String.format("Points Earned: %d", calculatedScore));
+
+        // Show bonus information if applicable
+        if (finalTime < BONUS_TIME_THRESHOLD_SECONDS) {
+            addStatLine(statsPanel, String.format("Speed Bonus: +%d points!", BONUS_POINTS));
+        }
 
         panel.add(titleLabel, BorderLayout.NORTH);
         panel.add(statsPanel, BorderLayout.CENTER);
@@ -344,43 +406,14 @@ public final class KahootMinigame implements Minigame, KahootListener {
         parent.add(spacer);
     }
 
-    // /**
-    //  * Generates a performance rating based on accuracy and speed.
-    //  */
-    // private String getPerformanceRating(final int correct, final int total, final int time) {
-    //     final double accuracy = (double) correct / total;
-    //     final String accuracyRating;
-    //
-    //     if (accuracy >= 0.9) {
-    //         accuracyRating = "EXCELLENT";
-    //     } else if (accuracy >= 0.7) {
-    //         accuracyRating = "GOOD";
-    //     } else if (accuracy >= 0.5) {
-    //         accuracyRating = "FAIR";
-    //     } else {
-    //         accuracyRating = "KEEP STUDYING";
-    //     }
-    //
-    //     final String speedRating;
-    //     if (time <= 10) {
-    //         speedRating = "LIGHTNING FAST";
-    //     } else if (time <= 18) {
-    //         speedRating = "SPEEDY";
-    //     } else if (time <= 20) {
-    //         speedRating = "STEADY";
-    //     } else {
-    //         speedRating = "THOUGHTFUL";
-    //     }
-    //
-    //     return String.format("%s • %s", accuracyRating, speedRating);
-    // }
-
     /**
      * Adds an OK button to the detailed results panel.
      *
      * @param resultsPanel the results panel to add the button to
+     * @param finalTime the final time to pass to callback
      */
-    private void addOkButtonToDetailedResults(final JPanel resultsPanel) {
+    private void addOkButtonToDetailedResults(final JPanel resultsPanel, 
+                                             final int finalTime) {
         final JButton okButton = new JButton("Continue");
         okButton.setFont(new Font(FONT_FAMILY, Font.BOLD, BUTTON_FONT_SIZE));
         okButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
@@ -392,7 +425,7 @@ public final class KahootMinigame implements Minigame, KahootListener {
         okButton.addActionListener(e -> {
             gameFrame.dispose();
             if (callback != null) {
-                final int finalTime = model.getFinalTimeWithPenalty(PENALTY_SECONDS);
+                // Pass the final time to maintain consistency with the callback interface
                 callback.onComplete(true, finalTime);
             }
         });
@@ -408,5 +441,15 @@ public final class KahootMinigame implements Minigame, KahootListener {
         gameFrame.repaint();
 
         okButton.requestFocusInWindow();
+    }
+
+    /**
+     * Gets the scoring strategy used by this minigame.
+     * Useful for testing and debugging.
+     *
+     * @return the scoring strategy
+     */
+    public ScoringStrategy getScoringStrategy() {
+        return scoringStrategy;
     }
 }
