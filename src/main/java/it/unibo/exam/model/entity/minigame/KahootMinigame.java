@@ -282,9 +282,9 @@ public final class KahootMinigame implements Minigame {
             showFeedback("Correct!", new Color(COLOR_GREEN, COLOR_RED, COLOR_BLUE));
         } else {
             wrongAnswers++; // Incrementa contatore errori
-            showFeedback("<html><center>Wrong!<br>The correct answer was: " + 
-                questions.get(currentQuestionIndex).getAnswers().get(correctAnswer) + 
-                "<br>+1 second penalty!</center></html>",
+            showFeedback("<html><center>Wrong!<br>The correct answer was: " 
+                + questions.get(currentQuestionIndex).getAnswers().get(correctAnswer) 
+                + "<br>+1 second penalty!</center></html>",
                 new Color(COLOR_RED, COLOR_GREEN, COLOR_GREEN));
         }
 

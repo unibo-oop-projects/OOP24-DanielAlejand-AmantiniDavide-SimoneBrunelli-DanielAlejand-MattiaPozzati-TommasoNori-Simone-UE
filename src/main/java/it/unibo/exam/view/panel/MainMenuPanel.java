@@ -23,17 +23,27 @@ import javax.swing.JPanel;
 /**
  * Main menu panel for the game, displays play, options and exit buttons.
  * Updated to properly support minigame integration by passing parent frame reference.
+ * This class is final as it's not designed for extension.
  */
-public class MainMenuPanel extends JPanel {
+public final class MainMenuPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
+
+    // Button size constants
     private static final int WIDTHBUTTON = 800;
     private static final int HEIGHTBUTTON = 80;
     private static final int BUTTONFONTSIZE = 30;
     private static final int BUTTONSPACING = 20;
 
+    // Color constants for magic numbers
+    private static final int BUTTON_TEXT_RED = 255;
+    private static final int BUTTON_TEXT_GREEN = 255;
+    private static final int BUTTON_TEXT_BLUE = 255;
+    private static final int BUTTON_TEXT_ALPHA = 220;
+    private static final int BUTTON_BORDER_RADIUS = 30;
+
     /**
-     * The background image drawn behind the bottles.
+     * The background image drawn behind the menu.
      */
     private transient Image backgroundImage;
 
@@ -61,7 +71,7 @@ public class MainMenuPanel extends JPanel {
 
         // --- LOAD BACKGROUND IMAGE ---
         try {
-            var resource = getClass().getClassLoader().getResource("MainMenu/MainMenuBackGround.png");
+            final var resource = getClass().getClassLoader().getResource("MainMenu/MainMenuBackGround.png");
             if (resource == null) {
                 throw new IllegalArgumentException("Immagine non trovata!");
             }
@@ -226,49 +236,63 @@ public class MainMenuPanel extends JPanel {
         return new JPanel(new GridBagLayout());
     }
 
+    /**
+     * Paints the component with background image.
+     * This method is final to prevent unsafe overriding.
+     *
+     * @param g the graphics context for painting
+     */
     @Override
-    protected void paintComponent(Graphics g) {
+    protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
         if (backgroundImage != null) {
             g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
     }
 
+    /**
+     * Creates a styled button with custom appearance and hover effects.
+     *
+     * @param text the button text
+     * @return the styled button
+     */
     private JButton createStyledButton(final String text) {
-    final JButton button = new JButton(text);
+        final JButton button = new JButton(text);
 
-    button.setFocusPainted(false);
-    button.setBorderPainted(false);
-    button.setContentAreaFilled(false); // non riempie il background in modo "standard"
-    button.setOpaque(false); // importantissimo per la trasparenza
-    button.setForeground(new java.awt.Color(255, 255, 255, 220));
-    button.setFont(new Font("Arial", Font.BOLD, BUTTONFONTSIZE));
-    button.setPreferredSize(new Dimension(WIDTHBUTTON, HEIGHTBUTTON));
-    button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false); // non riempie il background in modo "standard"
+        button.setOpaque(false); // importantissimo per la trasparenza
+        button.setForeground(new java.awt.Color(BUTTON_TEXT_RED, BUTTON_TEXT_GREEN, 
+                                               BUTTON_TEXT_BLUE, BUTTON_TEXT_ALPHA));
+        button.setFont(new Font("Arial", Font.BOLD, BUTTONFONTSIZE));
+        button.setPreferredSize(new Dimension(WIDTHBUTTON, HEIGHTBUTTON));
+        button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-     // Background semitrasparente iniziale (con alpha)
-    java.awt.Color baseColor = new java.awt.Color(60, 120, 200, 150);
-    java.awt.Color hoverColor = new java.awt.Color(80, 140, 220, 180);
-    java.awt.Color clickColor = new java.awt.Color(30, 90, 180, 200);
+        // Background semitrasparente iniziale (con alpha)
+        final java.awt.Color baseColor = new java.awt.Color(60, 120, 200, 150);
+        final java.awt.Color hoverColor = new java.awt.Color(80, 140, 220, 180);
+        final java.awt.Color clickColor = new java.awt.Color(30, 90, 180, 200);
 
-    // Custom painting per sfondo trasparente
-    button.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
-        @Override
-        public void paint(Graphics g, javax.swing.JComponent c) {
-            Graphics g2 = g.create();
-            if (button.getModel().isPressed()) {
-                g2.setColor(clickColor);
-            } else if (button.getModel().isRollover()) {
-                g2.setColor(hoverColor);
-            } else {
-                g2.setColor(baseColor);
+        // Custom painting per sfondo trasparente
+        button.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
+            @Override
+            public void paint(final Graphics g, final javax.swing.JComponent c) {
+                final Graphics g2 = g.create();
+                if (button.getModel().isPressed()) {
+                    g2.setColor(clickColor);
+                } else if (button.getModel().isRollover()) {
+                    g2.setColor(hoverColor);
+                } else {
+                    g2.setColor(baseColor);
+                }
+                g2.fillRoundRect(0, 0, button.getWidth(), button.getHeight(), 
+                               BUTTON_BORDER_RADIUS, BUTTON_BORDER_RADIUS);
+                g2.dispose();
+                super.paint(g, c);
             }
-            g2.fillRoundRect(0, 0, button.getWidth(), button.getHeight(), 30, 30);
-            g2.dispose();
-            super.paint(g, c);
-        }
-    });
+        });
 
-    return button;
-}
+        return button;
+    }
 }

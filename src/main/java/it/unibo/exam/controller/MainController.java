@@ -39,7 +39,7 @@ public class MainController {
     private static final int VERY_FAST_THRESHOLD   = 15;
     private static final int VERY_FAST_BONUS       = 20;
     private static final int MAX_POINTS_PER_ROOM   = 120;
-    private static final int TOTAL_PUZZLE_ROOMS    = 4; // Rooms 1-4 are puzzle rooms
+    private static final int TOTAL_PUZZLE_ROOMS    = 5; // Rooms 1-5 are puzzle rooms
 
     private final KeyHandler      keyHandler;
     private final GameState       gameState;
@@ -49,7 +49,7 @@ public class MainController {
     private boolean               running;
     private Point2D               environmentSize;
     private JFrame                parentFrame;
-    private boolean               gameCompleted = false;
+    private boolean               gameCompleted;
 
     private long minigameStartTime;
     private boolean minigameActive;
