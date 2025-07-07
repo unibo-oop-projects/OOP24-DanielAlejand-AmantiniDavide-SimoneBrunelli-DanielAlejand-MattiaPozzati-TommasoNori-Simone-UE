@@ -4,28 +4,68 @@ import it.unibo.exam.model.entity.minigame.Minigame;
 import it.unibo.exam.model.entity.minigame.MinigameCallback;
 import it.unibo.exam.view.garden.CatchBallPanel;
 import it.unibo.exam.model.entity.minigame.garden.CatchBallModel;
+import it.unibo.exam.model.scoring.CapDecorator;
+import it.unibo.exam.model.scoring.ScoringStrategy;
+import it.unibo.exam.model.scoring.TimeBonusDecorator;
+import it.unibo.exam.model.scoring.TieredScoringStrategy;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Objects;
 
 public class CatchBallMinigame implements Minigame {
+
+    private static final int BONUS_TIME_THRESHOLD_SECONDS = 30;
+    private static final int BONUS_POINTS                 = 10;
+    private static final int MAX_POINTS_CAP               = 120;
 
     private static final int WIDTH = 600;
     private static final int HEIGHT = 400;
     private static final int TIMER_DELAY = 16;
+    private static final int ROOM_ID = 1;
 
     private JFrame frame;
     private CatchBallModel model;
     private CatchBallPanel panel;
     private Timer gameTimer;
     private MinigameCallback callback;
+    private long startTimeMillis;
+    private final ScoringStrategy scoringStrategy;
 
     private boolean leftPressed = false;
     private boolean rightPressed = false;
-    private long startTime;
 
+       /**
+     * No‐arg constructor for factory instantiation (uses default scoring).
+     */
+    public CatchBallMinigame() {
+        this(
+            new CapDecorator(
+                new TimeBonusDecorator(
+                    new TieredScoringStrategy(),
+                    BONUS_TIME_THRESHOLD_SECONDS,
+                    BONUS_POINTS
+                ),
+                MAX_POINTS_CAP
+            )
+        );
+    }
+
+    /**
+     * Full constructor allows custom scoring strategy.
+     *
+     * @param scoringStrategy the strategy used to compute final score
+     */
+    public CatchBallMinigame(final ScoringStrategy scoringStrategy) {
+        this.scoringStrategy = Objects.requireNonNull(scoringStrategy,
+            "scoringStrategy must not be null");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void start(JFrame parentFrame, MinigameCallback onComplete) {
         this.callback = onComplete;
@@ -60,7 +100,7 @@ public class CatchBallMinigame implements Minigame {
             }
         });
 
-        startTime = System.currentTimeMillis();
+        startTimeMillis = System.currentTimeMillis();
         gameTimer = new Timer(TIMER_DELAY, this::gameLoop);
         gameTimer.start();
     }
@@ -79,13 +119,18 @@ public class CatchBallMinigame implements Minigame {
     private void endGame(boolean success) {
         gameTimer.stop();
         frame.dispose();
+        long elapsedMillis = System.currentTimeMillis() - startTimeMillis;
+        int elapsedSeconds = (int) (elapsedMillis / 1000L);
+        int score = scoringStrategy.calculate(elapsedSeconds, ROOM_ID);
+
         if (success) {
-            JOptionPane.showMessageDialog(null, "You win!", "Victory", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "You win!\nTime: " + elapsedSeconds +
+                " seconds\nScore: " + score, "Victory", JOptionPane.INFORMATION_MESSAGE);
+            callback.onComplete(true, elapsedSeconds);
         } else {
             JOptionPane.showMessageDialog(null, "Game Over! You lost!", "Defeat", JOptionPane.ERROR_MESSAGE);
+            callback.onComplete(false, elapsedSeconds); // o zero, oppure calcola comunque lo score
         }
-        int time = (int) ((System.currentTimeMillis() - startTime) / 1000);
-        callback.onComplete(success, time);
     }
 
     @Override

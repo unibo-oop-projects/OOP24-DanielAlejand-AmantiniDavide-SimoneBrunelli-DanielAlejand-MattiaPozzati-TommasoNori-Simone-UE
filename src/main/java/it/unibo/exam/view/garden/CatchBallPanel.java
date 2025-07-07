@@ -41,8 +41,11 @@ public class CatchBallPanel extends JPanel {
 
         g2.setColor(Color.WHITE);
         g2.setFont(new Font("Arial", Font.PLAIN, 14));
-        g2.drawString("Score: " + model.getScore(), 10, 20);
-        g2.drawString("Lives: " + model.getLives(), 10, 40);
+        String scoreText = "Score: " + model.getScore();
+        FontMetrics fm = g2.getFontMetrics();
+        int textWidth = fm.stringWidth(scoreText);
+        g2.drawString(scoreText, getWidth() - textWidth - 10, 20);
+        g2.drawString("Lives: " + model.getLives(), 10, 20);
 
         for (BallEntity ball : model.getBalls()) {
             ball.draw(g2);
