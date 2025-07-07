@@ -5,7 +5,6 @@ import it.unibo.exam.model.entity.minigame.MinigameCallback;
 import it.unibo.exam.view.garden.CatchBallPanel;
 import it.unibo.exam.model.entity.minigame.garden.CatchBallModel;
 
-
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
@@ -30,7 +29,8 @@ public class CatchBallMinigame implements Minigame {
     @Override
     public void start(JFrame parentFrame, MinigameCallback onComplete) {
         this.callback = onComplete;
-        
+        this.model = new CatchBallModel();
+        this.panel = new CatchBallPanel(model);
 
         frame = new JFrame("Catch the Balls");
         frame.setSize(WIDTH, HEIGHT);
@@ -39,9 +39,6 @@ public class CatchBallMinigame implements Minigame {
         frame.setResizable(false);
         frame.add(panel);
         frame.setVisible(true);
-
-        this.model = new CatchBallModel();
-        this.panel = new CatchBallPanel(model);
 
         frame.addKeyListener(new KeyAdapter() {
             @Override

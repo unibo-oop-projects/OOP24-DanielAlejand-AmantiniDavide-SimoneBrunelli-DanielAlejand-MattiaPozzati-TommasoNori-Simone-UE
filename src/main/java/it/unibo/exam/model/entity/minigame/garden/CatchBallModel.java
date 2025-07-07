@@ -19,8 +19,8 @@ public class CatchBallModel {
     private int score = 0;
     private int ballSpawnTimer = 0;
 
-    public CatchBallModel(final int panelHeight) {
-    this.bottle = new BottleEntity(WIDTH / 2 - 20, panelHeight - 30, 40, 20);
+    public CatchBallModel() {
+        this.bottle = new BottleEntity(WIDTH / 2 - 20, HEIGHT - 30, 40, 20);
     }
 
     public void update(boolean leftPressed, boolean rightPressed) {
