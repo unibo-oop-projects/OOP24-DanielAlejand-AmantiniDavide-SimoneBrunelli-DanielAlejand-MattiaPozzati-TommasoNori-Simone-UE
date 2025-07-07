@@ -291,7 +291,7 @@ public final class KahootMinigame implements Minigame {
         currentQuestionIndex++;
 
         // Wait a moment before showing the next question
-        final Timer timer = new Timer(FEEDBACK_DELAY, e -> showNextQuestion());
+        final Timer timer = new Timer(FEEDBACK_DELAY, _ -> showNextQuestion());
         timer.setRepeats(false);
         timer.start();
     }

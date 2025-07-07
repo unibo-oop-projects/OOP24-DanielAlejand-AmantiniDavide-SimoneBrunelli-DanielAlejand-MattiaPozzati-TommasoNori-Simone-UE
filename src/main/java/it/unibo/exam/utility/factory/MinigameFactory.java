@@ -32,9 +32,10 @@ public final class MinigameFactory {
         switch (roomId) {
             //TODO Scrivete con le vostre stanze, marrani
             // Bar
-            case 2: return new KahootMinigame();
-            case 4:
-                return new BarMinigame();    // ← hook in Sort & Serve for Bar room (id 4)
+            case 2: 
+                return new KahootMinigame();
+            case 5:
+                return new BarMinigame();
             default:
                 throw new IllegalArgumentException(
                     "Invalid room ID for minigame: " + roomId
@@ -55,7 +56,7 @@ public final class MinigameFactory {
             //TODO Scrivete con le vostre stanze, marrani
             case 2: return "Quiz Kahoot";
 
-            case 4:
+            case 5:
                 return "Sort & Serve";       // ← human-readable name for Bar
 
             default:
@@ -74,7 +75,7 @@ public final class MinigameFactory {
         switch (roomId) {
             //TODO Scrivete con le vostre stanze, marrani
             case 2: return "Answer all questions";
-            case 4:
+            case 5:
                 return "Pour colored layers until each glass is uniform.";
             default:
                 throw new IllegalArgumentException("Invalid room ID: " + roomId);
