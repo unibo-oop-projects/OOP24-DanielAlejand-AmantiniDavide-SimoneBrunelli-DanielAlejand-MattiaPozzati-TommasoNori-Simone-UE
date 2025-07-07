@@ -42,7 +42,7 @@ public class DoorGenerator extends EntityGenerator<List<Door>> {
             ),
             // To room 2 - Bottom side
             new Point2D(
-                Math.max(0, (enviromentSize.getX() - doorWidth) / 2), 
+                Math.max(0, enviromentSize.getX() / 3 - doorWidth / 2), 
                 Math.max(0, enviromentSize.getY() - doorHeight - margin)
             ),
             // To room 3 - Left side
@@ -54,6 +54,11 @@ public class DoorGenerator extends EntityGenerator<List<Door>> {
             new Point2D(
                 Math.max(0, (enviromentSize.getX() - doorWidth) / 2), 
                 margin
+            ),
+            // To room 5 - Bottom side
+            new Point2D(
+                Math.max(0, 2 * enviromentSize.getX() / 3 - doorWidth / 2),
+                Math.max(0, enviromentSize.getY() - doorHeight - margin)
             )
         );
     }
@@ -74,25 +79,28 @@ public class DoorGenerator extends EntityGenerator<List<Door>> {
      */
     @Override
     public final List<Door> generate(final int id) {
+        final int lastRoom = 5;
         switch (id) {
             case 0 : {
                 return List.of(
                     generateSingleDoor(0, 1),
                     generateSingleDoor(0, 2),
                     generateSingleDoor(0, 3),
-                    generateSingleDoor(0, 4)
+                    generateSingleDoor(0, 4),
+                    generateSingleDoor(0, lastRoom)
                 );
             }
             case 1 :
             case 2 :
             case 3 :
-            case 4 : {
+            case 4 : 
+            case lastRoom : {
                 return List.of(
                     generateSingleDoor(id, 0)
                 );
             }
             default : 
-                throw new IllegalArgumentException("Id must be in [0,4]");
+                throw new IllegalArgumentException("Id must be in [0,5]");
         }
     }
 

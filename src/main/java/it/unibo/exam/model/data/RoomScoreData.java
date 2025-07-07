@@ -2,15 +2,16 @@ package it.unibo.exam.model.data;
 
 /**
  * Data class for storing the player's score and completion state for a room.
+ * Updated to include the new Library room.
  */
 public class RoomScoreData {
     // Room names mapped by room ID
     private static final String[] ROOM_NAMES = {
-        "2.12",       // 0
-        "Bar",   // 1
-        "Lab",       // 2
-        "Gym",   // 3
-        "Garden",   // 4
+        "Garden",
+        "2.12",
+        "Lab",
+        "Gym",
+        "Bar",
     };
 
     private final int roomId;
@@ -87,5 +88,4 @@ public class RoomScoreData {
             + ", completed=" + completed
             + '}';
     }
-
 }

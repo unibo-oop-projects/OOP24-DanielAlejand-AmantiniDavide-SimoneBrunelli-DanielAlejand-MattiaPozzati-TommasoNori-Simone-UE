@@ -130,7 +130,7 @@ public class GameState {
         final int npcWidth = newSize.getX() / 20;
         final int npcHeight = newSize.getY() / 20;
         final int margin = 80;
-
+        final int lastRoom = 5;
         final Point2D newPosition;
         switch (roomId) {
             case 1: // Bar
@@ -144,6 +144,9 @@ public class GameState {
                 break;
             case 4: // Garden
                 newPosition = new Point2D(margin, newSize.getY() / 2 - npcHeight / 2);
+                break;
+            case lastRoom : // LastRoom
+                newPosition = new Point2D(newSize.getX() - npcWidth - margin, newSize.getY() - npcHeight - margin);
                 break;
             default:
                 newPosition = new Point2D(newSize.getX() / 2 - npcWidth / 2, newSize.getY() / 2 - npcHeight / 2);
@@ -161,7 +164,7 @@ public class GameState {
      */
     private List<Room> initRooms(final Point2D enviromentSize) {
         final RoomGenerator rg = new RoomGenerator(enviromentSize);
-        final int endExclusive = 5;
+        final int endExclusive = 6;
         return IntStream.range(0, endExclusive)
             .mapToObj(rg::generate)
             .toList();

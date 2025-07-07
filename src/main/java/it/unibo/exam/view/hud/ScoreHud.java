@@ -1,6 +1,7 @@
 package it.unibo.exam.view.hud;
 
 import it.unibo.exam.model.game.GameState;
+import it.unibo.exam.utility.generator.RoomGenerator;
 import it.unibo.exam.model.entity.Player;
 import it.unibo.exam.model.entity.enviroments.Room;
 import it.unibo.exam.model.data.RoomScoreData;
@@ -58,11 +59,15 @@ public class ScoreHud implements ScoreListener {
      * @param g the Graphics2D context used for drawing the HUD
      */
     public void draw(final Graphics2D g) {
-        final Player     player           = gameState.getPlayer();
-        final List<Room> rooms            = gameState.getAllRooms();
-        final int        totalWidth       = g.getClipBounds().width;
-        final int        x                = totalWidth - PANEL_WIDTH - PADDING - RIGHT_MARGIN;
-        final int        backgroundHeight = (rooms.size() + 2) * LINE_HEIGHT + PADDING * 2;
+        final Player           player           = gameState.getPlayer();
+        final List<Room>       rooms            = gameState.getAllRooms();
+        final List<Room> puzzleRooms = rooms.stream()
+            .filter(room -> room.getRoomType() == RoomGenerator.PUZZLE_ROOM) // Avoid non puzzle room
+            .toList();
+        final int              totalWidth       = g.getClipBounds().width;
+        final int              x                = totalWidth - PANEL_WIDTH - PADDING - RIGHT_MARGIN;
+        final int              backgroundHeight = (puzzleRooms.size() + 2) * LINE_HEIGHT + PADDING * 2;
+
 
         g.setColor(BG_COLOR);
         g.fillRoundRect(
@@ -80,7 +85,7 @@ public class ScoreHud implements ScoreListener {
 
         g.setFont(TEXT_FONT);
         int y = START_Y + LINE_HEIGHT;
-        for (final Room room : rooms) {
+        for (final Room room : puzzleRooms) {
             final RoomScoreData data = player.getRoomScore(room.getId());
 
             String check = "[ ]";
