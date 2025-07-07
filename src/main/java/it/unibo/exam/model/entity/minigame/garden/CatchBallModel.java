@@ -20,7 +20,7 @@ public class CatchBallModel {
     private int ballSpawnTimer = 0;
 
     public CatchBallModel() {
-        this.bottle = new BottleEntity(WIDTH / 2 - 20, HEIGHT - 30, 40, 20);
+        this.bottle = new BottleEntity(WIDTH / 2 - 20, HEIGHT - 60, 40, 20);
     }
 
     public void update(boolean leftPressed, boolean rightPressed) {
