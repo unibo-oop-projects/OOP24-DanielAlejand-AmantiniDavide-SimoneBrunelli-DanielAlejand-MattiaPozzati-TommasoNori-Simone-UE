@@ -17,6 +17,7 @@ public class CatchBallModel {
     private final Random random = new Random();
 
     private int score = 0;
+    private int lives = 3; // 3 palline possono cadere
     private int ballSpawnTimer = 0;
 
     public CatchBallModel() {
@@ -41,6 +42,7 @@ public class CatchBallModel {
                 score++;
             } else if (ball.isOffScreen(HEIGHT)) {
                 it.remove();
+                lives--;
             }
         }
 
@@ -66,5 +68,12 @@ public class CatchBallModel {
 
     public BottleEntity getBottle() {
         return bottle;
+    }
+
+    public int getLives() {
+        return lives;
+    }
+    public boolean hasLost() {
+        return lives <= 0;
     }
 }

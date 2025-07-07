@@ -71,12 +71,19 @@ public class CatchBallMinigame implements Minigame {
 
         if (model.hasWon()) {
             endGame(true);
+        } else if (model.hasLost()) {
+        endGame(false);
         }
     }
 
     private void endGame(boolean success) {
         gameTimer.stop();
         frame.dispose();
+        if (success) {
+            JOptionPane.showMessageDialog(null, "You win!", "Victory", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(null, "Game Over! You lost!", "Defeat", JOptionPane.ERROR_MESSAGE);
+        }
         int time = (int) ((System.currentTimeMillis() - startTime) / 1000);
         callback.onComplete(success, time);
     }
