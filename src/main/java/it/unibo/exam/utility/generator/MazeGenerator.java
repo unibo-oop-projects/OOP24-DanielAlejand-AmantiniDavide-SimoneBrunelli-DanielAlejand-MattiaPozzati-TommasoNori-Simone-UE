@@ -10,13 +10,24 @@ import java.util.Random;
  */
 public class MazeGenerator {
 
-    // Maze path
+    /**
+     * Constant representing a path cell in the maze.
+     */
     public static final int PATH = 0; 
-    // Maze wall
+
+    /**
+     * Constant representing a wall cell in the maze.
+     */
     public static final int WALL = 1; 
-    // Maze start
+
+    /**
+     * Constant representing the start position in the maze.
+     */
     public static final int START = 2;
-    // Maze end
+
+    /**
+     * Constant representing the end position in the maze.
+     */
     public static final int END = 3;
 
     // Costants for the maze level

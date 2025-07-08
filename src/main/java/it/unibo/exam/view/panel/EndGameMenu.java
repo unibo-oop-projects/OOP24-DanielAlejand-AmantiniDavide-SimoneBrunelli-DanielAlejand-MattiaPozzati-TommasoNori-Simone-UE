@@ -1,8 +1,8 @@
 package it.unibo.exam.view.panel;
 
 import it.unibo.exam.model.entity.Player;
-import it.unibo.exam.model.Leaderboard.LeaderboardEntry;
-import it.unibo.exam.model.Leaderboard.LeaderboardManage;
+import it.unibo.exam.model.leaderboard.LeaderboardEntry;
+import it.unibo.exam.model.leaderboard.LeaderboardManage;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

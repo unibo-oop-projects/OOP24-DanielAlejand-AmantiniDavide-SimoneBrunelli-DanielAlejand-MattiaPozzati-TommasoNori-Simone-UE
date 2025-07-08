@@ -16,11 +16,11 @@ import java.util.logging.Logger;
 public final class MazeMiniGame implements Minigame {
 
     private static final Logger LOGGER = Logger.getLogger(MazeMiniGame.class.getName());
-    
+
     // Window settings
     private static final int WINDOW_WIDTH = 700;
     private static final int WINDOW_HEIGHT = 800;
-    
+
     // Game settings
     private static final int TOTAL_MAZES = 3;
     private static final String[] DIFFICULTY_NAMES = {"Easy (5x5)", "Medium (7x7)", "Hard (9x9)"};
@@ -30,9 +30,9 @@ public final class MazeMiniGame implements Minigame {
     private MinigameCallback callback;
     private final MazeGenerator generator = new MazeGenerator();
     private MazePanel currentPanel;
-    
-    private int currentMazeIndex = 0;
-    private boolean gameCompleted = false;
+
+    private int currentMazeIndex;
+    private boolean gameCompleted;
     private long gameStartTime;
 
     /**
@@ -47,10 +47,10 @@ public final class MazeMiniGame implements Minigame {
         this.gameStartTime = System.currentTimeMillis();
         this.currentMazeIndex = 0;
         this.gameCompleted = false;
-        
+
         createGameWindow(parentFrame);
         startNextMaze();
-        
+
         LOGGER.info("MazeMinigame started");
     }
 
@@ -96,7 +96,7 @@ public final class MazeMiniGame implements Minigame {
         gameFrame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         gameFrame.setLocationRelativeTo(parentFrame);
         gameFrame.setResizable(false);
-        
+
         // Add window close listener to handle incomplete games
         gameFrame.addWindowListener(new WindowAdapter() {
             @Override
@@ -119,7 +119,7 @@ public final class MazeMiniGame implements Minigame {
         // Generate maze for difficulty
         final int difficulty = currentMazeIndex + 1; // {1 (E), 2 (M), 3 (H)}
         final int[][] maze = generator.generateMaze(difficulty);
-        
+
         // Create new panel for the maze
         currentPanel = new MazePanel(maze);
         currentPanel.setCompletionListener(this::handleMazeCompletion);
@@ -133,7 +133,7 @@ public final class MazeMiniGame implements Minigame {
 
         // Focus for keyboard input
         currentPanel.requestFocusInWindow();
-        
+
         LOGGER.info("Started maze " + (currentMazeIndex + 1) + "/3: " + DIFFICULTY_NAMES[currentMazeIndex]);
     }
 
@@ -170,7 +170,7 @@ public final class MazeMiniGame implements Minigame {
             "Maze %d/3 completed in %d seconds!\n\nReady for the next maze?",
             currentMazeIndex, timeSeconds
         );
-        
+
         final int choice = JOptionPane.showConfirmDialog(
             gameFrame, message, "Maze Completed!", 
             JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE
@@ -189,11 +189,14 @@ public final class MazeMiniGame implements Minigame {
      * @param success if all 3 maze are complete
      */
     private void endGame(final boolean success) {
-        if (gameCompleted) return;
+
+        if (gameCompleted) {
+            return;
+        }
 
         gameCompleted = true;
         final int totalTime = getTotalTime();
-        
+
         if (success) {
             showCompletionDialog(totalTime);
         } else {
@@ -236,7 +239,7 @@ public final class MazeMiniGame implements Minigame {
     private int getTotalTime() {
         return (int) ((System.currentTimeMillis() - this.gameStartTime) / 1000);
     }
-    
+
     /**
      * Gets the current maze index (0-2).
      * 
