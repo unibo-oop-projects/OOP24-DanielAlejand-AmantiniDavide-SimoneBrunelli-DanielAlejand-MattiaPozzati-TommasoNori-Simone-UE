@@ -1,4 +1,4 @@
-package it.unibo.exam.model;
+package it.unibo.exam.model.leaderboard;
 
 
 import java.io.BufferedReader;
