@@ -61,7 +61,7 @@ public class MainMenuPanel extends JPanel {
 
         // --- LOAD BACKGROUND IMAGE ---
         try {
-            var resource = getClass().getClassLoader().getResource("MainMenu/MainMenuBackGround.png");
+            final var resource = getClass().getClassLoader().getResource("MainMenu/MainMenuBackGround.png");
             if (resource == null) {
                 throw new IllegalArgumentException("Immagine non trovata!");
             }

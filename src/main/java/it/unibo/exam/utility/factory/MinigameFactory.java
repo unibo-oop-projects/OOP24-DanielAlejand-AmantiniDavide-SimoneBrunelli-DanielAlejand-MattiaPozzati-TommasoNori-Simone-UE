@@ -3,6 +3,7 @@ package it.unibo.exam.utility.factory;
 import it.unibo.exam.model.entity.minigame.KahootMinigame;
 import it.unibo.exam.model.entity.minigame.Minigame;
 import it.unibo.exam.controller.minigame.bar.BarMinigame;
+import it.unibo.exam.controller.minigame.gym.GymMinigame;
 
 /**
  * Factory class for creating different types of minigames based on room ID.
@@ -32,7 +33,10 @@ public final class MinigameFactory {
         switch (roomId) {
             //TODO Scrivete con le vostre stanze, marrani
             // Bar
-            case 2: return new KahootMinigame();
+            case 2: 
+                return new KahootMinigame();
+            case 3:
+                return new GymMinigame();
             case 4:
                 return new BarMinigame();    // ← hook in Sort & Serve for Bar room (id 4)
             default:
@@ -53,8 +57,10 @@ public final class MinigameFactory {
     public static String getMinigameName(final int roomId) {
         switch (roomId) {
             //TODO Scrivete con le vostre stanze, marrani
-            case 2: return "Quiz Kahoot";
-
+            case 2: 
+                return "Quiz Kahoot";
+            case 3: 
+                return "Gym Minigame";
             case 4:
                 return "Sort & Serve";       // ← human-readable name for Bar
 
@@ -74,6 +80,7 @@ public final class MinigameFactory {
         switch (roomId) {
             //TODO Scrivete con le vostre stanze, marrani
             case 2: return "Answer all questions";
+            case 3: return "Colpisci tutti i dischi con il cannone per vincere! Usa mouse e tastiera.";
             case 4:
                 return "Pour colored layers until each glass is uniform.";
             default:
