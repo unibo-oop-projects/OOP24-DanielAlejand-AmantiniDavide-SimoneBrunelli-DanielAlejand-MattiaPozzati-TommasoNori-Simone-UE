@@ -1,7 +1,6 @@
 package it.unibo.exam.utility.factory;
 
 import it.unibo.exam.controller.minigame.garden.CatchBallMinigame;
-import it.unibo.exam.model.entity.minigame.KahootMinigame;
 import it.unibo.exam.model.entity.minigame.Minigame;
 import it.unibo.exam.controller.minigame.bar.BarMinigame;
 
@@ -31,11 +30,9 @@ public final class MinigameFactory {
      */
     public static Minigame createMinigame(final int roomId) {
         switch (roomId) {
-            //TODO Scrivete con le vostre stanze, marrani
             case 1: return  new CatchBallMinigame();
             // Bar
-            case 2: return new KahootMinigame();
-            case 4:
+            case 5:
                 return new BarMinigame();    // ← hook in Sort & Serve for Bar room (id 4)
             default:
                 throw new IllegalArgumentException(
@@ -56,10 +53,7 @@ public final class MinigameFactory {
         switch (roomId) {
             case 1: return "Garden minigame";
 
-            //TODO Scrivete con le vostre stanze, marrani
-            case 2: return "Quiz Kahoot";
-
-            case 4:
+            case 5:
                 return "Sort & Serve";       // ← human-readable name for Bar
 
             default:
@@ -76,10 +70,8 @@ public final class MinigameFactory {
      */
     public static String getMinigameDescription(final int roomId) {
         switch (roomId) {
-            //TODO Scrivete con le vostre stanze, marrani
             case 1: return "Move the bottle to catch falling balls. Reach 5 to win!";
-            case 2: return "Answer all questions";
-            case 4:
+            case 5:
                 return "Pour colored layers until each glass is uniform.";
             default:
                 throw new IllegalArgumentException("Invalid room ID: " + roomId);
