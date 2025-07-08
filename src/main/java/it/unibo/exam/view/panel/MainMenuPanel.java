@@ -3,6 +3,8 @@ package it.unibo.exam.view.panel;
 import it.unibo.exam.utility.geometry.Point2D;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -16,21 +18,39 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
+import java.awt.Graphics2D;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Main menu panel for the game, displays play, options and exit buttons.
  * Updated to properly support minigame integration by passing parent frame reference.
  */
-public class MainMenuPanel extends JPanel {
+public final class MainMenuPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
     private static final int WIDTHBUTTON = 800;
     private static final int HEIGHTBUTTON = 80;
     private static final int BUTTONFONTSIZE = 30;
     private static final int BUTTONSPACING = 20;
+    private static final int ARCH = 30;
+    private static final int COLOR_255 = 255;
+    private static final int COLOR_220 = 220;
+    private static final int COLOR_60 = 60;
+    private static final int COLOR_120 = 120;
+    private static final int COLOR_200 = 200;
+    private static final int COLOR_150 = 150;
+    private static final int COLOR_80 = 80;
+    private static final int COLOR_140 = 140;
+    private static final int COLOR_30 = 30;
+    private static final int COLOR_180 = 180;
+    private static final int COLOR_90 = 90;
+    private static final Logger LOGGER = Logger.getLogger(MainMenuPanel.class.getName());
 
     /**
      * The background image drawn behind the bottles.
@@ -60,15 +80,7 @@ public class MainMenuPanel extends JPanel {
         super.setPreferredSize(window.getSize());
 
         // --- LOAD BACKGROUND IMAGE ---
-        try {
-            final var resource = getClass().getClassLoader().getResource("MainMenu/MainMenuBackGround.png");
-            if (resource == null) {
-                throw new IllegalArgumentException("Immagine non trovata!");
-            }
-            backgroundImage = ImageIO.read(resource);
-            } catch (IOException | IllegalArgumentException e) {
-                e.printStackTrace();
-            }
+        loadBackgroundImage();
 
         // Creates the panel where the buttons will stay
         final JPanel buttonPanel = createButtonPanel();
@@ -226,49 +238,74 @@ public class MainMenuPanel extends JPanel {
         return new JPanel(new GridBagLayout());
     }
 
+    /**
+     * Paints the main menu panel. If you override this method, call super.paintComponent(g) and avoid modifying state.
+     * @param g the graphics context
+     */
     @Override
-    protected void paintComponent(Graphics g) {
+    protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
-        if (backgroundImage != null) {
-            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        final Graphics2D g2 = (Graphics2D) g.create();
+        try {
+            if (backgroundImage != null) {
+                g2.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            }
+        } finally {
+            g2.dispose();
         }
     }
 
     private JButton createStyledButton(final String text) {
-    final JButton button = new JButton(text);
+        final JButton button = new JButton(text);
 
-    button.setFocusPainted(false);
-    button.setBorderPainted(false);
-    button.setContentAreaFilled(false); // non riempie il background in modo "standard"
-    button.setOpaque(false); // importantissimo per la trasparenza
-    button.setForeground(new java.awt.Color(255, 255, 255, 220));
-    button.setFont(new Font("Arial", Font.BOLD, BUTTONFONTSIZE));
-    button.setPreferredSize(new Dimension(WIDTHBUTTON, HEIGHTBUTTON));
-    button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false); // non riempie il background in modo "standard"
+        button.setOpaque(false); // importantissimo per la trasparenza
+        button.setForeground(new Color(COLOR_255, COLOR_255, COLOR_255, COLOR_220));
+        button.setFont(new Font("Arial", Font.BOLD, BUTTONFONTSIZE));
+        button.setPreferredSize(new Dimension(WIDTHBUTTON, HEIGHTBUTTON));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-     // Background semitrasparente iniziale (con alpha)
-    java.awt.Color baseColor = new java.awt.Color(60, 120, 200, 150);
-    java.awt.Color hoverColor = new java.awt.Color(80, 140, 220, 180);
-    java.awt.Color clickColor = new java.awt.Color(30, 90, 180, 200);
+        // Background semitrasparente iniziale (con alpha)
+        final Color baseColor = new Color(COLOR_60, COLOR_120, COLOR_200, COLOR_150);
+        final Color hoverColor = new Color(COLOR_80, COLOR_140, COLOR_220, COLOR_180);
+        final Color clickColor = new Color(COLOR_30, COLOR_90, COLOR_180, COLOR_200);
 
-    // Custom painting per sfondo trasparente
-    button.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
-        @Override
-        public void paint(Graphics g, javax.swing.JComponent c) {
-            Graphics g2 = g.create();
-            if (button.getModel().isPressed()) {
-                g2.setColor(clickColor);
-            } else if (button.getModel().isRollover()) {
-                g2.setColor(hoverColor);
-            } else {
-                g2.setColor(baseColor);
+        // Custom painting per sfondo trasparente
+        button.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
+            @Override
+            public void paint(final Graphics g, final JComponent c) {
+                final Graphics g2 = g.create();
+                if (button.getModel().isPressed()) {
+                    g2.setColor(clickColor);
+                } else if (button.getModel().isRollover()) {
+                    g2.setColor(hoverColor);
+                } else {
+                    g2.setColor(baseColor);
+                }
+                g2.fillRoundRect(0, 0, button.getWidth(), button.getHeight(), ARCH, ARCH);
+                g2.dispose();
+                super.paint(g, c);
             }
-            g2.fillRoundRect(0, 0, button.getWidth(), button.getHeight(), 30, 30);
-            g2.dispose();
-            super.paint(g, c);
-        }
-    });
+        });
 
-    return button;
-}
+        return button;
+    }
+
+    /**
+     * Carica l'immagine di sfondo del menu principale.
+     */
+    @SuppressWarnings("PMD.ExceptionAsFlowControl")
+    private void loadBackgroundImage() {
+        try {
+            final var resource = getClass().getClassLoader().getResource("MainMenu/MainMenuBackGround.png");
+            if (resource == null) {
+                throw new IllegalArgumentException("Immagine non trovata!");
+            }
+            backgroundImage = ImageIO.read(resource);
+        } catch (IOException | IllegalArgumentException e) {
+            LOGGER.log(Level.SEVERE, "Errore nel caricamento dell'immagine", e);
+        }
+    }
 }

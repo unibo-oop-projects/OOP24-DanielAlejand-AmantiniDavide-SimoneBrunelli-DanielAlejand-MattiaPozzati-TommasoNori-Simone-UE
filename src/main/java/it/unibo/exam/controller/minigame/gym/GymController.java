@@ -4,11 +4,13 @@ import it.unibo.exam.utility.geometry.Point2D;
 import it.unibo.exam.model.entity.minigame.gym.Cannon;
 import it.unibo.exam.model.entity.minigame.gym.GymModel;
 import it.unibo.exam.view.gym.GymPanel;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Controller class for the Gym minigame. Manages the interaction between the model (GymModel),
  * the view (GymPanel), and user input through mouse events.
  */
+@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "safe for broadcasting in this context.")
 public class GymController {
     private static final double MIN_ANGLE = 0;
     private static final double MAX_ANGLE = Math.PI;
@@ -34,6 +36,7 @@ public class GymController {
     public void update() {
         model.update();
     }
+
 
     /**
      * Moves the cannon horizontally by the specified amount, ensuring it stays within the board boundaries.

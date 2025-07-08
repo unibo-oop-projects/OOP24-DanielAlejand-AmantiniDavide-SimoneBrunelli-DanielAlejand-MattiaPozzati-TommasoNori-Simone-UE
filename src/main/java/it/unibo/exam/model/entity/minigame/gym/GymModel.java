@@ -7,6 +7,7 @@ import java.util.Random;
 
 import it.unibo.exam.controller.minigame.gym.GymMinigame;
 import it.unibo.exam.utility.geometry.Point2D;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Logical model for the Gym minigame.
@@ -15,7 +16,7 @@ import it.unibo.exam.utility.geometry.Point2D;
 public class GymModel {
 
     private static final int POINTS_PER_DISK = 10;
-    private static final int WIN_SCORE = 200;
+    private static final int WIN_SCORE = 500;
     private static final int CANNON_PADDING = 50;
     private static final int DISK_GAP = 10;
     private static final int ROWS = 4;
@@ -70,12 +71,15 @@ public class GymModel {
     }
 
     /**
-     * @returns the current disk radius.
+     * @return the current disk radius.
      */
     public int getCurrentDiskRadius() {
         return diskRadius;
     }
 
+    /**
+     * @return new Cannon
+     */
     private Cannon createCannon() {
         final int cannonWidth = diskRadius * 2;
         final int cannonHeight = diskRadius * 2;
@@ -122,7 +126,7 @@ public class GymModel {
             if (!disk.isPopped() && disk.getPosition().distance(projPos) < projRadius + disk.getRadius()) {
                 projectile.setActive(false);
                 attachDisk();
-                checkForMatches(disk);
+                checkForMatches();
                 return;
             }
         }
@@ -163,19 +167,32 @@ public class GymModel {
     /**
      * Checks if the new disk creates a winning combination and updates the score.
      * Ends the game if the score threshold is reached.
-     * @param newDisk the newly attached disk
+     * Supporta cluster a catena: dopo ogni scoppio, rilancia la ricerca su tutti i dischi finché non ci sono più cluster validi.
      */
-    private void checkForMatches(final Disk newDisk) {
-        final List<Disk> matches = findMatches(newDisk);
-        if (matches.size() >= 3) {
-            for (final Disk d : matches) {
-                d.pop();
-                score += POINTS_PER_DISK;
+    private void checkForMatches() {
+        boolean foundCluster;
+        do {
+            foundCluster = false;
+            // Copia la lista per evitare ConcurrentModificationException
+            final List<Disk> currentDisks = new ArrayList<>(disks);
+            for (final Disk disk : currentDisks) {
+                if (!disk.isPopped()) {
+                    final List<Disk> matches = findMatches(disk);
+                    if (matches.size() >= 3) {
+                        for (final Disk d : matches) {
+                            d.pop();
+                            score += POINTS_PER_DISK;
+                        }
+                        removePoppedDisk();
+                        foundCluster = true;
+                        break; // Ricomincia la ricerca dopo la rimozione
+                    }
+                }
             }
-            removePoppedDisk();
-            if (score >= WIN_SCORE && minigame != null) {
-                minigame.onGameCompleted(score);
-            }
+        } while (foundCluster);
+
+        if (score >= WIN_SCORE && minigame != null) {
+            minigame.onGameCompleted(score);
         }
     }
 
@@ -252,27 +269,38 @@ public class GymModel {
 
     // Getters
     /**
-     * @return the game cannon
-     */
-    public final Cannon getCannon() { 
-        return cannon != null ? new Cannon(cannon) : new Cannon(
-            new Point2D(env.getX() / 2, env.getY() - CANNON_PADDING), 
-            Color.BLUE, 
-            env
-        ); 
-    }
-    /**
+     * Returns the list of disks in the game.
      * @return the list of active disks
      */
     public final List<Disk> getDisks() { 
         return disks != null ? new ArrayList<>(disks) : new ArrayList<>(); 
     }
+
     /**
-     * @return the active projectile (if present)
+     * Returns the cannon in the game.
+     * @return the cannon
+     */
+    @SuppressFBWarnings("EI_EXPOSE_REP")
+    public final Cannon getCannon() { 
+        return cannon;
+    }
+
+    /**
+     * Returns the active projectile (if present), or null if none.
+     * @return the projectile or null
      */
     public Projectile getProjectile() { 
-        return new Projectile(projectile); 
+        return projectile == null ? null : new Projectile(projectile);
     }
+
+    /**
+     * Returns the environment size.
+     * @return the environment Point2D
+     */
+    public Point2D getEnv() {
+        return new Point2D(env);
+    }
+
     /**
      * @return the current score
      */

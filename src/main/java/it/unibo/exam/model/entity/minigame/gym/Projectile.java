@@ -3,6 +3,7 @@ package it.unibo.exam.model.entity.minigame.gym;
 import java.awt.Color;
 
 import it.unibo.exam.utility.geometry.Point2D;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Represents the projectile fired by the cannon in the Gym minigame.
@@ -20,12 +21,17 @@ public class Projectile extends Disk {
      * @param angle firing angle (radians)
      * @param env environment size
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", 
+        justification = "Projectile is immutable after construction and safe to broadcast.")
     public Projectile(final Point2D startPosition, final Color color, final int radius, final double angle, final Point2D env) {
         super(startPosition, color, radius, env);
         this.angle = angle;
         this.active = true;
     }
-
+    /**
+     * Constructs a new projectile.
+     * @param p
+     */
     public Projectile(final Projectile p) {
         this(p.getPosition(), p.getColor(), p.getRadius(), p.getAngle(), p.getEnviromentSize());
     }

@@ -20,9 +20,13 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Objects;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Gym minigame.
  */
+@SuppressFBWarnings(value = {"SE_BAD_FIELD", "EI_EXPOSE_REP2", "constructor-calls-overridable-method"}, 
+justification = "model and keyHandler are safe for broadcasting and not serialized.")
 public class GymMinigame implements Minigame {
     private static final int BONUS_TIME_THRESHOLD_SECONDS = 30;
     private static final int BONUS_POINTS                 = 10;
@@ -57,11 +61,11 @@ public class GymMinigame implements Minigame {
      *
      * @param scoringStrategy the strategy used to compute final score
      */
+    @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
     public GymMinigame(final ScoringStrategy scoringStrategy) {
         this.scoringStrategy = Objects.requireNonNull(scoringStrategy,
             "scoringStrategy must not be null");
         this.model = new GymModel(new Point2D(FRAME_WIDTH, FRAME_HEIGHT));
-        model.setMinigame(this);
     }
 
     /**
@@ -69,6 +73,7 @@ public class GymMinigame implements Minigame {
     */
     @Override
     public void start(final JFrame parentFrame, final MinigameCallback onComplete) {
+        model.setMinigame(this);
         this.onComplete = onComplete;
         this.gameOver = false;
         final GymPanel gamePanel = new GymPanel(model);
@@ -161,9 +166,10 @@ public class GymMinigame implements Minigame {
     }
 
     /**
-     * 
-     * @return logical model
+     * Returns the GymModel for this minigame.
+     * @return the GymModel instance
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "model is safe for broadcasting in this context.")
     public GymModel getModel() {
         return model;
     }

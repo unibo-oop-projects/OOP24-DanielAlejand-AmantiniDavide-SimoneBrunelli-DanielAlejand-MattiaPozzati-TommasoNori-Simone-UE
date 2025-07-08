@@ -6,6 +6,7 @@ import it.unibo.exam.model.entity.minigame.gym.Disk;
 import it.unibo.exam.model.entity.minigame.gym.Projectile;
 import it.unibo.exam.utility.geometry.Point2D;
 import it.unibo.exam.controller.input.KeyHandler;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -19,6 +20,9 @@ import java.util.List;
  * Graphical panel for the Gym minigame.
  * Handles rendering of disks, cannon, projectile, and score.
  */
+@SuppressFBWarnings(value = {"SE_BAD_FIELD", "EI_EXPOSE_REP2", "constructor-calls-overridable-method"}, 
+    justification = "model and keyHandler are safe for broadcasting and not serialized.")
+@SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
 public class GymPanel extends JPanel {
     private static final int REFRESH_RATE = 16; // ~60 FPS
     private static final int DISPLACEMENT_FACTOR = 24;
@@ -31,9 +35,8 @@ public class GymPanel extends JPanel {
     private final KeyHandler keyHandler;
 
     /**
-     * Constructs a new GymPanel associated with the model and an optional scoring strategy.
+     * Constructs a new GymPanel associated with the model.
      * @param model logical model of the minigame
-     * @param scoringStrategy the scoring strategy to use (can be null)
      */
     public GymPanel(final GymModel model) {
         this.model = model;
@@ -44,25 +47,17 @@ public class GymPanel extends JPanel {
         final Timer timer = new Timer(REFRESH_RATE, e -> {
             // Handle key input for cannon
             final Cannon cannon = model.getCannon();
-            boolean repaintNeeded = false;
             if (keyHandler.isLeftPressed()) {
                 cannon.setAngle(cannon.getAngle() + Math.PI / DISPLACEMENT_FACTOR);
-                repaintNeeded = true;
             }
             if (keyHandler.isRightPressed()) {
                 cannon.setAngle(cannon.getAngle() - Math.PI / DISPLACEMENT_FACTOR);
-                repaintNeeded = true;
             }
             if (keyHandler.isSpaceBarPressed()) {
                 model.fireProjectile();
-                repaintNeeded = true;
             }
             model.update();
-            if (repaintNeeded) { // repaint only if needed
-                repaint();
-            } else {
-                repaint();
-            }
+            repaint();
         });
         timer.start();
 
