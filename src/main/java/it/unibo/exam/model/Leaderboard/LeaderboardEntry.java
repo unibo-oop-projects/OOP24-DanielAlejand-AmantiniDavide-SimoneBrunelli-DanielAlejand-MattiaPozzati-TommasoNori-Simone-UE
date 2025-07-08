@@ -1,4 +1,4 @@
-package it.unibo.exam.model.Leaderboard;
+package it.unibo.exam.model.leaderboard;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -36,7 +36,7 @@ public final class LeaderboardEntry {
      * @return the player name
      */
     public String getPlayerName() {
-        return playerName;
+        return this.playerName;
     }
 
     /**
@@ -45,7 +45,7 @@ public final class LeaderboardEntry {
      * @return the score
      */
     public int getScore() {
-        return score;
+        return this.score;
     }
 
     /**
@@ -54,7 +54,7 @@ public final class LeaderboardEntry {
      * @return the time in seconds
      */
     public int getTotalTime() {
-        return totalTime;
+        return this.totalTime;
     }
 
     /**
@@ -63,7 +63,7 @@ public final class LeaderboardEntry {
      * @return the date and time
      */
     public LocalDateTime getDate() {
-        return date;
+        return this.date;
     }
 
     @Override
