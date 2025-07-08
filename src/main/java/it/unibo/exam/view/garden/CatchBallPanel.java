@@ -5,32 +5,55 @@ import it.unibo.exam.model.entity.minigame.garden.BottleEntity;
 import it.unibo.exam.model.entity.minigame.garden.CatchBallModel;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.io.IOException;
 
-public class CatchBallPanel extends JPanel {
+/**
+ * Panel for rendering the CatchBall minigame.
+ */
+public final class CatchBallPanel extends JPanel {
+
+    private static final int SCORE_FONT_SIZE = 14;
+    private static final int SCORE_PADDING = 10;
+    private static final int SCORE_Y = 20;
+    private static final int LIVES_Y = 20;
 
     private final CatchBallModel model;
     private Image backgroundImage;
 
-    public CatchBallPanel(CatchBallModel model) {
+    /**
+     * Constructs the CatchBallPanel using the given game model.
+     *
+     * @param model the CatchBallModel to render
+     */
+    public CatchBallPanel(final CatchBallModel model) {
         this.model = model;
 
         try {
-            var resource = getClass().getClassLoader().getResource("Garden/fountain.png");
+            final var resource = getClass().getClassLoader().getResource("Garden/fountain.png");
             if (resource != null) {
                 backgroundImage = ImageIO.read(resource);
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
     }
 
+     /**
+     * Paints the minigame panel, including background, balls, bottle, score, and lives.
+     *
+     * @param g the Graphics context to draw on
+     */
     @Override
-    protected void paintComponent(Graphics g) {
+    protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D) g;
+        final Graphics2D g2 = (Graphics2D) g;
 
         if (backgroundImage != null) {
             g2.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
@@ -40,18 +63,19 @@ public class CatchBallPanel extends JPanel {
         }
 
         g2.setColor(Color.WHITE);
-        g2.setFont(new Font("Arial", Font.PLAIN, 14));
-        String scoreText = "Score: " + model.getScore();
-        FontMetrics fm = g2.getFontMetrics();
-        int textWidth = fm.stringWidth(scoreText);
-        g2.drawString(scoreText, getWidth() - textWidth - 10, 20);
-        g2.drawString("Lives: " + model.getLives(), 10, 20);
+        g2.setFont(new Font("Arial", Font.PLAIN, SCORE_FONT_SIZE));
+        final String scoreText = "Score: " + model.getScore();
+        final FontMetrics fm = g2.getFontMetrics();
+        final int textWidth = fm.stringWidth(scoreText);
+        g2.drawString(scoreText, getWidth() - textWidth - SCORE_PADDING, SCORE_Y);
+        g2.drawString("Lives: " + model.getLives(), SCORE_PADDING, LIVES_Y);
 
-        for (BallEntity ball : model.getBalls()) {
+
+        for (final BallEntity ball : model.getBalls()) {
             ball.draw(g2);
         }
 
-        BottleEntity bottle = model.getBottle();
+        final BottleEntity bottle = model.getBottle();
         if (bottle != null) {
             bottle.draw(g2);
         }
