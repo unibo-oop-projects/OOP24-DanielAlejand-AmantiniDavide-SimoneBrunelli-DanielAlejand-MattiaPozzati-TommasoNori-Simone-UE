@@ -9,18 +9,22 @@ import it.unibo.exam.model.scoring.ScoringStrategy;
 import it.unibo.exam.model.scoring.TimeBonusDecorator;
 import it.unibo.exam.model.scoring.TieredScoringStrategy;
 
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Objects;
 
+/**
+ * Controller for the CatchBall minigame (MVC pattern).
+ */
 public class CatchBallMinigame implements Minigame {
 
     private static final int BONUS_TIME_THRESHOLD_SECONDS = 30;
-    private static final int BONUS_POINTS                 = 10;
-    private static final int MAX_POINTS_CAP               = 120;
-
+    private static final int BONUS_POINTS = 10;
+    private static final int MAX_POINTS_CAP = 120;
     private static final int WIDTH = 600;
     private static final int HEIGHT = 400;
     private static final int TIMER_DELAY = 16;
@@ -34,8 +38,8 @@ public class CatchBallMinigame implements Minigame {
     private long startTimeMillis;
     private final ScoringStrategy scoringStrategy;
 
-    private boolean leftPressed = false;
-    private boolean rightPressed = false;
+    private boolean leftPressed;
+    private boolean rightPressed;
 
        /**
      * No‐arg constructor for factory instantiation (uses default scoring).
@@ -67,7 +71,7 @@ public class CatchBallMinigame implements Minigame {
      * {@inheritDoc}
      */
     @Override
-    public void start(JFrame parentFrame, MinigameCallback onComplete) {
+    public void start(final JFrame parentFrame, final MinigameCallback onComplete) {
         this.callback = onComplete;
         this.model = new CatchBallModel();
         this.panel = new CatchBallPanel(model);
@@ -82,7 +86,7 @@ public class CatchBallMinigame implements Minigame {
 
         frame.addKeyListener(new KeyAdapter() {
             @Override
-            public void keyPressed(KeyEvent e) {
+            public void keyPressed(final KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_A) {
                     leftPressed = true;
                 } else if (e.getKeyCode() == KeyEvent.VK_D) {
@@ -91,7 +95,7 @@ public class CatchBallMinigame implements Minigame {
             }
 
             @Override
-            public void keyReleased(KeyEvent e) {
+            public void keyReleased(final KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_A) {
                     leftPressed = false;
                 } else if (e.getKeyCode() == KeyEvent.VK_D) {
