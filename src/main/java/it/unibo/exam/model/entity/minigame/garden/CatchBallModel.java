@@ -5,6 +5,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * The model for the CatchBallMinigame.
+ * Generate the balls that falls from up, and manage the bottle entity catching them.
+ */
 public class CatchBallModel {
 
     private static final int WIDTH = 600;
@@ -16,9 +20,9 @@ public class CatchBallModel {
     private final BottleEntity bottle;
     private final Random random = new Random();
 
-    private int score = 0;
+    private int score;
     private int lives = 3; // 3 palline possono cadere
-    private int ballSpawnTimer = 0;
+    private int ballSpawnTimer;
 
     public CatchBallModel() {
         this.bottle = new BottleEntity(WIDTH / 2 - 20, HEIGHT - 60, 40, 20);
@@ -49,7 +53,7 @@ public class CatchBallModel {
         ballSpawnTimer++;
         if (ballSpawnTimer > BALL_INTERVAL) {
             ballSpawnTimer = 0;
-            int x = random.nextInt(WIDTH - 10);
+            final int x = random.nextInt(WIDTH - 10);
             balls.add(new BallEntity(x, 10));
         }
     }
