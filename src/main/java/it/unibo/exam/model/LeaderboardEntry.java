@@ -1,4 +1,4 @@
-package it.unibo.exam.model.leaderboard;
+package it.unibo.exam.model;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
