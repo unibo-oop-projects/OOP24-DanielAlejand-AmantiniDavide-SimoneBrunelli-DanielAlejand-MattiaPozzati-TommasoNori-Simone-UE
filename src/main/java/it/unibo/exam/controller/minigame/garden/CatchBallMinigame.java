@@ -130,7 +130,7 @@ public final class CatchBallMinigame implements Minigame {
         if (success) {
             JOptionPane.showMessageDialog(null, "You win!\nTime: " + elapsedSeconds +
                 " seconds\nScore: " + score, "Victory", JOptionPane.INFORMATION_MESSAGE);
-            callback.onComplete(true, elapsedSeconds);
+            callback.onComplete(true, elapsedSeconds, score);
         } else {
             JOptionPane.showMessageDialog(null, "Game Over! You lost!", "Defeat", JOptionPane.ERROR_MESSAGE);
             callback.onComplete(false, elapsedSeconds, score); // o zero, oppure calcola comunque lo score
