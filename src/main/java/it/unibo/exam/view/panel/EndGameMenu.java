@@ -33,24 +33,35 @@ public class EndGameMenu extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    // UI Constants - Font sizes for different text elements
-    private static final int TITLE_FONT_SIZE = 48;         // Main congratulations title
-    private static final int SUBTITLE_FONT_SIZE = 24;      // Secondary text
-    private static final int LEADERBOARD_FONT_SIZE = 16;   // Score entries
-    private static final int BUTTON_FONT_SIZE = 22;        // Button text (adjusted for smaller buttons)
-    
-    // Layout Constants - Spacing and component dimensions
+    // UI Constants
+    private static final int TITLE_FONT_SIZE = 48;
+    private static final int SUBTITLE_FONT_SIZE = 24;
+    private static final int LEADERBOARD_FONT_SIZE = 16;
+    private static final int BUTTON_FONT_SIZE = 22;
+
+    // Layout Constants
     private static final int PADDING = 30;                 // Panel borders
     private static final int SPACING = 20;                 // Element spacing
-    private static final int BUTTON_WIDTH = 320;           // Button width (slightly smaller than MainMenu)
-    private static final int BUTTON_HEIGHT = 70;           // Button height (slightly smaller than MainMenu)
+    private static final int BUTTON_WIDTH = 320;           // Button width
+    private static final int BUTTON_HEIGHT = 70;           // Button height
+
+    // Layout constants for panels
+    private static final int LEADERBOARD_WIDTH = 500;      // Leaderboard panel width
+    private static final int LEADERBOARD_HEIGHT = 400;     // Leaderboard panel height
+    private static final int BUTTON_PANEL_TOP_PADDING = 30; // Top padding for button panel
+    private static final int BUTTON_PANEL_RIGHT_PADDING = 50; // Right padding for button panel
+    private static final int BUTTON_PANEL_LEFT_PADDING = 20; // Left padding for button panel
+    private static final int BUTTON_PANEL_WIDTH = 380;     // Button panel width
+    private static final int BUTTON_PANEL_HEIGHT = 400;    // Button panel height
+    private static final int MAX_NAME_LENGTH = 15;         // Maximum length for player names
+    private static final int NAME_TRUNCATION_SUFFIX = 3;   // Length of "..." suffix
 
     // Colors - Theme palette
-    private static final Color BACKGROUND_COLOR = new Color(25, 25, 35);     // Dark blue background
-    private static final Color TITLE_COLOR = new Color(255, 215, 0);         // Gold for titles
-    private static final Color TEXT_COLOR = new Color(255, 255, 255);        // White for text
-    private static final Color STATS_COLOR = new Color(200, 200, 200);       // Gray for scores
-    private static final Color BUTTON_COLOR = new Color(70, 130, 180);       // Blue for buttons
+    private static final Color BACKGROUND_COLOR = new Color(25, 25, 35);     // Dark blue 
+    private static final Color TITLE_COLOR = new Color(255, 215, 0);         // Gold
+    private static final Color TEXT_COLOR = new Color(255, 255, 255);        // White
+    private static final Color STATS_COLOR = new Color(200, 200, 200);       // Gray
+    private static final Color BUTTON_COLOR = new Color(70, 130, 180);       // Blue
 
     private final JFrame parentWindow;
     private final Player player;
@@ -83,6 +94,8 @@ public class EndGameMenu extends JPanel {
 
     /**
      * Creates the title panel with congratulations message.
+     * 
+     * @return the title panel containing congratulations text
      */
     private JPanel createTitlePanel() {
         final JPanel panel = new JPanel(new GridBagLayout());
@@ -96,7 +109,7 @@ public class EndGameMenu extends JPanel {
         gbc.anchor = GridBagConstraints.CENTER;
 
         // Title
-        final JLabel titleLabel = createStyledLabel("★ CONGRATULAZIONI! ★", 
+        final JLabel titleLabel = createStyledLabel("=== CONGRATULAZIONI! ===", 
                                                    TITLE_FONT_SIZE, Font.BOLD, TITLE_COLOR);
         panel.add(titleLabel, gbc);
 
@@ -111,6 +124,8 @@ public class EndGameMenu extends JPanel {
 
     /**
      * Creates the main content panel with leaderboard and buttons.
+     * 
+     * @return the main content panel containing leaderboard and buttons
      */
     private JPanel createMainContentPanel() {
         final JPanel panel = new JPanel(new BorderLayout());
@@ -122,7 +137,7 @@ public class EndGameMenu extends JPanel {
 
         // Left: Leaderboard
         panel.add(createLeaderboardPanel(), BorderLayout.WEST);
-        
+
         // Center: Buttons (moved from east for better positioning)
         panel.add(createButtonPanel(), BorderLayout.CENTER);
 
@@ -131,11 +146,13 @@ public class EndGameMenu extends JPanel {
 
     /**
      * Creates the leaderboard panel.
+     * 
+     * @return the leaderboard panel displaying top 10 scores
      */
     private JPanel createLeaderboardPanel() {
         final JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(BACKGROUND_COLOR);
-        panel.setPreferredSize(new Dimension(500, 400));
+        panel.setPreferredSize(new Dimension(LEADERBOARD_WIDTH, LEADERBOARD_HEIGHT));
         panel.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(TITLE_COLOR, 2),
             BorderFactory.createEmptyBorder(SPACING, PADDING, SPACING, PADDING)
@@ -160,6 +177,9 @@ public class EndGameMenu extends JPanel {
 
     /**
      * Adds leaderboard entries to the panel.
+     * 
+     * @param panel the panel to add entries to
+     * @param gbc the grid bag constraints for layout
      */
     private void addLeaderboardEntries(final JPanel panel, final GridBagConstraints gbc) {
         final List<LeaderboardEntry> entries = leaderboard.getTop10();
@@ -178,10 +198,10 @@ public class EndGameMenu extends JPanel {
             gbc.gridy++;
             final LeaderboardEntry entry = entries.get(i);
             final boolean isCurrentPlayer = entry.getScore() == player.getTotalScore();
-            
+
             final String entryText = String.format("%-3s %-15s %4d pts",
                 (i + 1) + ".",
-                truncateName(entry.getPlayerName(), 15),
+                truncateName(entry.getPlayerName(), MAX_NAME_LENGTH),
                 entry.getScore()
             );
 
@@ -197,12 +217,17 @@ public class EndGameMenu extends JPanel {
 
     /**
      * Creates the button panel.
+     * 
+     * @return the button panel containing navigation buttons
      */
     private JPanel createButtonPanel() {
         final JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(BACKGROUND_COLOR);
-        panel.setBorder(BorderFactory.createEmptyBorder(30, 20, 0, 50)); // More centered positioning
-        panel.setPreferredSize(new Dimension(380, 400)); // Adjusted width
+        panel.setBorder(BorderFactory.createEmptyBorder(BUTTON_PANEL_TOP_PADDING, 
+                                                        BUTTON_PANEL_LEFT_PADDING, 
+                                                        0, 
+                                                        BUTTON_PANEL_RIGHT_PADDING)); // More centered positioning
+        panel.setPreferredSize(new Dimension(BUTTON_PANEL_WIDTH, BUTTON_PANEL_HEIGHT)); // Adjusted width
 
         final GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -211,10 +236,10 @@ public class EndGameMenu extends JPanel {
 
         // Add buttons
         panel.add(createStyledButton("Menu Principale", this::returnToMainMenu), gbc);
-        
+
         gbc.gridy++;
         panel.add(createStyledButton("Gioca Ancora", this::startNewGame), gbc);
-        
+
         gbc.gridy++;
         panel.add(createStyledButton("Esci", this::exitGame), gbc);
 
@@ -223,6 +248,12 @@ public class EndGameMenu extends JPanel {
 
     /**
      * Creates a styled label with specified properties.
+     * 
+     * @param text the text to display on the label
+     * @param fontSize the font size for the label
+     * @param fontStyle the font style
+     * @param color the color of the label text
+     * @return a styled JLabel with the specified properties
      */
     private JLabel createStyledLabel(final String text, final int fontSize, 
                                    final int fontStyle, final Color color) {
@@ -235,6 +266,10 @@ public class EndGameMenu extends JPanel {
 
     /**
      * Creates a styled button with action listener.
+     * 
+     * @param text the text to display on the button
+     * @param action the action to execute when button is clicked
+     * @return a styled JButton with the specified text and action
      */
     private JButton createStyledButton(final String text, final Runnable action) {
         final JButton button = new JButton(text);
@@ -311,8 +346,12 @@ public class EndGameMenu extends JPanel {
 
     /**
      * Truncates a name to the specified maximum length.
+     * 
+     * @param name the player name 
+     * @param maxLength the maximum allowed length for the name
+     * @return the truncated name with "..." suffix if needed, or the original name if within limit
      */
     private String truncateName(final String name, final int maxLength) {
-        return name.length() <= maxLength ? name : name.substring(0, maxLength - 3) + "...";
+        return name.length() <= maxLength ? name : name.substring(0, maxLength - NAME_TRUNCATION_SUFFIX) + "...";
     }
 }
