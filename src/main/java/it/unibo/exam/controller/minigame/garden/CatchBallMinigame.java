@@ -20,7 +20,7 @@ import java.util.Objects;
 /**
  * Controller for the CatchBall minigame (MVC pattern).
  */
-public class CatchBallMinigame implements Minigame {
+public final class CatchBallMinigame implements Minigame {
 
     private static final int BONUS_TIME_THRESHOLD_SECONDS = 30;
     private static final int BONUS_POINTS = 10;
@@ -109,7 +109,7 @@ public class CatchBallMinigame implements Minigame {
         gameTimer.start();
     }
 
-    private void gameLoop(ActionEvent e) {
+    private void gameLoop(final ActionEvent e) {
         model.update(leftPressed, rightPressed);
         panel.repaint();
 
@@ -120,16 +120,16 @@ public class CatchBallMinigame implements Minigame {
         }
     }
 
-    private void endGame(boolean success) {
+    private void endGame(final boolean success) {
         gameTimer.stop();
         frame.dispose();
-        long elapsedMillis = System.currentTimeMillis() - startTimeMillis;
-        int elapsedSeconds = (int) (elapsedMillis / 1000L);
-        int score = scoringStrategy.calculate(elapsedSeconds, ROOM_ID);
+        final long elapsedMillis = System.currentTimeMillis() - startTimeMillis;
+        final int elapsedSeconds = (int) (elapsedMillis / 1000L);
+        final int score = scoringStrategy.calculate(elapsedSeconds, ROOM_ID);
 
         if (success) {
-            JOptionPane.showMessageDialog(null, "You win!\nTime: " + elapsedSeconds +
-                " seconds\nScore: " + score, "Victory", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "You win!\nTime: " + elapsedSeconds 
+            + " seconds\nScore: " + score, "Victory", JOptionPane.INFORMATION_MESSAGE);
             callback.onComplete(true, elapsedSeconds);
         } else {
             JOptionPane.showMessageDialog(null, "Game Over! You lost!", "Defeat", JOptionPane.ERROR_MESSAGE);
