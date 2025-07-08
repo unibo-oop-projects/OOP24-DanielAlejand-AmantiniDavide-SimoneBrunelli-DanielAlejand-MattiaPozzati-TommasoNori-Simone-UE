@@ -67,7 +67,7 @@ public final class CatchBallModel {
         if (ballSpawnTimer > BALL_INTERVAL) {
             ballSpawnTimer = 0;
             final int x = random.nextInt(WIDTH - 10);
-            balls.add(new BallEntity(x, 10));
+            balls.add(new BallEntity(x, BALL_START_Y));
         }
     }
 
