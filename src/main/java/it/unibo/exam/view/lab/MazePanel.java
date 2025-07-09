@@ -16,6 +16,13 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
 
+/**
+ * The MazePanel class is responsible for rendering the maze and handling user input in the maze minigame.
+ * It displays the maze grid, the player's position, and updates the game state, including the timer and level.
+ * The panel listens for key events to move the player and updates the maze display accordingly.
+ * 
+ * It also manages game-related information like elapsed time and maze completion status.
+ */
 public final class MazePanel extends JPanel {
 
     private static final long serialVersionUID = 1L;

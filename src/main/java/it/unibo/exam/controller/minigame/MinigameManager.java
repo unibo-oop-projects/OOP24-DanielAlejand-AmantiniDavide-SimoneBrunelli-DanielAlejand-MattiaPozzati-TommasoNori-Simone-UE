@@ -126,6 +126,7 @@ public class MinigameManager {
      * @param roomId the room ID
      * @param success whether the minigame was successful
      * @param timeSeconds the time taken
+     * @param score the score achieved
      */
     private void showCompletionFeedback(final int roomId, final boolean success, final int timeSeconds, final int score) {
         final String minigameName = MinigameFactory.getMinigameName(roomId);

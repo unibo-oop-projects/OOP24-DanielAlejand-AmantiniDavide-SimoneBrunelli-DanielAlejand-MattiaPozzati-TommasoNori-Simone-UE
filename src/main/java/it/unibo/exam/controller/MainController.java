@@ -370,6 +370,7 @@ public class MainController {
      *
      * @param success   true if the minigame was completed successfully
      * @param timeTaken the time taken (in seconds) to complete the minigame
+     * @param score score achieved in the minigame
      */
     public void endMinigame(final boolean success, final int timeTaken, final int score) {
         if (minigameActive && currentMinigameRoomId >= 0 && success) {
