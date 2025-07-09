@@ -2,6 +2,11 @@ package it.unibo.exam.model.entity.minigame.garden;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Image;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Represents the bottle controlled by the player in the CatchBall minigame.
@@ -10,6 +15,20 @@ public final class BottleEntity {
 
     /** The horizontal move speed of the bottle (pixels per update). */
     private static final int MOVE_SPEED = 6;
+    private static final Logger LOGGER = Logger.getLogger(BottleEntity.class.getName());
+    private static final Image BOTTLE_IMAGE;
+    static {
+        Image img = null;
+        try {
+            final var res = BottleEntity.class.getClassLoader().getResource("Garden/bottle.png");
+            if (res != null) {
+                img = ImageIO.read(res);
+            }
+        } catch (final IOException e) {
+            LOGGER.log(Level.WARNING, "Could not load bottle image", e);
+        }
+        BOTTLE_IMAGE = img;
+    }
 
     @SuppressWarnings("PMD.ImmutableField")
     private int x;
@@ -68,7 +87,11 @@ public final class BottleEntity {
      * @param g2 the Graphics2D context to draw on
      */
     public void draw(final Graphics2D g2) {
-        g2.setColor(Color.BLUE);
-        g2.fillRect(x, y, width, height);
+        if (BOTTLE_IMAGE != null) {
+            g2.drawImage(BOTTLE_IMAGE, x, y, width, height, null);
+        } else {
+            g2.setColor(Color.BLUE);
+            g2.fillRect(x, y, width, height);
+        }
     }
-} 
+}

@@ -2,6 +2,12 @@ package it.unibo.exam.model.entity.minigame.garden;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Image;
+import java.io.IOException;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
+import javax.imageio.ImageIO;
 
 /**
  * Represents a falling ball in the CatchBall minigame.
@@ -9,9 +15,24 @@ import java.awt.Graphics2D;
 public final class BallEntity {
 
     /** Ball radius in pixels. */
-    private static final int RADIUS = 10;
+    private static final int RADIUS = 15;
     /** Falling speed in pixels per update. */
     private static final int FALL_SPEED = 4;
+    private static final Image DROP_IMAGE;
+    private static final Logger LOGGER = Logger.getLogger(BottleEntity.class.getName());
+
+    static {
+        Image img = null;
+        try {
+            final var res = BallEntity.class.getClassLoader().getResource("Garden/water.png");
+            if (res != null) {
+                img = ImageIO.read(res);
+            }
+        } catch (final IOException e) {
+            LOGGER.log(Level.WARNING, "Could not load water image", e);
+        }
+        DROP_IMAGE = img;
+    }
 
     @SuppressWarnings("PMD.ImmutableField")
     private int x;
@@ -52,8 +73,12 @@ public final class BallEntity {
      * @param g2 the Graphics2D context to draw on
      */
     public void draw(final Graphics2D g2) {
-        g2.setColor(Color.YELLOW);
-        g2.fillOval(x - RADIUS, y - RADIUS, RADIUS * 2, RADIUS * 2);
+        if (DROP_IMAGE != null) {
+            g2.drawImage(DROP_IMAGE, x - RADIUS, y - RADIUS, RADIUS * 2, RADIUS * 2, null);
+        } else {
+            g2.setColor(Color.YELLOW);
+            g2.fillOval(x - RADIUS, y - RADIUS, RADIUS * 2, RADIUS * 2);
+        }
     }
 
     /**
