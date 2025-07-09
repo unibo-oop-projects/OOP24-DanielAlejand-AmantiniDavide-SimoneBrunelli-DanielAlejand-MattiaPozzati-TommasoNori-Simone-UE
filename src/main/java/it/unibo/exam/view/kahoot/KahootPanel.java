@@ -150,7 +150,7 @@ public final class KahootPanel extends JPanel {
 
         final String message = isCorrect ? "Correct!" 
             : "<html><center>Wrong!<br>The correct answer was: " + correctAnswer 
-            + "<br>+1 second penalty!</center></html>";
+            + "<br>+10 seconds penalty!</center></html>";
 
         final JLabel feedbackLabel = new JLabel(message);
         feedbackLabel.setFont(new Font(FONT_FAMILY, Font.BOLD, FONT_SIZE_EXTRA_LARGE));
