@@ -34,6 +34,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public class MainController {
     private static final Logger LOGGER = Logger.getLogger(MainController.class.getName());
 
+    // PMD: avoid string literal duplication
+    private static final String BUG_EI_EXPOSE_REP = "EI_EXPOSE_REP";
+
     private static final int FPS = 60;
     private static final double SECOND = 1_000_000_000.0;
     private static final int VERY_FAST_THRESHOLD   = 15;
@@ -48,6 +51,8 @@ public class MainController {
     private final ScoringStrategy scoring;
     private boolean               running;
     private Point2D               environmentSize;
+
+    @SuppressFBWarnings(BUG_EI_EXPOSE_REP)
     private JFrame                parentFrame;
     private boolean               gameCompleted;
 
@@ -61,6 +66,7 @@ public class MainController {
      * @param environmentSize size of the Game panel
      * @param parentFrame    parent frame for minigame windows
      */
+    @SuppressFBWarnings(BUG_EI_EXPOSE_REP)
     public MainController(final Point2D environmentSize, final JFrame parentFrame) {
         // Core setup
         this.keyHandler      = new KeyHandler();
@@ -103,6 +109,7 @@ public class MainController {
      *
      * @param parentFrame the JFrame to use as parent for all minigame windows
      */
+    @SuppressFBWarnings(BUG_EI_EXPOSE_REP)
     public void setParentFrame(final JFrame parentFrame) {
         this.parentFrame = parentFrame;
         if (parentFrame != null && this.minigameManager == null) {

@@ -1,8 +1,10 @@
 package it.unibo.exam.utility.generator;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 
 /**
  * Generates random mazes using recursive backtracking algorithm.
@@ -10,32 +12,32 @@ import java.util.Random;
  */
 public class MazeGenerator {
 
-    /**
-     * Constant representing a path cell in the maze.
-     */
-    public static final int PATH = 0; 
+    // --- public static constants (paths & markers) -------------------
 
-    /**
-     * Constant representing a wall cell in the maze.
-     */
-    public static final int WALL = 1; 
-
-    /**
-     * Constant representing the start position in the maze.
-     */
+    /** Constant representing a path cell in the maze. */
+    public static final int PATH  = 0;
+    /** Constant representing a wall cell in the maze. */
+    public static final int WALL  = 1;
+    /** Constant representing the start position in the maze. */
     public static final int START = 2;
+    /** Constant representing the end position in the maze. */
+    public static final int END   = 3;
 
-    /**
-     * Constant representing the end position in the maze.
-     */
-    public static final int END = 3;
+    // --- private static constants (sizes & logger) -------------------
 
-    // Costants for the maze level
-    private static final int EASY = 7; // Easy maze size
-    private static final int MEDIUM = 11; // Medium maze size
-    private static final int HARD = 15; // Hard maze size
+    /** Easy maze “internal” size (5×5 display). */
+    private static final int EASY   = 7;
+    /** Medium maze “internal” size (7×7 display). */
+    private static final int MEDIUM = 11;
+    /** Hard maze “internal” size (9×9 display). */
+    private static final int HARD   = 15;
 
-    // Number generator 
+    /** Logger for debug messages. */
+    private static final Logger LOGGER = Logger.getLogger(MazeGenerator.class.getName());
+
+    // --- instance fields ----------------------------------------------
+
+    /** Random‐number generator for carving paths. */
     private final Random random;
 
     /**
@@ -46,64 +48,64 @@ public class MazeGenerator {
     }
 
     /**
-     * Generates a maze with predetermined difficulty levels for your game.
-     * 
+     * Generates a maze with predetermined difficulty levels.
+     *
      * @param difficulty 1 = Easy (5x5), 2 = Medium (7x7), 3 = Hard (9x9)
-     * @return a 2D array representing the maze
+     * @return a 2D array representing the maze, with WALL, PATH, START and END markers
      */
     public int[][] generateMaze(final int difficulty) {
-        // Determina dimensioni in base alla difficoltà
         final int size = switch (difficulty) {
-            case 1 -> EASY; 
+            case 1 -> EASY;
             case 2 -> MEDIUM;
-            case 3 -> HARD; 
+            case 3 -> HARD;
             default -> throw new IllegalArgumentException("Difficulty must be 1, 2, or 3");
         };
 
-        // Generate the maze
         final int[][] maze = new int[size][size];
         initializeWalls(maze, size, size);
         generatePaths(maze, 1, 1, size, size);
         setStartAndEnd(maze, size, size);
-
         return maze;
     }
 
     /**
-     * Prints the maze to console for debugging purposes.
-     * 
-     * @param maze the maze to print
+     * Logs the maze to the application's logger at INFO level for debugging purposes.
+     *
+     * @param maze the maze to log
      */
     public void printMaze(final int[][] maze) {
         for (final int[] row : maze) {
+            final StringBuilder sb = new StringBuilder();
             for (final int cell : row) {
                 switch (cell) {
-                    case WALL -> System.out.print("██");
-                    case PATH -> System.out.print("  ");
-                    case START -> System.out.print("S ");
-                    case END -> System.out.print("E ");
-                    default -> System.out.print("? ");
+                    case WALL  -> sb.append("██");
+                    case PATH  -> sb.append("  ");
+                    case START -> sb.append("S ");
+                    case END   -> sb.append("E ");
+                    default    -> sb.append("? ");
                 }
             }
-            System.out.println();
+            LOGGER.info(sb.toString());
         }
     }
 
     /**
      * Gets the width of the maze.
-     * 
+     *
      * @param maze the maze array
-     * @return the width of the maze
+     * @return the width (number of columns) of the maze
      */
     public static int getWidth(final int[][] maze) {
-        return maze.length > 0 ? maze[0].length : 0;
+        return maze.length > 0
+            ? maze[0].length
+            : 0;
     }
 
     /**
      * Gets the height of the maze.
-     * 
+     *
      * @param maze the maze array
-     * @return the height of the maze
+     * @return the height (number of rows) of the maze
      */
     public static int getHeight(final int[][] maze) {
         return maze.length;
@@ -111,9 +113,9 @@ public class MazeGenerator {
 
     /**
      * Finds the start position in the maze.
-     * 
+     *
      * @param maze the maze array
-     * @return array with [x, y] coordinates of start, or [-1, -1] if not found
+     * @return array of two ints [x, y] for the START cell, or [-1, -1] if not found
      */
     public static int[] findStart(final int[][] maze) {
         for (int row = 0; row < maze.length; row++) {
@@ -128,9 +130,9 @@ public class MazeGenerator {
 
     /**
      * Finds the end position in the maze.
-     * 
+     *
      * @param maze the maze array
-     * @return array with [x, y] coordinates of end, or [-1, -1] if not found
+     * @return array of two ints [x, y] for the END cell, or [-1, -1] if not found
      */
     public static int[] findEnd(final int[][] maze) {
         for (int row = 0; row < maze.length; row++) {
@@ -145,10 +147,10 @@ public class MazeGenerator {
 
     /**
      * Initializes the maze grid with walls.
-     * 
-     * @param maze the maze array to initialize
+     *
+     * @param maze   the maze array to initialize
      * @param height the height of the maze
-     * @param width the width of the maze
+     * @param width  the width of the maze
      */
     private void initializeWalls(final int[][] maze, final int height, final int width) {
         for (int row = 0; row < height; row++) {
@@ -160,30 +162,23 @@ public class MazeGenerator {
 
     /**
      * Generates paths in the maze using recursive backtracking algorithm.
-     * 
-     * @param maze the maze array
-     * @param x current x position
-     * @param y current y position
-     * @param width maze width
+     *
+     * @param maze   the maze array
+     * @param x      current x position
+     * @param y      current y position
+     * @param width  maze width
      * @param height maze height
      */
     private void generatePaths(final int[][] maze, final int x, final int y,
-                              final int width, final int height) {
-        // Mark current cell as path
+                               final int width, final int height) {
         maze[y][x] = PATH;
-
-        // Get all possible directions in random order
         final List<Direction> directions = getRandomDirections();
-
         for (final Direction direction : directions) {
             final int newX = x + direction.getDx() * 2;
             final int newY = y + direction.getDy() * 2;
-
-            // Check if the new position is valid and unvisited
-            if (isValidPosition(newX, newY, width, height) && maze[newY][newX] == WALL) {
-                // Remove wall between current and new position
+            if (isValidPosition(newX, newY, width, height)
+                && maze[newY][newX] == WALL) {
                 maze[y + direction.getDy()][x + direction.getDx()] = PATH;
-                // Recursively generate from new position
                 generatePaths(maze, newX, newY, width, height);
             }
         }
@@ -191,20 +186,22 @@ public class MazeGenerator {
 
     /**
      * Checks if a position is valid within the maze bounds.
-     * 
-     * @param x x coordinate
-     * @param y y coordinate
-     * @param width maze width
+     *
+     * @param x      x coordinate
+     * @param y      y coordinate
+     * @param width  maze width
      * @param height maze height
      * @return true if position is valid
      */
-    private boolean isValidPosition(final int x, final int y, final int width, final int height) {
-        return x > 0 && x < width - 1 && y > 0 && y < height - 1;
+    private boolean isValidPosition(final int x, final int y,
+                                    final int width, final int height) {
+        return x > 0 && x < width - 1
+            && y > 0 && y < height - 1;
     }
 
     /**
      * Gets all four directions in random order.
-     * 
+     *
      * @return list of directions shuffled randomly
      */
     private List<Direction> getRandomDirections() {
@@ -213,7 +210,6 @@ public class MazeGenerator {
         directions.add(new Direction(1, 0));  // Right
         directions.add(new Direction(0, 1));  // Down
         directions.add(new Direction(-1, 0)); // Left
-
         Collections.shuffle(directions, random);
         return directions;
     }
@@ -221,13 +217,13 @@ public class MazeGenerator {
     /**
      * Sets the start and end positions in the maze.
      * Start is typically at top-left area, end at bottom-right area.
-     * 
-     * @param maze the maze array
-     * @param width maze width
+     *
+     * @param maze   the maze array
+     * @param width  maze width
      * @param height maze height
      */
-    private void setStartAndEnd(final int[][] maze, final int width, final int height) {
-        // Trova tutti i percorsi
+    private void setStartAndEnd(final int[][] maze, final int width,
+                                final int height) {
         final List<int[]> paths = new ArrayList<>();
         for (int row = 1; row < height - 1; row++) {
             for (int col = 1; col < width - 1; col++) {
@@ -236,19 +232,15 @@ public class MazeGenerator {
                 }
             }
         }
-
         if (paths.isEmpty()) {
-            // Crea manualmente START e END se non ci sono percorsi
             maze[1][1] = START;
             maze[height - 2][width - 2] = END;
-            return;
+        } else {
+            final int[] start = paths.get(0);
+            maze[start[0]][start[1]] = START;
+            final int[] end = paths.get(paths.size() - 1);
+            maze[end[0]][end[1]] = END;
         }
-
-        final int[] start = paths.get(0);
-        maze[start[0]][start[1]] = START;
-
-        final int[] end = paths.get(paths.size() - 1);
-        maze[end[0]][end[1]] = END;
     }
 
     /**
@@ -260,6 +252,7 @@ public class MazeGenerator {
 
         /**
          * Constructor for Direction.
+         *
          * @param dx horizontal movement
          * @param dy vertical movement
          */
@@ -270,18 +263,20 @@ public class MazeGenerator {
 
         /**
          * Gets the horizontal movement.
-         * @return horizontal delta
+         *
+         * @return the x-axis delta of this direction
          */
         public int getDx() {
-            return this.dx;
+            return dx;
         }
 
         /**
          * Gets the vertical movement.
-         * @return vertical delta
+         *
+         * @return the y-axis delta of this direction
          */
         public int getDy() {
-            return this.dy;
+            return dy;
         }
     }
 }

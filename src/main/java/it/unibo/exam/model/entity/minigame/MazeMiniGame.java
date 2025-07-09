@@ -29,8 +29,6 @@ public final class MazeMiniGame implements Minigame {
     private JFrame gameFrame;
     private MinigameCallback callback;
     private final MazeGenerator generator = new MazeGenerator();
-    private MazePanel currentPanel;
-
     private int currentMazeIndex;
     private boolean gameCompleted;
     private long gameStartTime;
@@ -39,7 +37,7 @@ public final class MazeMiniGame implements Minigame {
      * Starts the maze minigame with the given parent frame and completion callback.
      *
      * @param parentFrame the parent frame for centering the game window
-     * @param onComplete callback when the game finish
+     * @param onComplete  callback when the game finishes
      */
     @Override
     public void start(final JFrame parentFrame, final MinigameCallback onComplete) {
@@ -120,19 +118,17 @@ public final class MazeMiniGame implements Minigame {
         final int difficulty = currentMazeIndex + 1; // {1 (E), 2 (M), 3 (H)}
         final int[][] maze = generator.generateMaze(difficulty);
 
-        // Create new panel for the maze
-        currentPanel = new MazePanel(maze);
-        currentPanel.setCompletionListener(this::handleMazeCompletion);
-
-        // Window updating
+        // Create and display the new maze panel
+        final MazePanel panel = new MazePanel(maze);
+        panel.setCompletionListener(this::handleMazeCompletion);
         gameFrame.getContentPane().removeAll();
-        gameFrame.add(currentPanel);
+        gameFrame.add(panel);
         gameFrame.revalidate();
         gameFrame.repaint();
         gameFrame.setVisible(true);
 
         // Focus for keyboard input
-        currentPanel.requestFocusInWindow();
+        panel.requestFocusInWindow();
 
         LOGGER.info("Started maze " + (currentMazeIndex + 1) + "/3: " + DIFFICULTY_NAMES[currentMazeIndex]);
     }
@@ -140,7 +136,7 @@ public final class MazeMiniGame implements Minigame {
     /**
      * Handles the completion of a single maze.
      *
-     * @param success if all 3 maze are complete
+     * @param success     true if this maze was solved
      * @param timeSeconds the time taken to complete the maze
      */
     private void handleMazeCompletion(final boolean success, final int timeSeconds) {
@@ -155,7 +151,7 @@ public final class MazeMiniGame implements Minigame {
         if (currentMazeIndex < TOTAL_MAZES) {
             showTransitionDialog(timeSeconds);
         } else {
-            // All maze completed
+            // All mazes completed
             endGame(true);
         }
     }
@@ -167,12 +163,12 @@ public final class MazeMiniGame implements Minigame {
      */
     private void showTransitionDialog(final int timeSeconds) {
         final String message = String.format(
-            "Maze %d/3 completed in %d seconds!\n\nReady for the next maze?",
+            "Maze %d/3 completed in %d seconds!%n%nReady for the next maze?",
             currentMazeIndex, timeSeconds
         );
 
         final int choice = JOptionPane.showConfirmDialog(
-            gameFrame, message, "Maze Completed!", 
+            gameFrame, message, "Maze Completed!",
             JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE
         );
 
@@ -186,10 +182,9 @@ public final class MazeMiniGame implements Minigame {
     /**
      * Handles game exit.
      *
-     * @param success if all 3 maze are complete
+     * @param success true if all 3 mazes were completed
      */
     private void endGame(final boolean success) {
-
         if (gameCompleted) {
             return;
         }
@@ -203,7 +198,7 @@ public final class MazeMiniGame implements Minigame {
             showGameOverDialog();
         }
 
-        // Complete the minigame
+        // Notify callback
         if (callback != null) {
             callback.onComplete(success, totalTime);
         }
@@ -217,23 +212,23 @@ public final class MazeMiniGame implements Minigame {
      */
     private void showCompletionDialog(final int totalTime) {
         final String message = String.format(
-            "🎉 ALL MAZES COMPLETED! 🎉\n\nTotal Time: %d seconds\nWell done, Runner!",
+            "🎉 ALL MAZES COMPLETED! 🎉%n%nTotal Time: %d seconds%nWell done, Runner!",
             totalTime
         );
-        JOptionPane.showMessageDialog(gameFrame, message, "Congratulations!", 
-                                    JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(gameFrame, message, "Congratulations!",
+                                      JOptionPane.INFORMATION_MESSAGE);
     }
 
     /**
-     * Shows game over if end before the last Maze win.
+     * Shows game over dialog if the game ends early.
      */
     private void showGameOverDialog() {
         final String message = String.format(
-            "Game ended at maze %d/3.\nBetter luck next time!",
+            "Game ended at maze %d/3.%nBetter luck next time!",
             currentMazeIndex + 1
         );
-        JOptionPane.showMessageDialog(gameFrame, message, "Game Over", 
-                                    JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(gameFrame, message, "Game Over",
+                                      JOptionPane.INFORMATION_MESSAGE);
     }
 
     private int getTotalTime() {
@@ -242,7 +237,7 @@ public final class MazeMiniGame implements Minigame {
 
     /**
      * Gets the current maze index (0-2).
-     * 
+     *
      * @return the current maze index
      */
     public int getCurrentMazeIndex() {
@@ -251,7 +246,7 @@ public final class MazeMiniGame implements Minigame {
 
     /**
      * Checks if the entire game is completed.
-     * 
+     *
      * @return true if all mazes are completed
      */
     public boolean isGameCompleted() {
