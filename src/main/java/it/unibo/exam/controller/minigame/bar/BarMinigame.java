@@ -184,7 +184,7 @@ public final class BarMinigame implements Minigame {
                     + "\nTime: "   + elapsedSeconds + " seconds"
                     + "\nScore: "  + score
                 );
-                BarMinigame.this.callback.onComplete(true, elapsedSeconds);
+                BarMinigame.this.callback.onComplete(true, elapsedSeconds, score);
                 BarMinigame.this.stop();
             }
         });

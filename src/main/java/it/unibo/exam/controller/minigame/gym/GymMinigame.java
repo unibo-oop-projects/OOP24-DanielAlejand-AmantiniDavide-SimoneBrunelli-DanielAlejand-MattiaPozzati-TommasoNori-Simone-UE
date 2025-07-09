@@ -102,7 +102,7 @@ public class GymMinigame implements Minigame {
             @Override
             public void windowClosed(final WindowEvent e) {
                 if (!gameOver && GymMinigame.this.onComplete != null) {
-                    GymMinigame.this.onComplete.onComplete(false, 0);
+                    GymMinigame.this.onComplete.onComplete(false, 0, 0);
                 }
             }
         });
@@ -160,7 +160,7 @@ public class GymMinigame implements Minigame {
                 gameFrame.dispose();
             }
             if (onComplete != null) {
-                onComplete.onComplete(true, elapsedSeconds);
+                onComplete.onComplete(true, elapsedSeconds, finalScore);
             }
         }
     }

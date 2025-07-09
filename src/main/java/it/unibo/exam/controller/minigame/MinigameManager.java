@@ -51,8 +51,8 @@ public class MinigameManager {
             // Start the minigame with completion callback
             currentMinigame.start(parentFrame, new MinigameCallback() {
                 @Override
-                public void onComplete(final boolean success, final int timeSeconds) {
-                    handleMinigameComplete(roomId, success, timeSeconds);
+                public void onComplete(final boolean success, final int timeSeconds, final int score) {
+                    handleMinigameComplete(roomId, success, timeSeconds, score);
                 }
             });
 
@@ -74,13 +74,14 @@ public class MinigameManager {
      * @param roomId the ID of the room
      * @param success whether the minigame was completed successfully
      * @param timeSeconds the time taken to complete the minigame
+     * @param score the score achieved in the minigame
      */
-    private void handleMinigameComplete(final int roomId, final boolean success, final int timeSeconds) {
+    private void handleMinigameComplete(final int roomId, final boolean success, final int timeSeconds, final int score) {
         LOGGER.info("Minigame completed for room " + roomId
-                   + ". Success: " + success + ", Time: " + timeSeconds + "s");
+                   + ". Success: " + success + ", Time: " + timeSeconds + "s" + ", Score: " + score);
 
         // pass the timeSeconds along:
-        mainController.endMinigame(success, timeSeconds);
+        mainController.endMinigame(success, timeSeconds, score);
 
 
         // Clear the current minigame reference

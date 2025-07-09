@@ -35,7 +35,7 @@ class GymMinigameTest {
         final GymMinigame minigame = new GymMinigame(scoring);
         final AtomicBoolean called = new AtomicBoolean(false);
         final AtomicInteger score = new AtomicInteger(-1);
-        minigame.start(null, (success, value) -> {
+        minigame.start(null, (success, value, extra) -> {
             called.set(success);
             score.set(value);
         });
