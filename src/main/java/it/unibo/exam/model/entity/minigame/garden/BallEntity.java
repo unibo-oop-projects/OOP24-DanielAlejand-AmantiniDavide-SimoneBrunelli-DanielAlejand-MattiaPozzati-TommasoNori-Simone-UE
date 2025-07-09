@@ -13,7 +13,9 @@ public final class BallEntity {
     /** Falling speed in pixels per update. */
     private static final int FALL_SPEED = 4;
 
+    @SuppressWarnings("PMD.ImmutableField")
     private int x;
+    @SuppressWarnings("PMD.ImmutableField")
     private int y;
 
     /**

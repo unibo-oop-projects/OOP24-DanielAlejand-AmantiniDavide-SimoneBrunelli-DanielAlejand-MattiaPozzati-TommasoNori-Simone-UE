@@ -11,7 +11,9 @@ public final class BottleEntity {
     /** The horizontal move speed of the bottle (pixels per update). */
     private static final int MOVE_SPEED = 6;
 
+    @SuppressWarnings("PMD.ImmutableField")
     private int x;
+    @SuppressWarnings("PMD.ImmutableField")
     private int y;
     private final int width;
     private final int height;

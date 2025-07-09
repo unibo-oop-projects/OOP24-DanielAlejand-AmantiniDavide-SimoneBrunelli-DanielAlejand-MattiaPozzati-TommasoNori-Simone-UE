@@ -74,6 +74,7 @@ public class MinigameManager {
      * @param roomId the ID of the room
      * @param success whether the minigame was completed successfully
      * @param timeSeconds the time taken to complete the minigame
+     * @param score the score awarded for completing the minigame
      */
     private void handleMinigameComplete(final int roomId, final boolean success, final int timeSeconds, final int score) {
         LOGGER.info("Minigame completed for room " + roomId

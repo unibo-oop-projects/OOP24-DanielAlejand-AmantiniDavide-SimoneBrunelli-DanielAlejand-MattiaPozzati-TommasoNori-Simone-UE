@@ -41,7 +41,7 @@ public final class CatchBallMinigame implements Minigame {
     private boolean leftPressed;
     private boolean rightPressed;
 
-       /**
+    /**
      * No‐arg constructor for factory instantiation (uses default scoring).
      */
     public CatchBallMinigame() {
@@ -110,13 +110,15 @@ public final class CatchBallMinigame implements Minigame {
     }
 
     private void gameLoop(final ActionEvent e) {
+        Objects.requireNonNull(e); // Reference the parameter to satisfy PMD
+
         model.update(leftPressed, rightPressed);
         panel.repaint();
 
         if (model.hasWon()) {
             endGame(true);
         } else if (model.hasLost()) {
-        endGame(false);
+            endGame(false);
         }
     }
 

@@ -2,54 +2,48 @@ package it.unibo.exam.view.panel;
 
 import it.unibo.exam.utility.geometry.Point2D;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.Insets;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.plaf.basic.BasicButtonUI;
 
 /**
  * Main menu panel for the game, displays play, options and exit buttons.
  * Updated to properly support minigame integration by passing parent frame reference.
+ * This class is final as it's not designed for extension.
  */
-public class MainMenuPanel extends JPanel {
+public final class MainMenuPanel extends JPanel {
 
-     private static final long serialVersionUID = 1L;
-    private static final int WIDTHBUTTON = 800;
-    private static final int HEIGHTBUTTON = 80;
+    private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER =
+        Logger.getLogger(MainMenuPanel.class.getName());
+
+    // Button size constants
+    private static final int WIDTHBUTTON    = 800;
+    private static final int HEIGHTBUTTON   = 80;
     private static final int BUTTONFONTSIZE = 30;
-    private static final int BUTTONSPACING = 20;
-    private static final int COLOR_WHITE = 255;
-    private static final int COLOR_ALPHA = 220;
-    private static final int BASE_COLOR_R = 60;
-    private static final int BASE_COLOR_G = 120;
-    private static final int BASE_COLOR_B = 200;
-    private static final int BASE_COLOR_A = 150;
-    private static final int HOVER_COLOR_R = 80;
-    private static final int HOVER_COLOR_G = 140;
-    private static final int HOVER_COLOR_B = 220;
-    private static final int HOVER_COLOR_A = 180;
-    private static final int CLICK_COLOR_R = 30;
-    private static final int CLICK_COLOR_G = 90;
-    private static final int CLICK_COLOR_B = 180;
-    private static final int CLICK_COLOR_A = 200;
-    private static final int ROUND_RECT_ARC = 30;
+    private static final int BUTTONSPACING  = 20;
 
-    /**
-     * The background image drawn behind the bottles.
-     */
+    // Color constants for magic numbers
+    private static final int BUTTON_TEXT_RED      = 255;
+    private static final int BUTTON_TEXT_GREEN    = 255;
+    private static final int BUTTON_TEXT_BLUE     = 255;
+    private static final int BUTTON_TEXT_ALPHA    = 220;
+    private static final int BUTTON_BORDER_RADIUS = 30;
+
+    /** The background image drawn behind the menu. */
     private transient Image backgroundImage;
 
     private GamePanel gamePanel; // Reference to track the game panel
@@ -60,7 +54,7 @@ public class MainMenuPanel extends JPanel {
      * @param window the parent JFrame window
      */
     public MainMenuPanel(final JFrame window) {
-        createUI(window);
+        initializeUI(window);
     }
 
     /**
@@ -69,162 +63,112 @@ public class MainMenuPanel extends JPanel {
      *
      * @param window the parent JFrame window
      */
-    private void createUI(final JFrame window) {
-        // Panel layout for align the buttons
-        super.setLayout(new BorderLayout());
-        super.setPreferredSize(window.getSize());
+    private void initializeUI(final JFrame window) {
+        setLayout(new GridBagLayout());
+        setPreferredSize(window.getSize());
 
         // --- LOAD BACKGROUND IMAGE ---
-        try {
-            final var resource = getClass().getClassLoader().getResource("MainMenu/MainMenuBackGround.png");
-            if (resource == null) {
-                throw new IllegalArgumentException("Immagine non trovata!");
+        final var resource = getClass().getClassLoader()
+                                       .getResource("MainMenu/MainMenuBackGround.png");
+        if (resource == null) {
+            LOGGER.warning("Background image not found: MainMenu/MainMenuBackGround.png");
+        } else {
+            try {
+                backgroundImage = ImageIO.read(resource);
+            } catch (final IOException e) {
+                LOGGER.log(Level.WARNING, "Error loading background image", e);
             }
-            backgroundImage = ImageIO.read(resource);
-            } catch (final IOException | IllegalArgumentException e) {
-                e.printStackTrace();
-            }
+        }
 
-        // Creates the panel where the buttons will stay
-        final JPanel buttonPanel = createButtonPanel();
-        buttonPanel.setOpaque(false);
-        final GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.insets = new Insets(BUTTONSPACING, 0, BUTTONSPACING, 0); // Space between buttons
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER; // Move the buttons in the centre
-
-        // Buttons creation
-        final JButton playButton = createStyledButton("Gioca");
+        // Prepare buttons
+        final JButton playButton    = createStyledButton("Gioca");
         final JButton optionsButton = createStyledButton("Opzioni");
-        final JButton exitButton = createStyledButton("Esci");
+        final JButton exitButton    = createStyledButton("Esci");
 
         final Dimension buttonSize = new Dimension(WIDTHBUTTON, HEIGHTBUTTON);
         playButton.setPreferredSize(buttonSize);
         optionsButton.setPreferredSize(buttonSize);
         exitButton.setPreferredSize(buttonSize);
 
-        // Button's font
         final Font buttonFont = new Font("Arial", Font.BOLD, BUTTONFONTSIZE);
         playButton.setFont(buttonFont);
         optionsButton.setFont(buttonFont);
         exitButton.setFont(buttonFont);
 
-        // Adding the buttons to the panel
-        buttonPanel.add(playButton, gbc);
-        gbc.gridy++; // Move the next button lower
-        buttonPanel.add(optionsButton, gbc);
-        gbc.gridy++; // Move the next button lower
-        buttonPanel.add(exitButton, gbc);
+        final GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx  = 0;
+        gbc.insets = new Insets(BUTTONSPACING, 0, BUTTONSPACING, 0);
+        gbc.anchor = GridBagConstraints.CENTER;
 
-        // Adding the panel to the window
-        super.add(buttonPanel, BorderLayout.CENTER);
+        gbc.gridy = 0;
+        add(playButton, gbc);
+        gbc.gridy = 1;
+        add(optionsButton, gbc);
+        gbc.gridy = 2;
+        add(exitButton, gbc);
 
-        // Action listener for the button 'Play'
-        playButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                // Once you press 'Play', menu panel gets removed and the game starts 
-                startGame(window);
-            }
-        });
-
-        optionsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                // Options not implemented yet
-                JOptionPane.showMessageDialog(window, "Options not implemented yet.");
-            }
-        });
-
-        exitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                // Show confirmation dialog
-                final int confirmed = JOptionPane.showConfirmDialog(window,
-                        "Are you sure you want to exit?", "Confirm Exit", JOptionPane.YES_NO_OPTION); 
-
-                if (confirmed == JOptionPane.YES_OPTION) {
-                    // Stop game if running
-                    if (gamePanel != null) {
-                        gamePanel.stopGame();
-                    }
-                    // Close the window instead of terminating the JVM
-                    window.dispose();
+        playButton.addActionListener(e -> startGame(window));
+        optionsButton.addActionListener(e ->
+            JOptionPane.showMessageDialog(window, "Options not implemented yet.")
+        );
+        exitButton.addActionListener(e -> {
+            final int confirmed = JOptionPane.showConfirmDialog(
+                window,
+                "Are you sure you want to exit?",
+                "Confirm Exit",
+                JOptionPane.YES_NO_OPTION
+            );
+            if (confirmed == JOptionPane.YES_OPTION) {
+                if (gamePanel != null) {
+                    gamePanel.stopGame();
                 }
+                window.dispose();
             }
         });
     }
 
-    /**
-     * Starts the game by removing the menu and adding the game panel.
-     * Updated to pass the parent frame reference for minigame support.
-     * 
-     * @param window the parent window
-     */
     private void startGame(final JFrame window) {
-        // Remove the menu panel
         window.getContentPane().removeAll();
 
-        // Create and add the game panel WITH parent frame reference
-        final Dimension windowSize = window.getSize();
-        final Point2D gameSize = new Point2D(windowSize.width, windowSize.height);
+        final Dimension size = window.getSize();
+        final Point2D gameSize = new Point2D(size.width, size.height);
 
-        // IMPORTANT: Pass the window reference to enable minigames
         gamePanel = new GamePanel(gameSize, window);
-
         window.add(gamePanel);
-
-        // Ensure the game panel gets focus for key input
         gamePanel.requestFocusInWindow();
-
-        // Refresh the window
         window.revalidate();
         window.repaint();
-
-        // Add ESC key listener to return to menu
         addReturnToMenuListener(window);
     }
 
-    /**
-     * Adds a listener to return to the main menu (ESC key).
-     * 
-     * @param window the parent window
-     */
     private void addReturnToMenuListener(final JFrame window) {
         if (gamePanel != null) {
             gamePanel.getInputMap(WHEN_IN_FOCUSED_WINDOW)
-                    .put(javax.swing.KeyStroke.getKeyStroke("ESCAPE"), "returnToMenu");
-
-            gamePanel.getActionMap().put("returnToMenu", new javax.swing.AbstractAction() {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                public void actionPerformed(final ActionEvent e) {
-                    returnToMenu(window);
+                     .put(javax.swing.KeyStroke.getKeyStroke("ESCAPE"), "returnToMenu");
+            gamePanel.getActionMap().put("returnToMenu",
+                new javax.swing.AbstractAction() {
+                    private static final long serialVersionUID = 1L;
+                    @Override
+                    public void actionPerformed(final java.awt.event.ActionEvent e) {
+                        returnToMenu(window);
+                    }
                 }
-            });
+            );
         }
     }
 
-    /**
-     * Returns to the main menu from the game.
-     * 
-     * @param window the parent window
-     */
     private void returnToMenu(final JFrame window) {
-        final int confirmed = JOptionPane.showConfirmDialog(window,
-                "Return to main menu?", "Confirm", JOptionPane.YES_NO_OPTION);
-
+        final int confirmed = JOptionPane.showConfirmDialog(
+            window,
+            "Return to main menu?",
+            "Confirm",
+            JOptionPane.YES_NO_OPTION
+        );
         if (confirmed == JOptionPane.YES_OPTION) {
-            // Stop the game and any running minigames
             if (gamePanel != null) {
                 gamePanel.stopGame();
                 gamePanel = null;
             }
-
-            // Remove game panel and restore menu
             window.getContentPane().removeAll();
             window.add(this);
             window.revalidate();
@@ -232,70 +176,54 @@ public class MainMenuPanel extends JPanel {
         }
     }
 
-    /**
-     * Creates a panel for the buttons with custom background painting.
-     *
-     * @return JPanel with GridBagLayout
-     */
-    private JPanel createButtonPanel() {
-        return new JPanel(new GridBagLayout());
-    }
-
-    /**
-     * Paints the main menu background.
-     *
-     * @param g the Graphics context to draw on
-     */
     @Override
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
         if (backgroundImage != null) {
-            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            g.drawImage(backgroundImage,
+                        0, 0, getWidth(), getHeight(), this);
         }
     }
 
-    /**
-     * Creates a styled button with custom colors and font.
-     *
-     * @param text the button label
-     * @return the styled JButton
-     */
     private JButton createStyledButton(final String text) {
-    final JButton button = new JButton(text);
+        final JButton button = new JButton(text);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setOpaque(false);
+        button.setForeground(new java.awt.Color(
+            BUTTON_TEXT_RED, BUTTON_TEXT_GREEN,
+            BUTTON_TEXT_BLUE, BUTTON_TEXT_ALPHA
+        ));
+        button.setFont(new Font("Arial", Font.BOLD, BUTTONFONTSIZE));
+        button.setPreferredSize(new Dimension(WIDTHBUTTON, HEIGHTBUTTON));
+        button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-    button.setFocusPainted(false);
-    button.setBorderPainted(false);
-    button.setContentAreaFilled(false);
-    button.setOpaque(false);
-    button.setForeground(new java.awt.Color(COLOR_WHITE, COLOR_WHITE, COLOR_WHITE, COLOR_ALPHA));
-    button.setFont(new Font("Arial", Font.BOLD, BUTTONFONTSIZE));
-    button.setPreferredSize(new Dimension(WIDTHBUTTON, HEIGHTBUTTON));
-    button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        final java.awt.Color baseColor  = new java.awt.Color(60, 120, 200, 150);
+        final java.awt.Color hoverColor = new java.awt.Color(80, 140, 220, 180);
+        final java.awt.Color clickColor = new java.awt.Color(30, 90, 180, 200);
 
-    final java.awt.Color baseColor = new java.awt.Color(BASE_COLOR_R, BASE_COLOR_G, BASE_COLOR_B, BASE_COLOR_A);
-    final java.awt.Color hoverColor = new java.awt.Color(HOVER_COLOR_R, HOVER_COLOR_G, HOVER_COLOR_B, HOVER_COLOR_A);
-    final java.awt.Color clickColor = new java.awt.Color(CLICK_COLOR_R, CLICK_COLOR_G, CLICK_COLOR_B, CLICK_COLOR_A);
-
-
-    // Custom painting per sfondo trasparente
-    button.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
-        @Override
-        public void paint(final Graphics g, final javax.swing.JComponent c) {
-            final Graphics g2 = g.create();
-            if (button.getModel().isPressed()) {
-                g2.setColor(clickColor);
-            } else if (button.getModel().isRollover()) {
-                g2.setColor(hoverColor);
-            } else {
-                g2.setColor(baseColor);
+        button.setUI(new BasicButtonUI() {
+            @Override
+            public void paint(final Graphics g, final javax.swing.JComponent c) {
+                final Graphics g2 = g.create();
+                if (button.getModel().isPressed()) {
+                    g2.setColor(clickColor);
+                } else if (button.getModel().isRollover()) {
+                    g2.setColor(hoverColor);
+                } else {
+                    g2.setColor(baseColor);
+                }
+                g2.fillRoundRect(
+                    0, 0,
+                    button.getWidth(), button.getHeight(),
+                    BUTTON_BORDER_RADIUS, BUTTON_BORDER_RADIUS
+                );
+                g2.dispose();
+                super.paint(g, c);
             }
-            g2.fillRoundRect(0, 0, button.getWidth(), button.getHeight(),
-                                 ROUND_RECT_ARC, ROUND_RECT_ARC);
-            g2.dispose();
-            super.paint(g, c);
-        }
-    });
+        });
 
-    return button;
-}
+        return button;
+    }
 }

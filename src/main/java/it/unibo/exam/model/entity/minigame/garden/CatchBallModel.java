@@ -95,7 +95,7 @@ public final class CatchBallModel {
      * @return the list of BallEntity
      */
     public List<BallEntity> getBalls() {
-        return balls;
+        return List.copyOf(balls);
     }
 
     /**

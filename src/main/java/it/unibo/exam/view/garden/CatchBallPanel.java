@@ -13,19 +13,24 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.io.IOException;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Panel for rendering the CatchBall minigame.
  */
 public final class CatchBallPanel extends JPanel {
 
+    private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = Logger.getLogger(CatchBallPanel.class.getName());
+
     private static final int SCORE_FONT_SIZE = 14;
     private static final int SCORE_PADDING = 10;
     private static final int SCORE_Y = 20;
     private static final int LIVES_Y = 20;
 
-    private final CatchBallModel model;
-    private Image backgroundImage;
+    private final transient CatchBallModel model;
+    private transient Image backgroundImage;
 
     /**
      * Constructs the CatchBallPanel using the given game model.
@@ -41,11 +46,11 @@ public final class CatchBallPanel extends JPanel {
                 backgroundImage = ImageIO.read(resource);
             }
         } catch (final IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to load background image", e);
         }
     }
 
-     /**
+    /**
      * Paints the minigame panel, including background, balls, bottle, score, and lives.
      *
      * @param g the Graphics context to draw on
@@ -69,7 +74,6 @@ public final class CatchBallPanel extends JPanel {
         final int textWidth = fm.stringWidth(scoreText);
         g2.drawString(scoreText, getWidth() - textWidth - SCORE_PADDING, SCORE_Y);
         g2.drawString("Lives: " + model.getLives(), SCORE_PADDING, LIVES_Y);
-
 
         for (final BallEntity ball : model.getBalls()) {
             ball.draw(g2);
