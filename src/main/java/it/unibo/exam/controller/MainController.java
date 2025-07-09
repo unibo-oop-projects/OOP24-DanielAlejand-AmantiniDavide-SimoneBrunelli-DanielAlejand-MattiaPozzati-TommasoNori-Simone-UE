@@ -387,5 +387,4 @@ public class MainController {
         minigameActive        = false;
         currentMinigameRoomId = -1;
     }
-
 }

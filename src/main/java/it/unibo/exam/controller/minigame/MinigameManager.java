@@ -88,7 +88,7 @@ public class MinigameManager {
         currentMinigame = null;
 
         // Show completion feedback (optional)
-        showCompletionFeedback(roomId, success, timeSeconds);
+        showCompletionFeedback(roomId, success, timeSeconds, score);
     }
 
     /**
@@ -126,14 +126,15 @@ public class MinigameManager {
      * @param roomId the room ID
      * @param success whether the minigame was successful
      * @param timeSeconds the time taken
+     * @param score the score achieved
      */
-    private void showCompletionFeedback(final int roomId, final boolean success, final int timeSeconds) {
+    private void showCompletionFeedback(final int roomId, final boolean success, final int timeSeconds, final int score) {
         final String minigameName = MinigameFactory.getMinigameName(roomId);
         final String message;
 
         if (success) {
-            message = String.format("Congratulations! You completed '%s' in %d seconds!",
-                                   minigameName, timeSeconds);
+            message = String.format("Congratulations! You completed '%s' in %d seconds! With a score of %d.",
+                                    minigameName, timeSeconds, score);
         } else {
             message = String.format("Minigame '%s' not completed. Try again!", minigameName);
         }
