@@ -24,12 +24,10 @@ public final class MazePanel extends JPanel {
     private static final int CELL_SIZE = 30;
     private static final int UI_HEIGHT = 60;
     private static final int STATUS_FONT_SIZE = 14;
-    private static final int TIME_FONT_SIZE = 12;
     private static final int PLAYER_BORDER_SIZE = 6;
     private static final int PADDING = 80;
     private static final int LABEL_MARGIN = 10;
     private static final int LABEL_HEIGHT = 25;
-    private static final int TIME_LABEL_Y_OFFSET = 35;
 
     // Colors
     private static final Color WALL_COLOR = new Color(45, 70, 45);
@@ -48,8 +46,6 @@ public final class MazePanel extends JPanel {
 
     // UI components
     private final JLabel statusLabel;
-    private final JLabel timeLabel;
-
     // Controller reference
     private transient MazeMinigame controller;
 
@@ -64,7 +60,6 @@ public final class MazePanel extends JPanel {
 
         // Initialize UI components
         this.statusLabel = createStatusLabel();
-        this.timeLabel   = createTimeLabel();
         this.completed   = false;
 
         setupPanel();
@@ -93,7 +88,6 @@ public final class MazePanel extends JPanel {
         setFocusable(true);
 
         add(statusLabel);
-        add(timeLabel);
 
         // Setting up the key listener to delegate input to the controller
         addKeyListener(new KeyAdapter() {
@@ -135,21 +129,6 @@ public final class MazePanel extends JPanel {
         label.setBackground(UI_BACKGROUND);
         return label;
     }
-
-    /**
-     * Creates the time label.
-     *
-     * @return the configured time label
-     */
-    private JLabel createTimeLabel() {
-        final JLabel label = new JLabel("Time: 0s", SwingConstants.CENTER);
-        label.setForeground(Color.CYAN);
-        label.setFont(new Font("Arial", Font.BOLD, TIME_FONT_SIZE));
-        label.setOpaque(true);
-        label.setBackground(UI_BACKGROUND);
-        return label;
-    }
-
     /**
      * Updates the player position (called by controller).
      *
@@ -195,7 +174,6 @@ public final class MazePanel extends JPanel {
             final int[] offsets = calculateOffsets();
             drawMaze(g2d, offsets[0], offsets[1]);
             drawPlayer(g2d, offsets[0], offsets[1]);
-            updateTimeLabel();
         } finally {
             g2d.dispose();
         }
@@ -271,22 +249,12 @@ public final class MazePanel extends JPanel {
         g2d.drawOval(x + 3, y + 3, playerSize, playerSize);
     }
 
-    /**
-     * Updates the time label with current elapsed time.
-     */
-    private void updateTimeLabel() {
-        if (!completed && controller != null) {
-            timeLabel.setText("Time: " + controller.getElapsedTimeSeconds() + "s");
-        }
-    }
-
     @Override
     public void doLayout() {
         super.doLayout();
         final int labelWidth  = getWidth() - 20;
         final int labelHeight = LABEL_HEIGHT;
         statusLabel.setBounds(LABEL_MARGIN, LABEL_MARGIN, labelWidth, labelHeight);
-        timeLabel.setBounds(LABEL_MARGIN, TIME_LABEL_Y_OFFSET, labelWidth / 2, labelHeight);
     }
 
     @Override
@@ -297,27 +265,6 @@ public final class MazePanel extends JPanel {
             mazeWidth + PADDING,
             mazeHeight + PADDING + UI_HEIGHT
         );
-    }
-
-    /**
-     * Sets the completion listener for maze events.
-     * This method is kept for backward compatibility.
-     *
-     * @param listener the listener to set
-     */
-    public void setCompletionListener(final MazeCompletionListener listener) {
-        // This method is now handled by the controller
-        // but kept for backward compatibility
-    }
-
-    /**
-     * Gets the current elapsed time in seconds.
-     * This method delegates to the controller.
-     *
-     * @return the elapsed time since maze start
-     */
-    public int getElapsedTime() {
-        return controller != null ? controller.getElapsedTimeSeconds() : 0;
     }
 
     /**

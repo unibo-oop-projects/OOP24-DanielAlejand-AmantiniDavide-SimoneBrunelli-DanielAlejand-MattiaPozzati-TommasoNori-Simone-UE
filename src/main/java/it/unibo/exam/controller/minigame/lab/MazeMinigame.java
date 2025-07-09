@@ -29,6 +29,7 @@ public final class MazeMinigame implements Minigame {
     private MazeModel model;
     private MazePanel panel;
     private long startTimeMillis;
+    private int level;  // Variable to track the current level
 
     public MazeMinigame() {
         this.scoringStrategy = new CapDecorator(
@@ -39,14 +40,17 @@ public final class MazeMinigame implements Minigame {
             ),
             MAX_POINTS_CAP
         );
+        this.level = 1;  // Start with level 1
     }
 
     @Override
     public void start(JFrame parent, MinigameCallback callback) {
         this.callback = Objects.requireNonNull(callback, "callback cannot be null");
 
+        // Generate maze based on the current level
         MazeGenerator generator = new MazeGenerator();
-        int[][] maze = generator.generateMaze(1);  // Generate a
+        int[][] maze = generator.generateMaze(level);  // Pass the current level to generate the maze
+
         // Initialize model, panel, and set the view
         this.model = new MazeModel(maze);
         this.panel = new MazePanel(model.getMaze());
@@ -67,7 +71,6 @@ public final class MazeMinigame implements Minigame {
 
         // Start the timer and handle key presses
         startTimeMillis = System.currentTimeMillis();
-
     }
 
     // Handle player movement and check win condition
@@ -80,11 +83,21 @@ public final class MazeMinigame implements Minigame {
 
             // Check if player reached the exit
             if (model.isCompleted()) {
-                int elapsedSeconds = getElapsedTimeSeconds();
-                int score = scoringStrategy.calculate(ROOM_ID, elapsedSeconds);
                 panel.setMazeCompleted(true);
-                callback.onComplete(true, elapsedSeconds, score);
                 stop();  // End the game
+
+                // Transition to the next level if applicable
+                if (level < 3) {  // Assuming there are 3 levels
+                    level++;  // Increment level
+                    start(frame, callback);  // Start the next level
+                } else {
+                    // If all levels completed, notify callback
+                    int elapsedSeconds = getElapsedTimeSeconds();
+                    int score = scoringStrategy.calculate(ROOM_ID, elapsedSeconds);
+                    callback.onComplete(true, elapsedSeconds, score);
+                    JOptionPane.showMessageDialog(frame, "Congratulations! You completed all levels!");
+                    stop();  // End the game
+                }
             }
         }
     }
@@ -98,7 +111,7 @@ public final class MazeMinigame implements Minigame {
 
     @Override
     public String getName() {
-        return "Maze Game";
+        return "Maze Game - Level " + level;  // Display current level in the name
     }
 
     @Override
@@ -111,4 +124,3 @@ public final class MazeMinigame implements Minigame {
         return (int) ((System.currentTimeMillis() - startTimeMillis) / 1000);
     }
 }
-
