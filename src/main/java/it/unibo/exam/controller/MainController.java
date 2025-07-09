@@ -4,7 +4,6 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 
 import it.unibo.exam.controller.input.KeyHandler;
 import it.unibo.exam.controller.position.PlayerPositionManager;
@@ -16,47 +15,29 @@ import it.unibo.exam.model.game.GameState;
 import it.unibo.exam.utility.generator.RoomGenerator;
 import it.unibo.exam.utility.geometry.Point2D;
 import it.unibo.exam.view.GameRenderer;
-import it.unibo.exam.view.panel.EndGameMenu;
-import it.unibo.exam.model.scoring.TieredScoringStrategy;
-import it.unibo.exam.model.scoring.TimeBonusDecorator;
-import it.unibo.exam.model.scoring.CapDecorator;
-import it.unibo.exam.model.scoring.ScoringStrategy;
 import it.unibo.exam.view.hud.ScoreHud;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Main controller of the game.
- * Updated version with integrated minigame system and end game detection.
+ * Updated version with integrated minigame system.
  */
 @SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC", 
                    justification = "Game loop thread safety is managed externally")
 public class MainController {
     private static final Logger LOGGER = Logger.getLogger(MainController.class.getName());
 
-    // PMD: avoid string literal duplication
-    private static final String BUG_EI_EXPOSE_REP = "EI_EXPOSE_REP";
-
     private static final int FPS = 60;
     private static final double SECOND = 1_000_000_000.0;
-    private static final int VERY_FAST_THRESHOLD   = 15;
-    private static final int VERY_FAST_BONUS       = 20;
-    private static final int MAX_POINTS_PER_ROOM   = 120;
-    private static final int TOTAL_PUZZLE_ROOMS    = 5; // Rooms 1-5 are puzzle rooms
 
     private final KeyHandler      keyHandler;
     private final GameState       gameState;
     private final GameRenderer    gameRenderer;
     private MinigameManager minigameManager;
-    private final ScoringStrategy scoring;
     private boolean               running;
     private Point2D               environmentSize;
 
-    @SuppressFBWarnings(BUG_EI_EXPOSE_REP)
-    private JFrame                parentFrame;
-    private boolean               gameCompleted;
-
-    private long minigameStartTime;
     private boolean minigameActive;
     private int currentMinigameRoomId = -1;
 
@@ -66,14 +47,12 @@ public class MainController {
      * @param environmentSize size of the Game panel
      * @param parentFrame    parent frame for minigame windows
      */
-    @SuppressFBWarnings(BUG_EI_EXPOSE_REP)
     public MainController(final Point2D environmentSize, final JFrame parentFrame) {
         // Core setup
         this.keyHandler      = new KeyHandler();
         this.gameState       = new GameState(environmentSize);
         this.gameRenderer    = new GameRenderer(gameState);
         this.environmentSize = new Point2D(environmentSize);
-        this.parentFrame     = parentFrame;
 
         // —— MinigameManager setup ——
         if (parentFrame != null) {
@@ -81,12 +60,6 @@ public class MainController {
         } else {
             this.minigameManager = null;
         }
-
-        // —— Scoring Strategy + Decorators ——
-        ScoringStrategy strat = new TieredScoringStrategy();
-        strat = new TimeBonusDecorator(strat, VERY_FAST_THRESHOLD, VERY_FAST_BONUS);
-        strat = new CapDecorator(strat, MAX_POINTS_PER_ROOM);
-        this.scoring = strat;
 
         // —— Observer wiring ——
         final Player player = gameState.getPlayer();
@@ -105,13 +78,11 @@ public class MainController {
 
     /**
      * Sets (or resets) the parent frame used by the MinigameManager.
-     * This is only needed if you couldn't supply the frame at construction time.
+     * This is only needed if you couldn’t supply the frame at construction time.
      *
      * @param parentFrame the JFrame to use as parent for all minigame windows
      */
-    @SuppressFBWarnings(BUG_EI_EXPOSE_REP)
     public void setParentFrame(final JFrame parentFrame) {
-        this.parentFrame = parentFrame;
         if (parentFrame != null && this.minigameManager == null) {
             this.minigameManager = new MinigameManager(this, parentFrame);
             LOGGER.info("MinigameManager initialized with parent frame");
@@ -172,14 +143,6 @@ public class MainController {
     }
 
     /**
-     * Checks if the game has been completed.
-     * @return true if all puzzle rooms are completed
-     */
-    public boolean isGameCompleted() {
-        return gameCompleted;
-    }
-
-    /**
      * Main game loop.
      */
     @SuppressFBWarnings(value = "NN_NAKED_NOTIFY", 
@@ -189,7 +152,7 @@ public class MainController {
         final long nsPerUpdate = (long) (SECOND / FPS);
         long accumulatedTime = 0;
 
-        while (running && !gameCompleted) {
+        while (running) {
             final long now = System.nanoTime();
             accumulatedTime += now - lastTime;
             lastTime = now;
@@ -203,8 +166,6 @@ public class MainController {
                 Thread.sleep(1);
             } catch (final InterruptedException e) {
                 LOGGER.log(Level.WARNING, "Game loop interrupted", e);
-                Thread.currentThread().interrupt();
-                break;
             }
         }
     }
@@ -222,41 +183,14 @@ public class MainController {
     }
 
     /**
-     * Check win condition and show end game menu if all puzzles are completed.
+     * Check win condition.
      */
     private void checkWin() {
         // Check if all puzzle rooms have been completed
-        if (!gameCompleted && gameState.getPlayer().allRoomsCompleted(TOTAL_PUZZLE_ROOMS)) {
-            gameCompleted = true;
+        final int totalPuzzleRooms = 5; // Rooms 1-5 are puzzle rooms
+        if (gameState.getPlayer().allRoomsCompleted(totalPuzzleRooms)) {
             LOGGER.info("Player has completed all rooms! Game won!");
-
-            // Show end game menu on EDT
-            SwingUtilities.invokeLater(() -> {
-                showEndGameMenu();
-            });
-        }
-    }
-
-    /**
-     * Shows the end game menu with player statistics.
-     */
-    private void showEndGameMenu() {
-        if (parentFrame != null) {
-            LOGGER.info("Showing end game menu");
-
-            // Stop the game
-            stop();
-
-            // Clear the current content and show end game menu
-            parentFrame.getContentPane().removeAll();
-
-            final EndGameMenu endGameMenu = new EndGameMenu(parentFrame, gameState.getPlayer());
-            parentFrame.add(endGameMenu);
-
-            parentFrame.revalidate();
-            parentFrame.repaint();
-        } else {
-            LOGGER.warning("Cannot show end game menu - no parent frame available");
+            // You can implement a win screen or callback here
         }
     }
 
@@ -426,7 +360,6 @@ public class MainController {
      * @param roomId the room ID for the minigame
      */
     public void startMinigame(final int roomId) {
-        minigameStartTime = System.currentTimeMillis();
         minigameActive = true;
         currentMinigameRoomId = roomId;
         LOGGER.info("Started minigame timing for room " + roomId);
@@ -438,16 +371,14 @@ public class MainController {
      * @param success   true if the minigame was completed successfully
      * @param timeTaken the time taken (in seconds) to complete the minigame
      */
-    public void endMinigame(final boolean success, final int timeTaken) {
+    public void endMinigame(final boolean success, final int timeTaken, final int score) {
         if (minigameActive && currentMinigameRoomId >= 0 && success) {
-            // compute points via Strategy+Decorator chain
-            final int pointsGained = scoring.calculate(timeTaken, currentMinigameRoomId);
             // store and notify observers
-            gameState.getPlayer().addRoomScore(currentMinigameRoomId, timeTaken, pointsGained);
+            gameState.getPlayer().addRoomScore(currentMinigameRoomId, timeTaken, score);
             // log success
             LOGGER.info("Minigame completed successfully! Room "
                         + currentMinigameRoomId
-                        + ", Time: " + timeTaken + "s, Points: " + pointsGained);
+                        + ", Time: " + timeTaken + "s, Points: " + score);
         } else if (minigameActive) {
             // log failure
             LOGGER.info("Minigame failed for room " + currentMinigameRoomId);
@@ -457,16 +388,4 @@ public class MainController {
         currentMinigameRoomId = -1;
     }
 
-    /**
-     * Ends the current minigame by computing its duration from the start timestamp.
-     *
-     * @deprecated use {@link #endMinigame(boolean,int)} instead so you can supply
-     *             the real minigame duration explicitly.
-     * @param success true if the minigame was completed successfully
-     */
-    @Deprecated
-    public void endMinigame(final boolean success) {
-        final int timeTaken = (int) ((System.currentTimeMillis() - minigameStartTime) / 1000);
-        endMinigame(success, timeTaken);
-    }
 }
