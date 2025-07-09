@@ -15,10 +15,6 @@ import it.unibo.exam.model.game.GameState;
 import it.unibo.exam.utility.generator.RoomGenerator;
 import it.unibo.exam.utility.geometry.Point2D;
 import it.unibo.exam.view.GameRenderer;
-import it.unibo.exam.model.scoring.TieredScoringStrategy;
-import it.unibo.exam.model.scoring.TimeBonusDecorator;
-import it.unibo.exam.model.scoring.CapDecorator;
-import it.unibo.exam.model.scoring.ScoringStrategy;
 import it.unibo.exam.view.hud.ScoreHud;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -34,19 +30,14 @@ public class MainController {
 
     private static final int FPS = 60;
     private static final double SECOND = 1_000_000_000.0;
-    private static final int VERY_FAST_THRESHOLD   = 15;
-    private static final int VERY_FAST_BONUS       = 20;
-    private static final int MAX_POINTS_PER_ROOM   = 120;
 
     private final KeyHandler      keyHandler;
     private final GameState       gameState;
     private final GameRenderer    gameRenderer;
     private MinigameManager minigameManager;
-    private final ScoringStrategy scoring;
     private boolean               running;
     private Point2D               environmentSize;
 
-    private long minigameStartTime;
     private boolean minigameActive;
     private int currentMinigameRoomId = -1;
 
@@ -69,12 +60,6 @@ public class MainController {
         } else {
             this.minigameManager = null;
         }
-
-        // —— Scoring Strategy + Decorators ——
-        ScoringStrategy strat = new TieredScoringStrategy();
-        strat = new TimeBonusDecorator(strat, VERY_FAST_THRESHOLD, VERY_FAST_BONUS);
-        strat = new CapDecorator(strat, MAX_POINTS_PER_ROOM);
-        this.scoring = strat;
 
         // —— Observer wiring ——
         final Player player = gameState.getPlayer();
@@ -375,7 +360,6 @@ public class MainController {
      * @param roomId the room ID for the minigame
      */
     public void startMinigame(final int roomId) {
-        minigameStartTime = System.currentTimeMillis();
         minigameActive = true;
         currentMinigameRoomId = roomId;
         LOGGER.info("Started minigame timing for room " + roomId);
@@ -386,17 +370,15 @@ public class MainController {
      *
      * @param success   true if the minigame was completed successfully
      * @param timeTaken the time taken (in seconds) to complete the minigame
+     * @param score     the score achieved in the minigame
      */
-    public void endMinigame(final boolean success, final int timeTaken) {
+    public void endMinigame(final boolean success, final int timeTaken, final int score) {
         if (minigameActive && currentMinigameRoomId >= 0 && success) {
-            // compute points via Strategy+Decorator chain
-            final int pointsGained = scoring.calculate(timeTaken, currentMinigameRoomId);
-            // store and notify observers
-            gameState.getPlayer().addRoomScore(currentMinigameRoomId, timeTaken, pointsGained);
+            gameState.getPlayer().addRoomScore(currentMinigameRoomId, timeTaken, score);
             // log success
             LOGGER.info("Minigame completed successfully! Room "
                         + currentMinigameRoomId
-                        + ", Time: " + timeTaken + "s, Points: " + pointsGained);
+                        + ", Time: " + timeTaken + "s, Points: " + score);
         } else if (minigameActive) {
             // log failure
             LOGGER.info("Minigame failed for room " + currentMinigameRoomId);
@@ -405,18 +387,4 @@ public class MainController {
         minigameActive        = false;
         currentMinigameRoomId = -1;
     }
-
-    /**
-     * Ends the current minigame by computing its duration from the start timestamp.
-     *
-     * @deprecated use {@link #endMinigame(boolean,int)} instead so you can supply
-     *             the real minigame duration explicitly.
-     * @param success true if the minigame was completed successfully
-     */
-    @Deprecated
-    public void endMinigame(final boolean success) {
-        final int timeTaken = (int) ((System.currentTimeMillis() - minigameStartTime) / 1000);
-        endMinigame(success, timeTaken);
-    }
-
 }

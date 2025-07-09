@@ -216,7 +216,7 @@ public final class KahootMinigame implements Minigame, KahootListener {
                     final int finalTime = model != null 
                         ? model.getFinalTimeWithPenalty(PENALTY_SECONDS) 
                         : 0;
-                    callback.onComplete(false, finalTime);
+                    callback.onComplete(false, finalTime, 0);
                 }
             }
         });
@@ -273,7 +273,7 @@ public final class KahootMinigame implements Minigame, KahootListener {
             try {
                 Thread.sleep(THREAD_SLEEP_DELAY);
                 javax.swing.SwingUtilities.invokeLater(() -> addOkButtonToDetailedResults(
-                    resultsPanel, finalTime));
+                    resultsPanel, finalTime, calculatedScore));
             } catch (final InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -411,9 +411,11 @@ public final class KahootMinigame implements Minigame, KahootListener {
      *
      * @param resultsPanel the results panel to add the button to
      * @param finalTime the final time to pass to callback
+     * @param calculatedScore the score to pass to callback
      */
     private void addOkButtonToDetailedResults(final JPanel resultsPanel, 
-                                             final int finalTime) {
+                                             final int finalTime,
+                                             final int calculatedScore) {
         final JButton okButton = new JButton("Continue");
         okButton.setFont(new Font(FONT_FAMILY, Font.BOLD, BUTTON_FONT_SIZE));
         okButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
@@ -426,7 +428,7 @@ public final class KahootMinigame implements Minigame, KahootListener {
             gameFrame.dispose();
             if (callback != null) {
                 // Pass the final time to maintain consistency with the callback interface
-                callback.onComplete(true, finalTime);
+                callback.onComplete(true, finalTime, calculatedScore);
             }
         });
 
