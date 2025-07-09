@@ -2,13 +2,15 @@ package it.unibo.exam.utility.factory;
 
 import it.unibo.exam.model.entity.minigame.Minigame;
 import it.unibo.exam.controller.minigame.bar.BarMinigame;
-
+import it.unibo.exam.controller.minigame.gym.GymMinigame;
 /**
  * Factory class for creating different types of minigames based on room ID.
  * Each room has its own specific minigame type.
  */
 public final class MinigameFactory {
 
+    /** Room ID for the Gym minigame. */
+    public static final int ROOM_GYM = 4;
 
     /** Room ID for the Sort & Serve Bar minigame. */
     public static final int ROOM_BAR = 5;
@@ -31,6 +33,8 @@ public final class MinigameFactory {
      * Creates the appropriate minigame for the specified room.
      *
      * Room-Minigame mapping:
+     * - Room 2: Quiz Kahoot
+     * - Room 3: Maze Runner
      * - Room 4: Sort & Serve (Bar puzzle)
      *
      * @param roomId the ID of the room (2–4)
@@ -39,12 +43,14 @@ public final class MinigameFactory {
      */
     public static Minigame createMinigame(final int roomId) {
         switch (roomId) {
+            case ROOM_GYM:
+                return new GymMinigame();
             case ROOM_BAR:
                 return new BarMinigame();
             default:
                 throw new IllegalArgumentException(
                     "Invalid room ID for minigame: " + roomId
-                  + ". Valid room IDs are: " + ROOM_BAR + "."
+                  + ". Valid room IDs are " + ROOM_GYM + "–" + ROOM_BAR + "."
                 );
         }
     }
@@ -58,6 +64,8 @@ public final class MinigameFactory {
      */
     public static String getMinigameName(final int roomId) {
         switch (roomId) {
+            case ROOM_GYM:
+                return "Catch the Ball";
             case ROOM_BAR:
                 return "Sort & Serve";
             default:
@@ -74,6 +82,8 @@ public final class MinigameFactory {
      */
     public static String getMinigameDescription(final int roomId) {
         switch (roomId) {
+            case ROOM_GYM:
+                return "Hit all disks with the cannon to win! Use mouse and keyboard.";
             case ROOM_BAR:
                 return "Pour colored layers until each glass is uniform.";
             default:

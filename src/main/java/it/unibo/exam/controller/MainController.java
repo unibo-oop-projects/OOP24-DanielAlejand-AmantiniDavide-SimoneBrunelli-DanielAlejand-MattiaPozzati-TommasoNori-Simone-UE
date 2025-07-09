@@ -37,7 +37,6 @@ public class MainController {
     private MinigameManager minigameManager;
     private boolean               running;
     private Point2D               environmentSize;
-
     private boolean minigameActive;
     private int currentMinigameRoomId = -1;
 

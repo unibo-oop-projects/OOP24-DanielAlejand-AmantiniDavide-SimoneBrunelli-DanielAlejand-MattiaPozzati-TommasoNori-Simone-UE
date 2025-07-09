@@ -1,229 +1,158 @@
-package it.unibo.exam.view.panel;
-
-import it.unibo.exam.utility.geometry.Point2D;
+package it.unibo.exam;
 
 import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.JButton;
+import java.awt.Toolkit;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.plaf.basic.BasicButtonUI;
+import javax.swing.SwingUtilities;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import it.unibo.exam.controller.input.KeyHandler;
+import it.unibo.exam.view.panel.MainMenuPanel;
 
 /**
- * Main menu panel for the game, displays play, options and exit buttons.
- * Updated to properly support minigame integration by passing parent frame reference.
- * This class is final as it's not designed for extension.
+ * Main application class that initializes the application window.
+ * Updated to open in fullscreen mode.
  */
-public final class MainMenuPanel extends JPanel {
-
-    private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER =
-        Logger.getLogger(MainMenuPanel.class.getName());
-
-    // Button size constants
-    private static final int WIDTHBUTTON    = 800;
-    private static final int HEIGHTBUTTON   = 80;
-    private static final int BUTTONFONTSIZE = 30;
-    private static final int BUTTONSPACING  = 20;
-
-    // Color constants for magic numbers
-    private static final int BUTTON_TEXT_RED      = 255;
-    private static final int BUTTON_TEXT_GREEN    = 255;
-    private static final int BUTTON_TEXT_BLUE     = 255;
-    private static final int BUTTON_TEXT_ALPHA    = 220;
-    private static final int BUTTON_BORDER_RADIUS = 30;
-
-    /** The background image drawn behind the menu. */
-    private transient Image backgroundImage;
-
-    private GamePanel gamePanel; // Reference to track the game panel
+public final class Main {
+    private Main() {
+        throw new UnsupportedOperationException("Main class cannot be instantiated");
+    } 
 
     /**
-     * Creates the main menu panel with buttons.
-     *
-     * @param window the parent JFrame window
+     * Entry point of the application.
+     * @param args command line arguments
      */
-    public MainMenuPanel(final JFrame window) {
-        initializeUI(window);
-    }
+    public static void main(final String[] args) {
+        // Execute UI code in the Event Dispatch Thread
+        SwingUtilities.invokeLater(() -> {
+            final KeyHandler keyHandler = new KeyHandler();
+            final JFrame window = new JFrame();
 
-    /**
-     * Initialize the UI components.
-     * This method is separated from the constructor to avoid calling overridable methods.
-     *
-     * @param window the parent JFrame window
-     */
-    private void initializeUI(final JFrame window) {
-        setLayout(new GridBagLayout());
-        setPreferredSize(window.getSize());
+            // Get screen dimensions
+            final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            final int screenWidth = (int) screenSize.getWidth();
+            final int screenHeight = (int) screenSize.getHeight();
 
-        // --- LOAD BACKGROUND IMAGE ---
-        final var resource = getClass().getClassLoader()
-                                       .getResource("MainMenu/MainMenuBackGround.png");
-        if (resource == null) {
-            LOGGER.warning("Background image not found: MainMenu/MainMenuBackGround.png");
-        } else {
-            try {
-                backgroundImage = ImageIO.read(resource);
-            } catch (final IOException e) {
-                LOGGER.log(Level.WARNING, "Error loading background image", e);
-            }
-        }
+            // Get graphics device for fullscreen support
+            final GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            final GraphicsDevice gd = ge.getDefaultScreenDevice();
 
-        // Prepare buttons
-        final JButton playButton    = createStyledButton("Gioca");
-        final JButton optionsButton = createStyledButton("Opzioni");
-        final JButton exitButton    = createStyledButton("Esci");
+            // Create main menu panel
+            final MainMenuPanel mainMenu = new MainMenuPanel(window);
 
-        final Dimension buttonSize = new Dimension(WIDTHBUTTON, HEIGHTBUTTON);
-        playButton.setPreferredSize(buttonSize);
-        optionsButton.setPreferredSize(buttonSize);
-        exitButton.setPreferredSize(buttonSize);
+            // Configure window
+            window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            window.setResizable(true);
+            window.setTitle("UniversityEscape");
+            window.addKeyListener(keyHandler);
 
-        final Font buttonFont = new Font("Arial", Font.BOLD, BUTTONFONTSIZE);
-        playButton.setFont(buttonFont);
-        optionsButton.setFont(buttonFont);
-        exitButton.setFont(buttonFont);
+            // Add main menu panel
+            window.getContentPane().add(mainMenu);
 
-        final GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx  = 0;
-        gbc.insets = new Insets(BUTTONSPACING, 0, BUTTONSPACING, 0);
-        gbc.anchor = GridBagConstraints.CENTER;
+            // Set fullscreen mode
+            final int initialWidth = (int) (screenWidth * 0.8);
+            final int initialHeight = (int) (screenHeight * 0.8);
+            window.setSize(initialWidth, initialHeight);
+            window.setLocationRelativeTo(null);
 
-        gbc.gridy = 0;
-        add(playButton, gbc);
-        gbc.gridy = 1;
-        add(optionsButton, gbc);
-        gbc.gridy = 2;
-        add(exitButton, gbc);
-
-        playButton.addActionListener(e -> startGame(window));
-        optionsButton.addActionListener(e ->
-            JOptionPane.showMessageDialog(window, "Options not implemented yet.")
-        );
-        exitButton.addActionListener(e -> {
-            final int confirmed = JOptionPane.showConfirmDialog(
-                window,
-                "Are you sure you want to exit?",
-                "Confirm Exit",
-                JOptionPane.YES_NO_OPTION
-            );
-            if (confirmed == JOptionPane.YES_OPTION) {
-                if (gamePanel != null) {
-                    gamePanel.stopGame();
+            // Add window listeners
+            window.addWindowListener(new WindowAdapter() {
+                /**
+                 * Handle window iconification events.
+                 * @param e window event
+                 */
+                @Override
+                public void windowIconified(final WindowEvent e) {
+                    // When minimized, restore to fullscreen
                 }
-                window.dispose();
-            }
-        });
-    }
 
-    private void startGame(final JFrame window) {
-        window.getContentPane().removeAll();
+                /**
+                 * Handle window deiconification events.
+                 * @param e window event
+                 */
+                @Override
+                public void windowDeiconified(final WindowEvent e) {
+                    // Restore to fullscreen when restored
 
-        final Dimension size = window.getSize();
-        final Point2D gameSize = new Point2D(size.width, size.height);
+                }
 
-        gamePanel = new GamePanel(gameSize, window);
-        window.add(gamePanel);
-        gamePanel.requestFocusInWindow();
-        window.revalidate();
-        window.repaint();
-        addReturnToMenuListener(window);
-    }
+                /**
+                 * Handle window state changes.
+                 * @param e window event
+                 */
+                @Override
+                public void windowStateChanged(final WindowEvent e) {
+                    // Ensure window stays maximized unless explicitly minimized
 
-    private void addReturnToMenuListener(final JFrame window) {
-        if (gamePanel != null) {
-            gamePanel.getInputMap(WHEN_IN_FOCUSED_WINDOW)
-                     .put(javax.swing.KeyStroke.getKeyStroke("ESCAPE"), "returnToMenu");
-            gamePanel.getActionMap().put("returnToMenu",
-                new javax.swing.AbstractAction() {
-                    private static final long serialVersionUID = 1L;
-                    @Override
-                    public void actionPerformed(final java.awt.event.ActionEvent e) {
-                        returnToMenu(window);
+                }
+            });
+
+            // Add global key listener for fullscreen toggle (F11) and exit (Alt+F4, Escape)
+            window.addKeyListener(new KeyListener() {
+                @Override
+                public void keyTyped(final KeyEvent e) {
+                    // Not used
+                }
+
+                @Override
+                public void keyPressed(final KeyEvent e) {
+                    // F11 to toggle fullscreen
+                    if (e.getKeyCode() == KeyEvent.VK_F11) {
+                        toggleFullscreen(window, gd);
+                    } else if ((e.getKeyCode() == KeyEvent.VK_F4 && e.isAltDown()) 
+                    || e.getKeyCode() == KeyEvent.VK_ESCAPE
+                    && window.getContentPane().getComponent(0) instanceof MainMenuPanel) {
+                        // Only exit from main menu, not during game
+                        window.dispose();
                     }
                 }
-            );
-        }
-    }
 
-    private void returnToMenu(final JFrame window) {
-        final int confirmed = JOptionPane.showConfirmDialog(
-            window,
-            "Return to main menu?",
-            "Confirm",
-            JOptionPane.YES_NO_OPTION
-        );
-        if (confirmed == JOptionPane.YES_OPTION) {
-            if (gamePanel != null) {
-                gamePanel.stopGame();
-                gamePanel = null;
-            }
-            window.getContentPane().removeAll();
-            window.add(this);
-            window.revalidate();
-            window.repaint();
-        }
-    }
-
-    @Override
-    protected void paintComponent(final Graphics g) {
-        super.paintComponent(g);
-        if (backgroundImage != null) {
-            g.drawImage(backgroundImage,
-                        0, 0, getWidth(), getHeight(), this);
-        }
-    }
-
-    private JButton createStyledButton(final String text) {
-        final JButton button = new JButton(text);
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setContentAreaFilled(false);
-        button.setOpaque(false);
-        button.setForeground(new java.awt.Color(
-            BUTTON_TEXT_RED, BUTTON_TEXT_GREEN,
-            BUTTON_TEXT_BLUE, BUTTON_TEXT_ALPHA
-        ));
-        button.setFont(new Font("Arial", Font.BOLD, BUTTONFONTSIZE));
-        button.setPreferredSize(new Dimension(WIDTHBUTTON, HEIGHTBUTTON));
-        button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
-        final java.awt.Color baseColor  = new java.awt.Color(60, 120, 200, 150);
-        final java.awt.Color hoverColor = new java.awt.Color(80, 140, 220, 180);
-        final java.awt.Color clickColor = new java.awt.Color(30, 90, 180, 200);
-
-        button.setUI(new BasicButtonUI() {
-            @Override
-            public void paint(final Graphics g, final javax.swing.JComponent c) {
-                final Graphics g2 = g.create();
-                if (button.getModel().isPressed()) {
-                    g2.setColor(clickColor);
-                } else if (button.getModel().isRollover()) {
-                    g2.setColor(hoverColor);
-                } else {
-                    g2.setColor(baseColor);
+                @Override
+                public void keyReleased(final KeyEvent e) {
+                    // Not used
                 }
-                g2.fillRoundRect(
-                    0, 0,
-                    button.getWidth(), button.getHeight(),
-                    BUTTON_BORDER_RADIUS, BUTTON_BORDER_RADIUS
-                );
-                g2.dispose();
-                super.paint(g, c);
-            }
-        });
+            });
 
-        return button;
+            // Make window visible
+            window.setVisible(true);
+
+            // Ensure we start in fullscreen
+            window.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        });
+    }
+
+    /**
+     * Toggles between fullscreen and windowed mode.
+     * @param window the main window
+     * @param graphicsDevice the graphics device
+     */
+    private static void toggleFullscreen(final JFrame window, final GraphicsDevice graphicsDevice) {
+
+        final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        final int screenWidth = (int) screenSize.getWidth();
+        final int screenHeight = (int) screenSize.getHeight();
+
+        if (graphicsDevice.getFullScreenWindow().equals(window)) {
+            // Exit fullscreen
+            graphicsDevice.setFullScreenWindow(null);
+            window.setUndecorated(false);
+            window.setExtendedState(JFrame.NORMAL);
+            final int windowWidth = (int) (screenWidth * 0.8);
+            final int windowHeight = (int) (screenHeight * 0.8);
+            window.setSize(windowWidth, windowHeight);
+            window.setLocationRelativeTo(null);
+        } else {
+            // Enter fullscreen
+            window.setUndecorated(false);
+            if (graphicsDevice.isFullScreenSupported()) {
+                graphicsDevice.setFullScreenWindow(window);
+            } else {
+                window.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            }
+        }
     }
 }
