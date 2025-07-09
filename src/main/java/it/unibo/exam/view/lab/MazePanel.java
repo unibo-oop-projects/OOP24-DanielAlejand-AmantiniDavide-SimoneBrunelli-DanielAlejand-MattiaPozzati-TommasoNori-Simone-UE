@@ -1,6 +1,6 @@
 package it.unibo.exam.view.lab;
 
-import it.unibo.exam.controller.minigame.lab.MazeController;
+import it.unibo.exam.controller.minigame.lab.MazeMinigame;
 import it.unibo.exam.utility.generator.MazeGenerator;
 
 import javax.swing.JPanel;
@@ -16,10 +16,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
 
-/**
- * Panel that renders a maze and handles player movement.
- * Displays maze walls, paths, start/end positions, and player.
- */
 public final class MazePanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
@@ -55,7 +51,7 @@ public final class MazePanel extends JPanel {
     private final JLabel timeLabel;
 
     // Controller reference
-    private transient MazeController controller;
+    private transient MazeMinigame controller;
 
     /**
      * Constructs a new MazePanel with the given maze.
@@ -99,11 +95,23 @@ public final class MazePanel extends JPanel {
         add(statusLabel);
         add(timeLabel);
 
+        // Setting up the key listener to delegate input to the controller
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(final KeyEvent e) {
                 if (controller != null) {
-                    controller.handleKeyPress(e);
+                    int dx = 0, dy = 0;
+
+                    switch (e.getKeyCode()) {
+                        case KeyEvent.VK_W, KeyEvent.VK_UP    -> dy = -1;
+                        case KeyEvent.VK_S, KeyEvent.VK_DOWN  -> dy = 1;
+                        case KeyEvent.VK_A, KeyEvent.VK_LEFT  -> dx = -1;
+                        case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> dx = 1;
+                        default -> {
+                            return; // If no valid key is pressed, do nothing
+                        }
+                    }
+                    controller.handleKeyPress(dx, dy);
                 }
             }
         });
@@ -171,7 +179,7 @@ public final class MazePanel extends JPanel {
      *
      * @param controller the maze controller
      */
-    public void setController(final MazeController controller) {
+    public void setController(final MazeMinigame controller) {
         this.controller = controller;
     }
 
@@ -268,7 +276,7 @@ public final class MazePanel extends JPanel {
      */
     private void updateTimeLabel() {
         if (!completed && controller != null) {
-            timeLabel.setText("Time: " + controller.getElapsedTime() + "s");
+            timeLabel.setText("Time: " + controller.getElapsedTimeSeconds() + "s");
         }
     }
 
@@ -309,7 +317,7 @@ public final class MazePanel extends JPanel {
      * @return the elapsed time since maze start
      */
     public int getElapsedTime() {
-        return controller != null ? controller.getElapsedTime() : 0;
+        return controller != null ? controller.getElapsedTimeSeconds() : 0;
     }
 
     /**

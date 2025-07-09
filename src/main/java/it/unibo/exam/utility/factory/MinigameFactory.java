@@ -1,7 +1,6 @@
 package it.unibo.exam.utility.factory;
 
-import it.unibo.exam.model.entity.minigame.KahootMinigame;
-import it.unibo.exam.model.entity.minigame.MazeMiniGame;
+import it.unibo.exam.controller.minigame.lab.MazeMinigame;
 import it.unibo.exam.model.entity.minigame.Minigame;
 import it.unibo.exam.controller.minigame.bar.BarMinigame;
 
@@ -11,8 +10,6 @@ import it.unibo.exam.controller.minigame.bar.BarMinigame;
  */
 public final class MinigameFactory {
 
-    /** Room ID for the Kahoot minigame. */
-    public static final int ROOM_KAHOOT = 2;
 
     /** Room ID for the Maze Runner minigame. */
     public static final int ROOM_MAZE = 3;
@@ -48,16 +45,14 @@ public final class MinigameFactory {
      */
     public static Minigame createMinigame(final int roomId) {
         switch (roomId) {
-            case ROOM_KAHOOT:
-                return new KahootMinigame();
             case ROOM_MAZE:
-                return new MazeMiniGame();
+                return new MazeMinigame();
             case ROOM_BAR:
                 return new BarMinigame();
             default:
                 throw new IllegalArgumentException(
                     "Invalid room ID for minigame: " + roomId
-                  + ". Valid room IDs are " + ROOM_KAHOOT + "–" + ROOM_BAR + "."
+                  + ". Valid room IDs are " + ROOM_MAZE + "–" + ROOM_BAR + "."
                 );
         }
     }
@@ -71,8 +66,6 @@ public final class MinigameFactory {
      */
     public static String getMinigameName(final int roomId) {
         switch (roomId) {
-            case ROOM_KAHOOT:
-                return "Quiz Kahoot";
             case ROOM_MAZE:
                 return "Maze Runner";
             case ROOM_BAR:
@@ -91,8 +84,6 @@ public final class MinigameFactory {
      */
     public static String getMinigameDescription(final int roomId) {
         switch (roomId) {
-            case ROOM_KAHOOT:
-                return "Answer all questions";
             case ROOM_MAZE:
                 return "Go fast, go furious, or you'll lose";
             case ROOM_BAR:
