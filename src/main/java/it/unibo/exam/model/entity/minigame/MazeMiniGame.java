@@ -1,5 +1,6 @@
 package it.unibo.exam.model.entity.minigame;
 
+import it.unibo.exam.controller.minigame.lab.MazeController;
 import it.unibo.exam.utility.generator.MazeGenerator;
 import it.unibo.exam.view.lab.MazePanel;
 
@@ -29,6 +30,7 @@ public final class MazeMiniGame implements Minigame {
     private JFrame gameFrame;
     private MinigameCallback callback;
     private final MazeGenerator generator = new MazeGenerator();
+    private MazeController currentController;
     private int currentMazeIndex;
     private boolean gameCompleted;
     private long gameStartTime;
@@ -120,7 +122,12 @@ public final class MazeMiniGame implements Minigame {
 
         // Create and display the new maze panel
         final MazePanel panel = new MazePanel(maze);
-        panel.setCompletionListener(this::handleMazeCompletion);
+        
+        // Create controller and link it with the panel
+        currentController = new MazeController(maze, panel);
+        currentController.setCompletionListener(this::handleMazeCompletion);
+        panel.setController(currentController);
+        
         gameFrame.getContentPane().removeAll();
         gameFrame.add(panel);
         gameFrame.revalidate();

@@ -1,5 +1,6 @@
 package it.unibo.exam.view.lab;
 
+import it.unibo.exam.controller.minigame.lab.MazeController;
 import it.unibo.exam.utility.generator.MazeGenerator;
 
 import javax.swing.JPanel;
@@ -24,38 +25,37 @@ public final class MazePanel extends JPanel {
     private static final long serialVersionUID = 1L;
 
     // Visual constants
-    private static final int CELL_SIZE           = 30;
-    private static final int UI_HEIGHT           = 60;
-    private static final int STATUS_FONT_SIZE    = 14;
-    private static final int TIME_FONT_SIZE      = 12;
-    private static final int PLAYER_BORDER_SIZE  = 6;
-    private static final int PADDING             = 80;
-    private static final int LABEL_MARGIN        = 10;
-    private static final int LABEL_HEIGHT        = 25;
+    private static final int CELL_SIZE = 30;
+    private static final int UI_HEIGHT = 60;
+    private static final int STATUS_FONT_SIZE = 14;
+    private static final int TIME_FONT_SIZE = 12;
+    private static final int PLAYER_BORDER_SIZE = 6;
+    private static final int PADDING = 80;
+    private static final int LABEL_MARGIN = 10;
+    private static final int LABEL_HEIGHT = 25;
     private static final int TIME_LABEL_Y_OFFSET = 35;
 
     // Colors
-    private static final Color WALL_COLOR       = new Color(45, 70, 45);
-    private static final Color PATH_COLOR       = new Color(245, 240, 235);
-    private static final Color PLAYER_COLOR     = new Color(180, 140, 70);
-    private static final Color START_COLOR      = new Color(85, 140, 85);
-    private static final Color END_COLOR        = new Color(160, 82, 45);
+    private static final Color WALL_COLOR = new Color(45, 70, 45);
+    private static final Color PATH_COLOR = new Color(245, 240, 235);
+    private static final Color PLAYER_COLOR  = new Color(180, 140, 70);
+    private static final Color START_COLOR = new Color(85, 140, 85);
+    private static final Color END_COLOR = new Color(160, 82, 45);
     private static final Color BACKGROUND_COLOR = new Color(95, 125, 95);
-    private static final Color UI_BACKGROUND    = new Color(40, 60, 40);
-    private static final Color TEXT_COLOR       = new Color(240, 235, 220);
+    private static final Color UI_BACKGROUND = new Color(40, 60, 40);
+    private static final Color TEXT_COLOR = new Color(240, 235, 220);
 
     // Game state
     private final int[][] maze;
     private int playerX, playerY;
     private boolean completed;
-    private final long startTime = System.currentTimeMillis();
 
     // UI components
     private final JLabel statusLabel;
     private final JLabel timeLabel;
 
-    // Listener for game completion
-    private transient MazeCompletionListener completionListener;
+    // Controller reference
+    private transient MazeController controller;
 
     /**
      * Constructs a new MazePanel with the given maze.
@@ -69,8 +69,8 @@ public final class MazePanel extends JPanel {
         // Initialize UI components
         this.statusLabel = createStatusLabel();
         this.timeLabel   = createTimeLabel();
+        this.completed   = false;
 
-        initializePlayerPosition();
         setupPanel();
     }
 
@@ -102,7 +102,9 @@ public final class MazePanel extends JPanel {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(final KeyEvent e) {
-                handleKeyPress(e);
+                if (controller != null) {
+                    controller.handleKeyPress(e);
+                }
             }
         });
 
@@ -141,102 +143,36 @@ public final class MazePanel extends JPanel {
     }
 
     /**
-     * Handles key press events for player movement.
-     *
-     * @param e the key event
-     */
-    private void handleKeyPress(final KeyEvent e) {
-        if (completed) {
-            return;
-        }
-
-        int newX = playerX;
-        int newY = playerY;
-
-        switch (e.getKeyCode()) {
-            case KeyEvent.VK_W, KeyEvent.VK_UP    -> newY--;
-            case KeyEvent.VK_S, KeyEvent.VK_DOWN  -> newY++;
-            case KeyEvent.VK_A, KeyEvent.VK_LEFT  -> newX--;
-            case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> newX++;
-            default                               -> {
-                return; 
-            }
-        }
-
-        movePlayer(newX, newY);
-    }
-
-    /**
-     * Initializes the player position at the maze start.
-     */
-    private void initializePlayerPosition() {
-        final int[] startPos = MazeGenerator.findStart(maze);
-        if (startPos[0] != -1 && startPos[1] != -1) {
-            playerX = startPos[0];
-            playerY = startPos[1];
-        } else {
-            findFirstPathCell();
-        }
-    }
-
-    /**
-     * Finds and sets the first available path cell as player position.
-     */
-    private void findFirstPathCell() {
-        for (int row = 0; row < maze.length; row++) {
-            for (int col = 0; col < maze[row].length; col++) {
-                if (maze[row][col] == MazeGenerator.PATH) {
-                    playerX = col;
-                    playerY = row;
-                    return;
-                }
-            }
-        }
-        // Ultimate fallback
-        playerX = 1;
-        playerY = 1;
-    }
-
-    /**
-     * Moves the player to the specified position if valid.
+     * Updates the player position (called by controller).
      *
      * @param newX the new x coordinate
      * @param newY the new y coordinate
      */
-    private void movePlayer(final int newX, final int newY) {
-        if (newX < 0
-            || newX >= maze[0].length
-            || newY < 0
-            || newY >= maze.length
-            || maze[newY][newX] == MazeGenerator.WALL) {
-            return;
-        }
-
-        playerX = newX;
-        playerY = newY;
-
-        if (maze[newY][newX] == MazeGenerator.END) {
-            completeMaze();
-        }
-
-        repaint();
+    public void updatePlayerPosition(final int newX, final int newY) {
+        this.playerX = newX;
+        this.playerY = newY;
     }
 
     /**
-     * Handles maze completion.
+     * Sets the maze completion status (called by controller).
+     *
+     * @param completed true if the maze is completed
      */
-    private void completeMaze() {
-        completed = true;
-        final int timeSeconds = getElapsedTime();
-
-        statusLabel.setText("Maze Completed! Well done!");
-        statusLabel.setForeground(Color.GREEN);
-
-        if (completionListener != null) {
-            completionListener.onMazeCompleted(true, timeSeconds);
+    public void setMazeCompleted(final boolean completed) {
+        this.completed = completed;
+        if (completed) {
+            statusLabel.setText("Maze Completed! Well done!");
+            statusLabel.setForeground(Color.GREEN);
         }
+    }
 
-        repaint();
+    /**
+     * Sets the controller reference.
+     *
+     * @param controller the maze controller
+     */
+    public void setController(final MazeController controller) {
+        this.controller = controller;
     }
 
     @Override
@@ -331,8 +267,8 @@ public final class MazePanel extends JPanel {
      * Updates the time label with current elapsed time.
      */
     private void updateTimeLabel() {
-        if (!completed) {
-            timeLabel.setText("Time: " + getElapsedTime() + "s");
+        if (!completed && controller != null) {
+            timeLabel.setText("Time: " + controller.getElapsedTime() + "s");
         }
     }
 
@@ -357,20 +293,23 @@ public final class MazePanel extends JPanel {
 
     /**
      * Sets the completion listener for maze events.
+     * This method is kept for backward compatibility.
      *
      * @param listener the listener to set
      */
     public void setCompletionListener(final MazeCompletionListener listener) {
-        this.completionListener = listener;
+        // This method is now handled by the controller
+        // but kept for backward compatibility
     }
 
     /**
      * Gets the current elapsed time in seconds.
+     * This method delegates to the controller.
      *
      * @return the elapsed time since maze start
      */
     public int getElapsedTime() {
-        return (int) ((System.currentTimeMillis() - startTime) / 1000);
+        return controller != null ? controller.getElapsedTime() : 0;
     }
 
     /**
@@ -384,6 +323,7 @@ public final class MazePanel extends JPanel {
 
     /**
      * Interface for handling maze completion events.
+     * Kept for backward compatibility.
      */
     public interface MazeCompletionListener {
         /**
