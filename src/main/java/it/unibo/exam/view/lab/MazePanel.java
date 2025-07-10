@@ -35,6 +35,7 @@ public final class MazePanel extends JPanel {
     private static final int PADDING = 80;
     private static final int LABEL_MARGIN = 10;
     private static final int LABEL_HEIGHT = 25;
+    private static final int LABEL_SPACING = 5;
 
     // Colors
     private static final Color WALL_COLOR = new Color(45, 70, 45);
@@ -53,6 +54,7 @@ public final class MazePanel extends JPanel {
 
     // UI components
     private final JLabel statusLabel;
+    private final JLabel levelLabel;
     // Controller reference
     private transient MazeMinigame controller;
 
@@ -67,6 +69,7 @@ public final class MazePanel extends JPanel {
 
         // Initialize UI components
         this.statusLabel = createStatusLabel();
+        this.levelLabel = createLevelLabel();
         this.completed   = false;
 
         setupPanel();
@@ -95,6 +98,7 @@ public final class MazePanel extends JPanel {
         setFocusable(true);
 
         add(statusLabel);
+        add(levelLabel);
 
         // Setting up the key listener to delegate input to the controller
         addKeyListener(new KeyAdapter() {
@@ -127,7 +131,7 @@ public final class MazePanel extends JPanel {
      */
     private JLabel createStatusLabel() {
         final JLabel label = new JLabel(
-            "Use WASD or Arrow Keys to move - Reach the red square!",
+            "Level info will be updated when controller is set",
             SwingConstants.CENTER
         );
         label.setForeground(TEXT_COLOR);
@@ -136,6 +140,24 @@ public final class MazePanel extends JPanel {
         label.setBackground(UI_BACKGROUND);
         return label;
     }
+
+    /**
+     * Creates the level label.
+     *
+     * @return the configured level label
+     */
+    private JLabel createLevelLabel() {
+        final JLabel label = new JLabel(
+            "Level: -/-",
+            SwingConstants.CENTER
+        );
+        label.setForeground(TEXT_COLOR);
+        label.setFont(new Font("Arial", Font.BOLD, STATUS_FONT_SIZE));
+        label.setOpaque(true);
+        label.setBackground(UI_BACKGROUND);
+        return label;
+    }
+
     /**
      * Updates the player position (called by controller).
      *
@@ -167,6 +189,20 @@ public final class MazePanel extends JPanel {
      */
     public void setController(final MazeMinigame controller) {
         this.controller = controller;
+        if (controller != null) {
+            statusLabel.setText(controller.getDescription());
+            levelLabel.setText("Level: " + controller.getLevel() + "/" + controller.getMaxLevel());
+        }
+    }
+
+    /**
+     * Updates the level display.
+     *
+     * @param currentLevel the current level
+     * @param maxLevel the maximum level
+     */
+    public void updateLevelDisplay(final int currentLevel, final int maxLevel) {
+        levelLabel.setText("Level: " + currentLevel + "/" + maxLevel);
     }
 
     @Override
@@ -262,6 +298,7 @@ public final class MazePanel extends JPanel {
         final int labelWidth  = getWidth() - 20;
         final int labelHeight = LABEL_HEIGHT;
         statusLabel.setBounds(LABEL_MARGIN, LABEL_MARGIN, labelWidth, labelHeight);
+        levelLabel.setBounds(LABEL_MARGIN, LABEL_MARGIN + labelHeight + LABEL_SPACING, labelWidth, labelHeight);
     }
 
     @Override

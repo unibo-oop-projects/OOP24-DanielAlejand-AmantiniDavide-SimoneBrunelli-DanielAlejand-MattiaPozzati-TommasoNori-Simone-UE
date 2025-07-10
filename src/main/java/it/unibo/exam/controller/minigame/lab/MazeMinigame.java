@@ -161,7 +161,7 @@ public final class MazeMinigame implements Minigame {
      */
     @Override
     public String getName() {
-        return "Maze Game - Level " + level;  // Display current level in the name
+        return "Maze Runner - Level " + level;  // Display current level in the name
     }
 
     /**
@@ -171,7 +171,7 @@ public final class MazeMinigame implements Minigame {
      */
     @Override
     public String getDescription() {
-        return "Navigate through the maze and reach the exit!";
+        return "Run fast, run furious. Use WASD and go to the red square!";
     }
 
     /**
@@ -181,5 +181,23 @@ public final class MazeMinigame implements Minigame {
      */
     public int getElapsedTimeSeconds() {
         return (int) ((System.currentTimeMillis() - startTimeMillis) / 1000);
+    }
+
+    /**
+     * Gets the current level.
+     * 
+     * @return the current level
+     */
+    public int getLevel() {
+        return level;
+    }
+
+    /**
+     * Gets the maximum level.
+     * 
+     * @return the maximum level
+     */
+    public int getMaxLevel() {
+        return MAX_LEVEL;
     }
 }
