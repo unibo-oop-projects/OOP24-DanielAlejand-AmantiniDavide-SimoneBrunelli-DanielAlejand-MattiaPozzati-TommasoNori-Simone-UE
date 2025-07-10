@@ -9,36 +9,27 @@ import it.unibo.exam.utility.geometry.Point2D;
 public final class NpcGenerator extends EntityGenerator<Npc> {
 
     private static final String[] NAMES = {
-        "Professor Oak",
-        "Professor Elm",
-        "Professor Birch",
-        "Professor Rowan",
-        "Professor Sycamore",
-        "Professor Kukui",
-        "Professor Magnolia",
-        "Professor Cerise",
+        "Giardiniere Mario",         // 1: Giardino
+        "Prof.ssa Bianchi",          // 2: Aula universitaria
+        "R2D2",                      // 3: Laboratorio informatico
+        "Coach Luca",                // 4: Palestra
+        "Barista Anna"               // 5: Bar
     };
 
     private static final String[] DESCRIPTIONS = {
-        "A wise and knowledgeable professor.",
-        "An expert in Pokémon research.",
-        "A friendly and helpful professor.",
-        "A professor with a passion for Pokémon.",
-        "A professor who loves to teach.",
-        "A professor with a deep understanding of Pokémon.",
-        "A professor who is always ready to help.",
-        "A professor with a wealth of knowledge.",
+        "Il giardiniere dell'università, esperto di piante e natura.",
+        "Docente di matematica, appassionata e disponibile.",
+        "R2D2 sempre pronto a risolvere problemi.",
+        "Allenatore energico e motivante.",
+        "Barista simpatica che conosce tutti gli studenti."
     };
 
     private static final String[] DIALOGUES = {
-        "Hello, trainer! Are you ready for your adventure?",
-        "Welcome to the world of Pokémon!",
-        "I have a special task for you, trainer.",
-        "Are you interested in learning more about Pokémon?",
-        "Let's embark on an exciting journey together!",
-        "I have some valuable information for you.",
-        "Do you want to hear about my latest research?",
-        "I'm here to help you on your journey.",
+        "Benvenuto nel giardino! Raccogli tutte le palline d'acqua per aiutare le piante.",
+        "Ciao! Risolvi il quiz per dimostrare le tue conoscenze.",
+        "Bzz bzz! Trova l'uscita dal labirinto del laboratorio informatico.",
+        "Pronto per una sfida fisica? Colpisci tutti i dischi per vincere!",
+        "Ciao! Mescola i drink correttamente per servire i clienti del bar."
     };
 
     /**
