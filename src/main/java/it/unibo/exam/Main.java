@@ -1,32 +1,47 @@
 package it.unibo.exam;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
+import it.unibo.exam.controller.input.KeyHandler;
+import it.unibo.exam.view.panel.MainMenuPanel;
+import it.unibo.exam.utility.AudioManager;
+
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+import java.awt.Dimension;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import it.unibo.exam.controller.input.KeyHandler;
-import it.unibo.exam.view.panel.MainMenuPanel;
+import java.util.logging.Logger;
 
 /**
- * Main application class that initializes the application window.
- * Updated to open in fullscreen mode.
+ * Main class for the UniversityEscape game.
+ * Initializes the game window and starts the main menu.
  */
 public final class Main {
-    private Main() {
-        throw new UnsupportedOperationException("Main class cannot be instantiated");
-    } 
+
+    private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
 
     /**
-     * Entry point of the application.
-     * @param args command line arguments
+     * Private constructor to prevent instantiation.
+     */
+    private Main() {
+        throw new UnsupportedOperationException("Main class cannot be instantiated");
+    }
+
+    /**
+     * Main method that starts the game.
+     *
+     * @param args command line arguments (not used)
      */
     public static void main(final String[] args) {
+        LOGGER.info("Starting UniversityEscape game...");
+
+        // Initialize audio system
+        initializeAudio();
+
         // Execute UI code in the Event Dispatch Thread
         SwingUtilities.invokeLater(() -> {
             final KeyHandler keyHandler = new KeyHandler();
@@ -61,33 +76,10 @@ public final class Main {
 
             // Add window listeners
             window.addWindowListener(new WindowAdapter() {
-                /**
-                 * Handle window iconification events.
-                 * @param e window event
-                 */
                 @Override
-                public void windowIconified(final WindowEvent e) {
-                    // When minimized, restore to fullscreen
-                }
-
-                /**
-                 * Handle window deiconification events.
-                 * @param e window event
-                 */
-                @Override
-                public void windowDeiconified(final WindowEvent e) {
-                    // Restore to fullscreen when restored
-
-                }
-
-                /**
-                 * Handle window state changes.
-                 * @param e window event
-                 */
-                @Override
-                public void windowStateChanged(final WindowEvent e) {
-                    // Ensure window stays maximized unless explicitly minimized
-
+                public void windowClosing(final WindowEvent e) {
+                    LOGGER.info("Game window closing, cleaning up audio...");
+                    AudioManager.cleanup();
                 }
             });
 
@@ -122,7 +114,21 @@ public final class Main {
 
             // Ensure we start in fullscreen
             window.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            LOGGER.info("Game window displayed successfully");
         });
+    }
+
+    /**
+     * Initializes the audio system with background music.
+     */
+    private static void initializeAudio() {
+        // Try to start background music (will fail gracefully if no music file is found)
+        final boolean musicStarted = AudioManager.playBackgroundMusic("audio/backgroundmusic.wav");
+        if (musicStarted) {
+            LOGGER.info("Background music started successfully");
+        } else {
+            LOGGER.info("No background music file found, continuing without music");
+        }
     }
 
     /**

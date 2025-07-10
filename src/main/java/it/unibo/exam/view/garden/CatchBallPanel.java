@@ -3,8 +3,8 @@ package it.unibo.exam.view.garden;
 import it.unibo.exam.model.entity.minigame.garden.BallEntity;
 import it.unibo.exam.model.entity.minigame.garden.BottleEntity;
 import it.unibo.exam.model.entity.minigame.garden.CatchBallModel;
+import it.unibo.exam.utility.AssetLoader;
 
-import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -12,9 +12,6 @@ import java.awt.Image;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.io.IOException;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 
 /**
  * Panel for rendering the CatchBall minigame.
@@ -22,7 +19,6 @@ import java.util.logging.Level;
 public final class CatchBallPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = Logger.getLogger(CatchBallPanel.class.getName());
 
     private static final int SCORE_FONT_SIZE = 14;
     private static final int SCORE_PADDING = 10;
@@ -30,7 +26,7 @@ public final class CatchBallPanel extends JPanel {
     private static final int LIVES_Y = 20;
 
     private final transient CatchBallModel model;
-    private transient Image backgroundImage;
+    private final transient Image backgroundImage;
 
     /**
      * Constructs the CatchBallPanel using the given game model.
@@ -39,15 +35,7 @@ public final class CatchBallPanel extends JPanel {
      */
     public CatchBallPanel(final CatchBallModel model) {
         this.model = model;
-
-        try {
-            final var resource = getClass().getClassLoader().getResource("Garden/fountain.png");
-            if (resource != null) {
-                backgroundImage = ImageIO.read(resource);
-            }
-        } catch (final IOException e) {
-            LOGGER.log(Level.SEVERE, "Failed to load background image", e);
-        }
+        this.backgroundImage = AssetLoader.loadImage("Garden/fountain.png");
     }
 
     /**

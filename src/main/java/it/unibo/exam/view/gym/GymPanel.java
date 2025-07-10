@@ -4,6 +4,7 @@ import it.unibo.exam.model.entity.minigame.gym.GymModel;
 import it.unibo.exam.model.entity.minigame.gym.Cannon;
 import it.unibo.exam.model.entity.minigame.gym.Disk;
 import it.unibo.exam.model.entity.minigame.gym.Projectile;
+import it.unibo.exam.utility.AssetLoader;
 import it.unibo.exam.utility.geometry.Point2D;
 import it.unibo.exam.controller.input.KeyHandler;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -13,6 +14,7 @@ import javax.swing.Timer;
 import javax.swing.SwingUtilities;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Dimension;
 import java.util.List;
 
@@ -33,6 +35,7 @@ public class GymPanel extends JPanel {
 
     private final GymModel model;
     private final KeyHandler keyHandler;
+    private final Image backgroundImage;
 
     /**
      * Constructs a new GymPanel associated with the model.
@@ -42,7 +45,7 @@ public class GymPanel extends JPanel {
         this.model = model;
         this.keyHandler = new KeyHandler();
         setFocusable(true);
-        setBackground(Color.WHITE);
+        this.backgroundImage = AssetLoader.loadImage("gym/background/gback.png");
 
         final Timer timer = new Timer(REFRESH_RATE, e -> {
             // Handle key input for cannon
@@ -73,6 +76,10 @@ public class GymPanel extends JPanel {
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
 
+         // --- DRAW THE BACKGROUND FIRST ---
+         if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
         // Draw disks
         final List<Disk> disks = model.getDisks();
         for (final Disk disk : disks) {

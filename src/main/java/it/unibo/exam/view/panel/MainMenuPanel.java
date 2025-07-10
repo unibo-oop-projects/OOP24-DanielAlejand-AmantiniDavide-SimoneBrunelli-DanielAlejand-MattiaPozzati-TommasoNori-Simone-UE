@@ -2,6 +2,7 @@ package it.unibo.exam.view.panel;
 
 import it.unibo.exam.utility.geometry.Point2D;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -9,15 +10,16 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.plaf.basic.BasicButtonUI;
+import javax.swing.JLabel;
+import javax.swing.JSlider;
+
+import it.unibo.exam.utility.AssetLoader;
+import it.unibo.exam.utility.AudioManager;
 
 /**
  * Main menu panel for the game, displays play, options and exit buttons.
@@ -27,8 +29,6 @@ import javax.swing.plaf.basic.BasicButtonUI;
 public final class MainMenuPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER =
-        Logger.getLogger(MainMenuPanel.class.getName());
 
     // Button size constants
     private static final int WIDTHBUTTON    = 800;
@@ -68,17 +68,7 @@ public final class MainMenuPanel extends JPanel {
         setPreferredSize(window.getSize());
 
         // --- LOAD BACKGROUND IMAGE ---
-        final var resource = getClass().getClassLoader()
-                                       .getResource("MainMenu/MainMenuBackGround.png");
-        if (resource == null) {
-            LOGGER.warning("Background image not found: MainMenu/MainMenuBackGround.png");
-        } else {
-            try {
-                backgroundImage = ImageIO.read(resource);
-            } catch (final IOException e) {
-                LOGGER.log(Level.WARNING, "Error loading background image", e);
-            }
-        }
+        backgroundImage = AssetLoader.loadImage("MainMenu/MainMenuBackGround.png");
 
         // Prepare buttons
         final JButton playButton    = createStyledButton("Gioca");
@@ -108,9 +98,7 @@ public final class MainMenuPanel extends JPanel {
         add(exitButton, gbc);
 
         playButton.addActionListener(e -> startGame(window));
-        optionsButton.addActionListener(e ->
-            JOptionPane.showMessageDialog(window, "Options not implemented yet.")
-        );
+        optionsButton.addActionListener(e -> showOptionsDialog(window));
         exitButton.addActionListener(e -> {
             final int confirmed = JOptionPane.showConfirmDialog(
                 window,
@@ -176,6 +164,46 @@ public final class MainMenuPanel extends JPanel {
         }
     }
 
+    /**
+     * Shows the options dialog with audio settings.
+     *
+     * @param window the parent window
+     */
+    private void showOptionsDialog(final JFrame window) {
+        final JPanel optionsPanel = new JPanel();
+        optionsPanel.setLayout(new GridBagLayout());
+        final GridBagConstraints gbc = new GridBagConstraints();
+
+        // Music volume control
+        final JLabel musicLabel = new JLabel("Volume Musica:");
+        final JSlider musicSlider = new JSlider(0, 100, (int) (AudioManager.getMusicVolume() * 100));
+        musicSlider.addChangeListener(e -> {
+            final float volume = musicSlider.getValue() / 100.0f;
+            AudioManager.setMusicVolume(volume);
+        });
+
+        // Mute checkbox
+        final JButton muteButton = new JButton(AudioManager.isMuted() ? "🔇 Unmute" : "🔇 Mute");
+        muteButton.addActionListener(e -> {
+            final boolean newMutedState = !AudioManager.isMuted();
+            AudioManager.setMuted(newMutedState);
+            muteButton.setText(newMutedState ? "🔊 Unmute" : "🔇 Mute");
+        });
+
+        // Layout
+        gbc.gridx = 0; 
+        gbc.gridy = 0; 
+        gbc.insets = new Insets(BUTTONSPACING, BUTTONSPACING, BUTTONSPACING, BUTTONSPACING);
+        optionsPanel.add(musicLabel, gbc);
+        gbc.gridx = 1;
+        optionsPanel.add(musicSlider, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 2;
+        optionsPanel.add(muteButton, gbc);
+
+        JOptionPane.showMessageDialog(window, optionsPanel, "Opzioni Audio", JOptionPane.INFORMATION_MESSAGE);
+    }
+
     @Override
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
@@ -191,7 +219,7 @@ public final class MainMenuPanel extends JPanel {
         button.setBorderPainted(false);
         button.setContentAreaFilled(false);
         button.setOpaque(false);
-        button.setForeground(new java.awt.Color(
+        button.setForeground(new Color(
             BUTTON_TEXT_RED, BUTTON_TEXT_GREEN,
             BUTTON_TEXT_BLUE, BUTTON_TEXT_ALPHA
         ));
@@ -199,9 +227,9 @@ public final class MainMenuPanel extends JPanel {
         button.setPreferredSize(new Dimension(WIDTHBUTTON, HEIGHTBUTTON));
         button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        final java.awt.Color baseColor  = new java.awt.Color(60, 120, 200, 150);
-        final java.awt.Color hoverColor = new java.awt.Color(80, 140, 220, 180);
-        final java.awt.Color clickColor = new java.awt.Color(30, 90, 180, 200);
+        final Color baseColor  = new Color(60, 120, 200, 150);
+        final Color hoverColor = new Color(80, 140, 220, 180);
+        final Color clickColor = new Color(30, 90, 180, 200);
 
         button.setUI(new BasicButtonUI() {
             @Override

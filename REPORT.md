@@ -155,7 +155,7 @@ Raggiungere l’uscita dell’università risolvendo tutti i minigiochi.
 
 ## Bibliografia
 
-- [Fesliyan Studios - Musiche di gioco](https://www.fesliyanstudios.com/)
+- [Fesliyan Studios - Musiche di gioco]()
 - [Sprite e risorse grafiche](https://www.spriters-resource.com/)
 - [Ispirazione e tutorial](https://www.youtube.com/@RyiSnow)
 
