@@ -14,6 +14,7 @@ public final class KeyHandler implements KeyListener {
     private boolean rightPressed;
     private boolean interactPressed;
     private boolean interactJustPressed; // For single-press actions
+    private boolean spaceBarPressed;
 
     /**
      * @return true if up key is pressed
@@ -48,6 +49,17 @@ public final class KeyHandler implements KeyListener {
      */
     public boolean isInteractPressed() {
         return interactPressed;
+    }
+
+    /**
+     * @return true if interact key is pressed
+     */
+    public boolean isSpaceBarPressed() {
+        if (interactJustPressed) {
+            interactJustPressed = false; // Reset after reading
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -87,11 +99,11 @@ public final class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_D) {
             rightPressed = true;
         }
-        if (code == KeyEvent.VK_E) {
-            if (!interactPressed) { // Only set just pressed if it wasn't already pressed
-                interactJustPressed = true;
-            }
-            interactPressed = true;
+        if (code == KeyEvent.VK_E && !interactPressed) { // Only set just pressed if it wasn't already pressed
+            interactJustPressed = true;
+        }
+        if (code == KeyEvent.VK_SPACE && !spaceBarPressed) {
+            spaceBarPressed = true;
         }
     }
 
@@ -119,6 +131,14 @@ public final class KeyHandler implements KeyListener {
 
         if (code == KeyEvent.VK_E) {
             interactPressed = false;
+        }
+
+        if (code == KeyEvent.VK_E) {
+            interactPressed = false;
+        }
+
+        if (code == KeyEvent.VK_SPACE) {
+            spaceBarPressed = false;
         }
     }
 }

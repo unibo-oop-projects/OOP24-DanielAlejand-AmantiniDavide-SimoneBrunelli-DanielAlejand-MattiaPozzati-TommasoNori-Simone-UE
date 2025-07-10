@@ -37,7 +37,6 @@ public class MainController {
     private MinigameManager minigameManager;
     private boolean               running;
     private Point2D               environmentSize;
-
     private boolean minigameActive;
     private int currentMinigameRoomId = -1;
 
@@ -370,7 +369,7 @@ public class MainController {
      *
      * @param success   true if the minigame was completed successfully
      * @param timeTaken the time taken (in seconds) to complete the minigame
-     * @param score     the score awarded for completing the minigame
+     * @param score     the score achieved in the minigame
      */
     public void endMinigame(final boolean success, final int timeTaken, final int score) {
         if (minigameActive && currentMinigameRoomId >= 0 && success) {
@@ -388,5 +387,4 @@ public class MainController {
         minigameActive        = false;
         currentMinigameRoomId = -1;
     }
-
 }
