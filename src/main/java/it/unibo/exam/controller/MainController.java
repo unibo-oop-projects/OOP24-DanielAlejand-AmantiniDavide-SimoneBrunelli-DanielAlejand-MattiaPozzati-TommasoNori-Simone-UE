@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import it.unibo.exam.controller.input.KeyHandler;
@@ -31,6 +32,7 @@ public class MainController {
 
     private static final int FPS = 60;
     private static final double SECOND = 1_000_000_000.0;
+    private static final int TOTALPUZZLEROOMS = 0; // Rooms 1–5
 
     private final KeyHandler      keyHandler;
     private final GameState       gameState;
@@ -184,27 +186,15 @@ public class MainController {
 
         movePlayer(player);
         checkInteraction(player, room);
-        checkWin();
     }
 
     /**
      * Check win condition.
      */
     private void checkWin() {
-        // Check if all puzzle rooms have been completed
-        final int totalPuzzleRooms = 5; // Rooms 1-5 are puzzle rooms
-        if (gameState.getPlayer().allRoomsCompleted(totalPuzzleRooms)) {
-            LOGGER.info("Player has completed all rooms! Game won!");
-            // You can implement a win screen or callback here
+        if (gameState.getPlayer().allRoomsCompleted(TOTALPUZZLEROOMS)) {
             running = false;
-
-            SwingUtilities.invokeLater(() -> {
-                if (parentFrame != null) {
-                    showEndGameMenu();
-                } else {
-                    LOGGER.warning("Cannot show EndGameMenu: parent frame is null");
-                }
-            });
+            SwingUtilities.invokeLater(this::showEndGameMenu);
         }
     }
 
@@ -252,43 +242,58 @@ public class MainController {
      * @param room Current Room
      */
     private void checkInteraction(final Player player, final Room room) {
-        if (keyHandler.isInteractJustPressed()) {
-            // Check door interactions
-            room.getDoors().forEach(door -> {
-                if (isNearDoor(player, door)) {
-                    gameState.changeRoom(door.getToId());
-                    positionPlayerAfterRoomChange(door);
-                    LOGGER.info("Moved from room " + door.getFromId() + " to room " + door.getToId());
+        if (!keyHandler.isInteractJustPressed()) {
+            return;
+        }
+        // 1 Handle door interactions
+        room.getDoors().forEach(door -> {
+            if (!isNearDoor(player, door)) {
+                return;
+            }
+            if (room.getId() == 0 && door.isEndgameDoor()) {
+                // Delegate the win logic to checkWin()
+                checkWin();
+                // If still running, player hasn't met the condition
+                if (running) {
+                    JOptionPane.showMessageDialog(
+                        null,
+                        "Complete all minigames first!",
+                        "Locked",
+                        JOptionPane.WARNING_MESSAGE
+                    );
                 }
-            });
+            } else {
+                // Normal transition
+                gameState.changeRoom(door.getToId());
+                positionPlayerAfterRoomChange(door);
+                LOGGER.info("Moved from room "
+                    + door.getFromId() + " to room " + door.getToId());
+            }
+        });
 
-            // Check NPC interactions (only in puzzle rooms)
-            if (room.getRoomType() == RoomGenerator.PUZZLE_ROOM && room.getNpc() != null
-                && isNearNpc(player, room.getNpc())) {
+        // 2) Handle NPC interactions (unchanged)
+        if (room.getRoomType() == RoomGenerator.PUZZLE_ROOM
+            && room.getNpc() != null
+            && isNearNpc(player, room.getNpc())) {
 
-                // Check if this room has already been completed
-                if (gameState.getPlayer().getRoomScore(room.getId()) != null) {
-                    LOGGER.info("Room " + room.getId() + " already completed!");
-                    return;
-                }
+            if (gameState.getPlayer().getRoomScore(room.getId()) != null) {
+                LOGGER.info("Room " + room.getId() + " already completed!");
+                return;
+            }
 
-                room.getNpc().interact();
-                final int roomId = gameState.getCurrentRoom().getId();
+            room.getNpc().interact();
+            final int roomId = gameState.getCurrentRoom().getId();
+            JOptionPane.showMessageDialog(
+                null,
+                room.getNpc().getDialogue(),
+                room.getNpc().getName(),
+                JOptionPane.INFORMATION_MESSAGE
+            );
 
-                // Mostra dialogo dell'NPC prima di avviare il minigioco
-                javax.swing.JOptionPane.showMessageDialog(
-                    null, 
-                    room.getNpc().getDialogue(), 
-                    room.getNpc().getName(), 
-                    javax.swing.JOptionPane.INFORMATION_MESSAGE
-                );
-
-                // Start the appropriate minigame for this room
-                if (minigameManager != null) {
-                    minigameManager.startMinigame(roomId);
-                } else {
-                    LOGGER.warning("MinigameManager not initialized - cannot start minigame");
-                }
+            if (minigameManager != null) {
+                minigameManager.startMinigame(roomId);
+            } else {
+                LOGGER.warning("MinigameManager not initialized - cannot start minigame");
             }
         }
     }

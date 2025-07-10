@@ -2,7 +2,7 @@ package it.unibo.exam.controller.minigame;
 
 import it.unibo.exam.model.entity.minigame.Minigame;
 import it.unibo.exam.model.entity.minigame.MinigameCallback;
-import it.unibo.exam.utility.factory.MinigameFactory;
+import it.unibo.exam.utility.generator.MinigameFactory;
 import it.unibo.exam.controller.MainController;
 
 import javax.swing.JFrame;

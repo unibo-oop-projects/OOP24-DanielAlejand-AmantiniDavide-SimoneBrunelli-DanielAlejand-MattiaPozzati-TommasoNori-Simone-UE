@@ -1,4 +1,4 @@
-package it.unibo.exam.utility.factory;
+package it.unibo.exam.utility.generator;
 
 
 import it.unibo.exam.controller.minigame.lab.MazeMinigame;
