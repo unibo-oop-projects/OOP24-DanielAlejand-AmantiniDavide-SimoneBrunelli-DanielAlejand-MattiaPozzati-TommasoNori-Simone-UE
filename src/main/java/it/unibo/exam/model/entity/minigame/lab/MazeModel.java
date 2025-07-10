@@ -1,7 +1,5 @@
 package it.unibo.exam.model.entity.minigame.lab;
 
-import it.unibo.exam.utility.generator.MazeGenerator;
-
 /**
  * The MazeModel class represents the state of the maze game.
  * It stores the maze grid, player position, and completion status.

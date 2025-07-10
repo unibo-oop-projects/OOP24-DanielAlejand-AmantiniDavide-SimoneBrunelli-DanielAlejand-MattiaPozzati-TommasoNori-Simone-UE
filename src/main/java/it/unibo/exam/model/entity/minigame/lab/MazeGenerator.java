@@ -1,4 +1,4 @@
-package it.unibo.exam.utility.generator;
+package it.unibo.exam.model.entity.minigame.lab;
 
 import java.util.ArrayList;
 import java.util.Collections;

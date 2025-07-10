@@ -1,5 +1,6 @@
 package it.unibo.exam.controller.minigame.lab;
 
+import it.unibo.exam.model.entity.minigame.lab.MazeGenerator;
 import it.unibo.exam.model.entity.minigame.lab.MazeModel;
 import it.unibo.exam.view.lab.MazePanel;
 import it.unibo.exam.model.entity.minigame.Minigame;
@@ -7,7 +8,6 @@ import it.unibo.exam.model.entity.minigame.MinigameCallback;
 import it.unibo.exam.model.scoring.CapDecorator;
 import it.unibo.exam.model.scoring.ScoringStrategy;
 import it.unibo.exam.model.scoring.TimeBonusDecorator;
-import it.unibo.exam.utility.generator.MazeGenerator;
 import it.unibo.exam.model.scoring.TieredScoringStrategy;
 
 import javax.swing.JFrame;

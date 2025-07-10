@@ -1,7 +1,7 @@
 package it.unibo.exam.view.lab;
 
 import it.unibo.exam.controller.minigame.lab.MazeMinigame;
-import it.unibo.exam.utility.generator.MazeGenerator;
+import it.unibo.exam.model.entity.minigame.lab.MazeGenerator;
 
 import javax.swing.JPanel;
 import javax.swing.JLabel;
