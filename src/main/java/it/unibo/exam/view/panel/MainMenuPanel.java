@@ -1,7 +1,8 @@
 package it.unibo.exam.view.panel;
 
 import it.unibo.exam.utility.geometry.Point2D;
-
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -10,8 +11,6 @@ import java.awt.Insets;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -27,8 +26,8 @@ import javax.swing.plaf.basic.BasicButtonUI;
 public final class MainMenuPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER =
-        Logger.getLogger(MainMenuPanel.class.getName());
+
+    private static final Logger LOGGER = Logger.getLogger(MainMenuPanel.class.getName());
 
     // Button size constants
     private static final int WIDTHBUTTON    = 800;
@@ -68,20 +67,29 @@ public final class MainMenuPanel extends JPanel {
         setPreferredSize(window.getSize());
 
         // --- LOAD BACKGROUND IMAGE ---
-        final var resource = getClass().getClassLoader()
-                                       .getResource("MainMenu/MainMenuBackGround.png");
-        if (resource == null) {
-            LOGGER.warning("Background image not found: MainMenu/MainMenuBackGround.png");
-        } else {
-            try {
-                backgroundImage = ImageIO.read(resource);
-            } catch (final IOException e) {
-                LOGGER.log(Level.WARNING, "Error loading background image", e);
+        try {
+            final var resource = getClass().getClassLoader().getResource("MainMenu/MainMenuBackGround.png");
+            if (resource == null) {
+                LOGGER.warning("Background image not found: MainMenu/MainMenuBackGround.png");
+                backgroundImage = null;
+                return;
             }
+            backgroundImage = ImageIO.read(resource);
+        } catch (final IOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load background image: MainMenu/MainMenuBackGround.png", e);
+            backgroundImage = null;
         }
 
-        // Prepare buttons
-        final JButton playButton    = createStyledButton("Gioca");
+        // Creates the panel where the buttons will stay
+        final GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(BUTTONSPACING, 0, BUTTONSPACING, 0); // Space between buttons
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.CENTER; // Move the buttons in the centre
+
+        // Buttons creation
+        final JButton playButton = createStyledButton("Gioca");
         final JButton optionsButton = createStyledButton("Opzioni");
         final JButton exitButton    = createStyledButton("Esci");
 
@@ -95,7 +103,6 @@ public final class MainMenuPanel extends JPanel {
         optionsButton.setFont(buttonFont);
         exitButton.setFont(buttonFont);
 
-        final GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx  = 0;
         gbc.insets = new Insets(BUTTONSPACING, 0, BUTTONSPACING, 0);
         gbc.anchor = GridBagConstraints.CENTER;

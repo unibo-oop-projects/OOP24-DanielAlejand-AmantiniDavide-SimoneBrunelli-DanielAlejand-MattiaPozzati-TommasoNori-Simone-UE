@@ -47,6 +47,8 @@ public class MainController {
      * @param environmentSize size of the Game panel
      * @param parentFrame    parent frame for minigame windows
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", 
+                   justification = "JFrame reference is needed for proper GUI functionality")
     public MainController(final Point2D environmentSize, final JFrame parentFrame) {
         // Core setup
         this.keyHandler      = new KeyHandler();
@@ -82,6 +84,8 @@ public class MainController {
      *
      * @param parentFrame the JFrame to use as parent for all minigame windows
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", 
+                   justification = "JFrame reference is needed for proper GUI functionality")
     public void setParentFrame(final JFrame parentFrame) {
         if (parentFrame != null && this.minigameManager == null) {
             this.minigameManager = new MinigameManager(this, parentFrame);

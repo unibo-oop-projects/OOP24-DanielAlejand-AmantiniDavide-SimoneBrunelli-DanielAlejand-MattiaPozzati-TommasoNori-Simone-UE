@@ -7,7 +7,7 @@ import java.util.Objects;
  * Represents a single entry in the leaderboard.
  * Contains player information and achievement data.
  */
-public final class LeaderboardEntry1 {
+public final class LeaderboardEntry {
 
     private final String playerName;
     private final int score;
@@ -22,7 +22,7 @@ public final class LeaderboardEntry1 {
      * @param totalTime the total time taken in seconds
      * @param date the date and time when the score was achieved
      */
-    public LeaderboardEntry1(final String playerName, final int score, 
+    public LeaderboardEntry(final String playerName, final int score, 
                            final int totalTime, final LocalDateTime date) {
         this.playerName = playerName;
         this.score = score;
@@ -36,7 +36,7 @@ public final class LeaderboardEntry1 {
      * @return the player name
      */
     public String getPlayerName() {
-        return playerName;
+        return this.playerName;
     }
 
     /**
@@ -45,7 +45,7 @@ public final class LeaderboardEntry1 {
      * @return the score
      */
     public int getScore() {
-        return score;
+        return this.score;
     }
 
     /**
@@ -54,7 +54,7 @@ public final class LeaderboardEntry1 {
      * @return the time in seconds
      */
     public int getTotalTime() {
-        return totalTime;
+        return this.totalTime;
     }
 
     /**
@@ -63,7 +63,7 @@ public final class LeaderboardEntry1 {
      * @return the date and time
      */
     public LocalDateTime getDate() {
-        return date;
+        return this.date;
     }
 
     @Override
@@ -80,7 +80,7 @@ public final class LeaderboardEntry1 {
             return false;
         }
 
-        final LeaderboardEntry1 other = (LeaderboardEntry1) obj;
+        final LeaderboardEntry other = (LeaderboardEntry) obj;
         return score == other.score 
             && totalTime == other.totalTime 
             && Objects.equals(playerName, other.playerName) 
