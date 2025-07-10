@@ -24,8 +24,8 @@ public final class MazeMinigame implements Minigame {
 
     // Scoring parameters
     private static final int BONUS_TIME_THRESHOLD_SECONDS = 30;
-    private static final int BONUS_POINTS = 10;
-    private static final int MAX_POINTS_CAP = 100;
+    private static final int BONUS_POINTS = 20;
+    private static final int MAX_POINTS_CAP = 120;
     private static final int ROOM_ID = 3;  // Example room ID for scoring
     private static final int WINDOW_WIDTH = 800;  // Window width constant
     private static final int WINDOW_HEIGHT = 600; // Window height constant
@@ -116,9 +116,6 @@ public final class MazeMinigame implements Minigame {
      * @param dy The change in the player's y-coordinate.
      */
     public void handleKeyPress(final int dx, final int dy) {
-        if (model.isCompleted()) {
-            return;
-        }
 
         if (model.movePlayer(dx, dy)) {
             panel.updatePlayerPosition(model.getPlayerX(), model.getPlayerY());
@@ -136,7 +133,7 @@ public final class MazeMinigame implements Minigame {
                 } else {
                     // If all levels completed, notify callback
                     final int elapsedSeconds = getElapsedTimeSeconds();
-                    final int score = scoringStrategy.calculate(ROOM_ID, elapsedSeconds);
+                    final int score = scoringStrategy.calculate(elapsedSeconds, ROOM_ID);
                     callback.onComplete(true, elapsedSeconds, score);
                     JOptionPane.showMessageDialog(frame, "Congratulations! You completed all levels!");
                 }
