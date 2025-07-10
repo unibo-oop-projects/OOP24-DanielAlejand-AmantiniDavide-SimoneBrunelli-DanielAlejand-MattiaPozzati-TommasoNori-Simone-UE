@@ -17,7 +17,6 @@ class GymMinigameTest {
     private static final int BONUS_TIME_THRESHOLD = 30;
     private static final int BONUS_POINTS = 10;
     private static final int MAX_POINTS_CAP = 100;
-    private static final int COMPLETION_SCORE = 50;
 
     @Test
     void testInitializationAndCompletion() {
@@ -40,7 +39,7 @@ class GymMinigameTest {
             score.set(value);
         });
         // Simula completamento
-        minigame.onGameCompleted(COMPLETION_SCORE);
+        minigame.onGameCompleted();
         assertTrue(called.get());
         assertTrue(score.get() >= 0);
     }

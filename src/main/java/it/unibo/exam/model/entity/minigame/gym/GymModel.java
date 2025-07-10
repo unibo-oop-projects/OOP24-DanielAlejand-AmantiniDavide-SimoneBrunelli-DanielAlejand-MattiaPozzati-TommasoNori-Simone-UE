@@ -105,7 +105,7 @@ public class GymModel {
             }
         }
         if (disks.isEmpty() && minigame != null) {
-            minigame.onGameCompleted(score);
+            minigame.onGameCompleted();
         }
     }
 
@@ -192,7 +192,7 @@ public class GymModel {
         } while (foundCluster);
 
         if (score >= WIN_SCORE && minigame != null) {
-            minigame.onGameCompleted(score);
+            minigame.onGameCompleted();
         }
     }
 

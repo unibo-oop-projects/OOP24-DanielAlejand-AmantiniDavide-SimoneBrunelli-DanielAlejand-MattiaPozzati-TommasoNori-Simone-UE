@@ -138,20 +138,15 @@ public class GymMinigame implements Minigame {
      * Should be called when the minigame is completed (i.e., all disks have been removed).
      * Calculates the elapsed time and final score using the scoring strategy, displays a dialog
      * with the results, and notifies the callback if present.
-     *
-     * @param score the raw score achieved in the minigame before applying the scoring strategy
      */
-    public void onGameCompleted(final int score) {
+    public void onGameCompleted() {
         if (!gameOver) {
             gameOver = true;
             int elapsedSeconds = 0;
             if (model != null && model.getStartTimeMillis() > 0) {
                 elapsedSeconds = (int) ((System.currentTimeMillis() - model.getStartTimeMillis()) / 1000L);
             }
-            int finalScore = score;
-            if (scoringStrategy != null) {
-                finalScore = scoringStrategy.calculate(elapsedSeconds, /*roomId*/ ROOM_ID); // 3 = Gym
-            }
+                final int finalScore = scoringStrategy.calculate(elapsedSeconds, /*roomId*/ ROOM_ID); // 3 = Gym
             if (gameFrame != null) {
                 JOptionPane.showMessageDialog(gameFrame,
                     "Minigame completed!\nTime: " + elapsedSeconds + " seconds"
