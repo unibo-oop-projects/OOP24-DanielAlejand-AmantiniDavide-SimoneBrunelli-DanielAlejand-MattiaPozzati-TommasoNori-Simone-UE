@@ -46,11 +46,13 @@ public final class MinigameFactory {
      * Creates the appropriate minigame for the specified room.
      *
      * Room-Minigame mapping:
-     * - Room 2: Quiz Kahoot
+     * - Room 1: Catch the Ball (Garden)
+     * - Room 2: Kahoot Quiz (Lab)
      * - Room 3: Maze Runner
-     * - Room 4: Sort & Serve (Bar puzzle)
+     * - Room 4: Bubble Shooter (Gym)
+     * - Room 5: Sort & Serve (Bar)
      *
-     * @param roomId the ID of the room (2–4)
+     * @param roomId the ID of the room (1–5)
      * @return the corresponding minigame instance
      * @throws IllegalArgumentException if the room ID is invalid
      */
@@ -69,9 +71,7 @@ public final class MinigameFactory {
             default:
                 throw new IllegalArgumentException(
                     "Invalid room ID for minigame: " + roomId
-                    + ". Valid room IDs are " + ROOM_LAB + "–"
-                    + ROOM_BAR + "-" + ROOM_GYM + "-" + ROOM_GARDEN
-                    + "-" + ROOM_MAZE + "."
+                    + ". Valid room IDs are " + FIRST_ROOM + "–" + LAST_ROOM + "."
                 );
         }
     }
