@@ -78,7 +78,7 @@ public class MinigameManager {
      */
     private void handleMinigameComplete(final int roomId, final boolean success, final int timeSeconds, final int score) {
         LOGGER.info("Minigame completed for room " + roomId
-                   + ". Success: " + success + ", Time: " + timeSeconds + "s");
+                   + ". Success: " + success + ", Time: " + timeSeconds + "s" + ", Score: " + score);
 
         // pass the timeSeconds along:
         mainController.endMinigame(success, timeSeconds, score);
@@ -133,7 +133,7 @@ public class MinigameManager {
         final String message;
 
         if (success) {
-            message = String.format("Congratulations! You completed '%s' in %d seconds! Score: %d",
+            message = String.format("Congratulations! You completed '%s' in %d seconds! Score: %d points.",
                                     minigameName, timeSeconds, score);
         } else {
             message = String.format("Minigame '%s' not completed. Try again!", minigameName);

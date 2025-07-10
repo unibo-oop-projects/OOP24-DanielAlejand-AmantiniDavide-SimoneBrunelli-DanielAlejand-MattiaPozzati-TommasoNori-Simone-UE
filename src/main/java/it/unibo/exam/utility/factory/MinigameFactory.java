@@ -1,8 +1,12 @@
 package it.unibo.exam.utility.factory;
 
+
 import it.unibo.exam.controller.minigame.lab.MazeMinigame;
 import it.unibo.exam.model.entity.minigame.Minigame;
 import it.unibo.exam.controller.minigame.bar.BarMinigame;
+import it.unibo.exam.controller.minigame.garden.CatchBallMinigame;
+import it.unibo.exam.controller.minigame.kahoot.KahootMinigame;
+import it.unibo.exam.controller.minigame.gym.GymMinigame;
 
 /**
  * Factory class for creating different types of minigames based on room ID.
@@ -10,19 +14,26 @@ import it.unibo.exam.controller.minigame.bar.BarMinigame;
  */
 public final class MinigameFactory {
 
-
     /** Room ID for the Maze Runner minigame. */
     public static final int ROOM_MAZE = 3;
 
-    /** Room ID for the Sort & Serve Bar minigame. */
+    /** Room ID for the Garden minigame. */
+    public static final int ROOM_GARDEN = 1;
+
+    /** Room ID for the Garden minigame. */
+    public static final int ROOM_LAB = 2;
+
+    /** Room ID for the Gym minigame. */
+    public static final int ROOM_GYM = 4;
+
+    /** Room ID for the Bar minigame. */
     public static final int ROOM_BAR = 5;
 
     /** First room ID with a minigame (inclusive). */
-    public static final int FIRST_ROOM = 1;
+    public static final int FIRST_ROOM = ROOM_GARDEN;
 
     /** Last room ID with a minigame (inclusive). */
-    public static final int LAST_ROOM = 5;
-
+    public static final int LAST_ROOM = ROOM_BAR;
 
     /**
      * Private constructor to prevent instantiation of utility class.
@@ -47,12 +58,18 @@ public final class MinigameFactory {
         switch (roomId) {
             case ROOM_MAZE:
                 return new MazeMinigame();
+            case ROOM_GARDEN:
+                return new CatchBallMinigame();
+            case ROOM_LAB:
+                return new KahootMinigame();
+            case ROOM_GYM:
+                return new GymMinigame();
             case ROOM_BAR:
                 return new BarMinigame();
             default:
                 throw new IllegalArgumentException(
                     "Invalid room ID for minigame: " + roomId
-                  + ". Valid room IDs are " + ROOM_MAZE + "–" + ROOM_BAR + "."
+                  + ". Valid room IDs are " + ROOM_LAB + "–" + ROOM_BAR + "-" + ROOM_GYM + "-" + ROOM_GARDEN + "-" + ROOM_MAZE +"."
                 );
         }
     }
@@ -68,6 +85,12 @@ public final class MinigameFactory {
         switch (roomId) {
             case ROOM_MAZE:
                 return "Maze Runner";
+            case ROOM_GARDEN:
+                return "Catch the Ball";
+            case ROOM_LAB:
+                return "Kahoot";
+            case ROOM_GYM:
+                return "Bubble shooter";
             case ROOM_BAR:
                 return "Sort & Serve";
             default:
@@ -85,7 +108,13 @@ public final class MinigameFactory {
     public static String getMinigameDescription(final int roomId) {
         switch (roomId) {
             case ROOM_MAZE:
-                return "Go fast, go furious, or you'll lose";
+                return "Run fast, run furious! Use WASD and go to the red square";
+            case ROOM_GARDEN:
+                return "Catch the balls as they fall from the sky.";
+            case ROOM_LAB:
+                return "Answer quiz questions correctly";
+            case ROOM_GYM:
+                return "Hit all disks with the cannon to win! Use mouse and keyboard.";
             case ROOM_BAR:
                 return "Pour colored layers until each glass is uniform.";
             default:

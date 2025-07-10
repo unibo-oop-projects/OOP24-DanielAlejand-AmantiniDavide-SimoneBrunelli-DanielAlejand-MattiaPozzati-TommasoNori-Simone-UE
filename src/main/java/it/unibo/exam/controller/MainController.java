@@ -37,7 +37,6 @@ public class MainController {
     private MinigameManager minigameManager;
     private boolean               running;
     private Point2D               environmentSize;
-
     private boolean minigameActive;
     private int currentMinigameRoomId = -1;
 
@@ -47,8 +46,6 @@ public class MainController {
      * @param environmentSize size of the Game panel
      * @param parentFrame    parent frame for minigame windows
      */
-    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", 
-                   justification = "JFrame reference is needed for proper GUI functionality")
     public MainController(final Point2D environmentSize, final JFrame parentFrame) {
         // Core setup
         this.keyHandler      = new KeyHandler();
@@ -84,8 +81,6 @@ public class MainController {
      *
      * @param parentFrame the JFrame to use as parent for all minigame windows
      */
-    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", 
-                   justification = "JFrame reference is needed for proper GUI functionality")
     public void setParentFrame(final JFrame parentFrame) {
         if (parentFrame != null && this.minigameManager == null) {
             this.minigameManager = new MinigameManager(this, parentFrame);
@@ -374,7 +369,7 @@ public class MainController {
      *
      * @param success   true if the minigame was completed successfully
      * @param timeTaken the time taken (in seconds) to complete the minigame
-     * @param score score achieved in the minigame
+     * @param score     the score achieved in the minigame
      */
     public void endMinigame(final boolean success, final int timeTaken, final int score) {
         if (minigameActive && currentMinigameRoomId >= 0 && success) {
@@ -392,5 +387,4 @@ public class MainController {
         minigameActive        = false;
         currentMinigameRoomId = -1;
     }
-
 }
