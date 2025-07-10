@@ -2,6 +2,7 @@ package it.unibo.exam.utility.factory;
 
 import it.unibo.exam.model.entity.minigame.Minigame;
 import it.unibo.exam.controller.minigame.bar.BarMinigame;
+import it.unibo.exam.controller.minigame.garden.CatchBallMinigame;
 import it.unibo.exam.controller.minigame.kahoot.KahootMinigame;
 import it.unibo.exam.controller.minigame.gym.GymMinigame;
 
@@ -12,16 +13,19 @@ import it.unibo.exam.controller.minigame.gym.GymMinigame;
 public final class MinigameFactory {
 
     /** Room ID for the Garden minigame. */
+    public static final int ROOM_GARDEN = 1;
+
+    /** Room ID for the Garden minigame. */
     public static final int ROOM_LAB = 2;
 
     /** Room ID for the Gym minigame. */
     public static final int ROOM_GYM = 4;
 
-    /** Room ID for the Sort & Serve Bar minigame. */
+    /** Room ID for the Bar minigame. */
     public static final int ROOM_BAR = 5;
 
     /** First room ID with a minigame (inclusive). */
-    public static final int FIRST_ROOM = 1;
+    public static final int FIRST_ROOM = ROOM_GARDEN;
 
     /** Last room ID with a minigame (inclusive). */
     public static final int LAST_ROOM = ROOM_BAR;
@@ -48,6 +52,8 @@ public final class MinigameFactory {
      */
     public static Minigame createMinigame(final int roomId) {
         switch (roomId) {
+            case ROOM_GARDEN:
+                return new CatchBallMinigame();
             case ROOM_LAB:
                 return new KahootMinigame();
             case ROOM_GYM:
@@ -57,7 +63,7 @@ public final class MinigameFactory {
             default:
                 throw new IllegalArgumentException(
                     "Invalid room ID for minigame: " + roomId
-                  + ". Valid room IDs are " + ROOM_LAB + "–" + ROOM_BAR + "-" + ROOM_GYM + "."
+                  + ". Valid room IDs are " + ROOM_LAB + "–" + ROOM_BAR + "-" + ROOM_GYM + "-" + ROOM_GARDEN +"."
                 );
         }
     }
@@ -71,6 +77,7 @@ public final class MinigameFactory {
      */
     public static String getMinigameName(final int roomId) {
         switch (roomId) {
+            case ROOM_GARDEN:
             case ROOM_LAB:
                 return "Kahoot";
             case ROOM_GYM:
@@ -91,6 +98,8 @@ public final class MinigameFactory {
      */
     public static String getMinigameDescription(final int roomId) {
         switch (roomId) {
+            case ROOM_GARDEN:
+                return "Catch the balls as they fall from the sky.";
             case ROOM_LAB:
                 return "Answer quiz questions correctly";
             case ROOM_GYM:
