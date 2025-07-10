@@ -11,6 +11,8 @@ import java.awt.Insets;
 import java.awt.Graphics;
 import java.awt.Image;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -146,21 +148,16 @@ public final class MainMenuPanel extends JPanel {
     }
 
     private void returnToMenu(final JFrame window) {
-        final int confirmed = JOptionPane.showConfirmDialog(
-            window,
-            "Return to main menu?",
-            "Confirm",
-            JOptionPane.YES_NO_OPTION
-        );
-        if (confirmed == JOptionPane.YES_OPTION) {
+        boolean goToMenu = showPauseDialogWithSound(window);
+        if (goToMenu) {
             if (gamePanel != null) {
                 gamePanel.stopGame();
                 gamePanel = null;
             }
-            window.getContentPane().removeAll();
-            window.add(this);
-            window.revalidate();
-            window.repaint();
+        window.getContentPane().removeAll();
+        window.add(this);
+        window.revalidate();
+        window.repaint();
         }
     }
 
@@ -212,6 +209,52 @@ public final class MainMenuPanel extends JPanel {
                         0, 0, getWidth(), getHeight(), this);
         }
     }
+
+    private boolean showPauseDialogWithSound(final JFrame window) {
+        final JDialog dialog = new JDialog(window, "Menu di Pausa", true);
+        dialog.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.anchor = GridBagConstraints.WEST;
+        
+        // Leggi la preferenza all'apertura
+        JCheckBox soundCheck = new JCheckBox(AudioManager.isMuted() ? "🔇 Unmute" : "🔇 Mute");
+
+        JButton mainMenuButton = new JButton("Torna al menu");
+        JButton cancelButton = new JButton("Riprendi");
+
+        final boolean[] result = {false}; // Per sapere se ha scelto "torna al menu"
+
+        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
+        dialog.add(soundCheck, gbc);
+
+        gbc.gridwidth = 1; gbc.gridy = 1; gbc.gridx = 0;
+        dialog.add(mainMenuButton, gbc);
+        gbc.gridx = 1;
+        dialog.add(cancelButton, gbc);
+
+        
+
+        soundCheck.addActionListener(e -> {
+            final boolean newMutedState = !AudioManager.isMuted();
+            AudioManager.setMuted(newMutedState);
+            soundCheck.setText(newMutedState ? "🔊 Unmute" : "🔇 Mute");
+        });    
+
+        mainMenuButton.addActionListener(e -> {
+            result[0] = true; // utente vuole tornare al menu
+            dialog.dispose();
+        });
+        cancelButton.addActionListener(e -> {
+            dialog.dispose();
+        });
+
+        dialog.setSize(300, 160);
+        dialog.setLocationRelativeTo(window);
+        dialog.setVisible(true);
+        return result[0];
+    }
+
 
     private JButton createStyledButton(final String text) {
         final JButton button = new JButton(text);

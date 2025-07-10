@@ -13,7 +13,7 @@ public final class CatchBallModel {
 
     private static final int WIDTH = 600;
     private static final int HEIGHT = 400;
-    private static final int TARGET_SCORE = 5;
+    private static final int TARGET_SCORE = 10;
     private static final int BALL_INTERVAL = 60; // frames
     private static final int BOTTLE_WIDTH = 60;
     private static final int BOTTLE_HEIGHT = 100;
