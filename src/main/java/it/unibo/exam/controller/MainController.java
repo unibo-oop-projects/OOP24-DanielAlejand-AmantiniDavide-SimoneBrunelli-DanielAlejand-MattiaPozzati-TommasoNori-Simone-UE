@@ -276,7 +276,12 @@ public class MainController {
                 final int roomId = gameState.getCurrentRoom().getId();
 
                 // Mostra dialogo dell'NPC prima di avviare il minigioco
-                javax.swing.JOptionPane.showMessageDialog(null, room.getNpc().getDialogue(), room.getNpc().getName(), javax.swing.JOptionPane.INFORMATION_MESSAGE);
+                javax.swing.JOptionPane.showMessageDialog(
+                    null, 
+                    room.getNpc().getDialogue(), 
+                    room.getNpc().getName(), 
+                    javax.swing.JOptionPane.INFORMATION_MESSAGE
+                );
 
                 // Start the appropriate minigame for this room
                 if (minigameManager != null) {

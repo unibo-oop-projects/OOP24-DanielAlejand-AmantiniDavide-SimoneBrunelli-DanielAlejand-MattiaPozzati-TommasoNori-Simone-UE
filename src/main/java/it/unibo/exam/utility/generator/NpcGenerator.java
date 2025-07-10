@@ -13,7 +13,7 @@ public final class NpcGenerator extends EntityGenerator<Npc> {
         "Prof.ssa Bianchi",          // 2: Aula universitaria
         "R2D2",                      // 3: Laboratorio informatico
         "Coach Luca",                // 4: Palestra
-        "Barista Anna"               // 5: Bar
+        "Barista Anna",              // 5: Bar
     };
 
     private static final String[] DESCRIPTIONS = {
@@ -21,7 +21,7 @@ public final class NpcGenerator extends EntityGenerator<Npc> {
         "Docente di matematica, appassionata e disponibile.",
         "R2D2 sempre pronto a risolvere problemi.",
         "Allenatore energico e motivante.",
-        "Barista simpatica che conosce tutti gli studenti."
+        "Barista simpatica che conosce tutti gli studenti.",
     };
 
     private static final String[] DIALOGUES = {
@@ -29,7 +29,7 @@ public final class NpcGenerator extends EntityGenerator<Npc> {
         "Ciao! Risolvi il quiz per dimostrare le tue conoscenze.",
         "Bzz bzz! Trova l'uscita dal labirinto del laboratorio informatico.",
         "Pronto per una sfida fisica? Colpisci tutti i dischi per vincere!",
-        "Ciao! Mescola i drink correttamente per servire i clienti del bar."
+        "Ciao! Mescola i drink correttamente per servire i clienti del bar.",
     };
 
     /**
