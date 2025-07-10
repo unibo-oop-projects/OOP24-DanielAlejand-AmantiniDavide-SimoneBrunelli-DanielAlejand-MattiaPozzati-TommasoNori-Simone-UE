@@ -2,12 +2,17 @@ package it.unibo.exam.utility.factory;
 
 import it.unibo.exam.model.entity.minigame.Minigame;
 import it.unibo.exam.controller.minigame.bar.BarMinigame;
+import it.unibo.exam.controller.minigame.kahoot.KahootMinigame;
 import it.unibo.exam.controller.minigame.gym.GymMinigame;
+
 /**
  * Factory class for creating different types of minigames based on room ID.
  * Each room has its own specific minigame type.
  */
 public final class MinigameFactory {
+
+    /** Room ID for the Garden minigame. */
+    public static final int ROOM_LAB = 2;
 
     /** Room ID for the Gym minigame. */
     public static final int ROOM_GYM = 4;
@@ -43,6 +48,8 @@ public final class MinigameFactory {
      */
     public static Minigame createMinigame(final int roomId) {
         switch (roomId) {
+            case ROOM_LAB:
+                return new KahootMinigame();
             case ROOM_GYM:
                 return new GymMinigame();
             case ROOM_BAR:
@@ -50,7 +57,7 @@ public final class MinigameFactory {
             default:
                 throw new IllegalArgumentException(
                     "Invalid room ID for minigame: " + roomId
-                  + ". Valid room IDs are " + ROOM_GYM + "–" + ROOM_BAR + "."
+                  + ". Valid room IDs are " + ROOM_LAB + "–" + ROOM_BAR + "-" + ROOM_GYM + "."
                 );
         }
     }
@@ -64,6 +71,8 @@ public final class MinigameFactory {
      */
     public static String getMinigameName(final int roomId) {
         switch (roomId) {
+            case ROOM_LAB:
+                return "Kahoot";
             case ROOM_GYM:
                 return "Catch the Ball";
             case ROOM_BAR:
@@ -82,6 +91,8 @@ public final class MinigameFactory {
      */
     public static String getMinigameDescription(final int roomId) {
         switch (roomId) {
+            case ROOM_LAB:
+                return "Answer quiz questions correctly";
             case ROOM_GYM:
                 return "Hit all disks with the cannon to win! Use mouse and keyboard.";
             case ROOM_BAR:

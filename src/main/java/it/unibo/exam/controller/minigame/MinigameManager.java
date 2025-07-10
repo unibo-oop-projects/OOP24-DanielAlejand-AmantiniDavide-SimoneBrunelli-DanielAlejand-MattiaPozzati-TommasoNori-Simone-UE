@@ -133,7 +133,7 @@ public class MinigameManager {
         final String message;
 
         if (success) {
-            message = String.format("Congratulations! You completed '%s' in %d seconds! With a score of %d.",
+            message = String.format("Congratulations! You completed '%s' in %d seconds! Score: %d points.",
                                     minigameName, timeSeconds, score);
         } else {
             message = String.format("Minigame '%s' not completed. Try again!", minigameName);
