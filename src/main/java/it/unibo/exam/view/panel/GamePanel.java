@@ -218,6 +218,8 @@ public final class GamePanel extends JPanel {
         });
     }
 
+    
+
     @Override
     public void paint(final Graphics g) {
         final Dimension currentSize = getSize();

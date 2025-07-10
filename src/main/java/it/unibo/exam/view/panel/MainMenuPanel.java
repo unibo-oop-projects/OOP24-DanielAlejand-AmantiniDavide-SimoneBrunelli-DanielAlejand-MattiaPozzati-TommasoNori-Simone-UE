@@ -14,10 +14,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.plaf.basic.BasicButtonUI;
+import java.util.prefs.Preferences;
 
 /**
  * Main menu panel for the game, displays play, options and exit buttons.
@@ -42,6 +45,8 @@ public final class MainMenuPanel extends JPanel {
     private static final int BUTTON_TEXT_BLUE     = 255;
     private static final int BUTTON_TEXT_ALPHA    = 220;
     private static final int BUTTON_BORDER_RADIUS = 30;
+
+    private static final Preferences PREFS = Preferences.userNodeForPackage(MainMenuPanel.class);
 
     /** The background image drawn behind the menu. */
     private transient Image backgroundImage;
@@ -108,9 +113,12 @@ public final class MainMenuPanel extends JPanel {
         add(exitButton, gbc);
 
         playButton.addActionListener(e -> startGame(window));
-        optionsButton.addActionListener(e ->
-            JOptionPane.showMessageDialog(window, "Options not implemented yet.")
-        );
+        optionsButton.addActionListener(e -> {
+        OptionsDialog dialog = new OptionsDialog(window);
+        dialog.setVisible(true);
+        // Qui puoi usare dialog.isSoundOn() e dialog.getSelectedFPS()
+        // per aggiornare impostazioni globali, se vuoi.
+        });
         exitButton.addActionListener(e -> {
             final int confirmed = JOptionPane.showConfirmDialog(
                 window,
@@ -158,22 +166,19 @@ public final class MainMenuPanel extends JPanel {
     }
 
     private void returnToMenu(final JFrame window) {
-        final int confirmed = JOptionPane.showConfirmDialog(
-            window,
-            "Return to main menu?",
-            "Confirm",
-            JOptionPane.YES_NO_OPTION
-        );
-        if (confirmed == JOptionPane.YES_OPTION) {
-            if (gamePanel != null) {
-                gamePanel.stopGame();
-                gamePanel = null;
-            }
-            window.getContentPane().removeAll();
-            window.add(this);
-            window.revalidate();
-            window.repaint();
+        boolean goToMenu = showPauseDialogWithSound(window);
+    if (goToMenu) {
+        if (gamePanel != null) {
+            gamePanel.stopGame();
+            gamePanel = null;
         }
+        window.getContentPane().removeAll();
+        window.add(this);
+        window.revalidate();
+        window.repaint();
+    }
+    // soundOn ora è aggiornato!
+    // Salva soundOn su Preferences/global se vuoi che sia persistente
     }
 
     @Override
@@ -183,6 +188,48 @@ public final class MainMenuPanel extends JPanel {
             g.drawImage(backgroundImage,
                         0, 0, getWidth(), getHeight(), this);
         }
+    }
+
+    private boolean showPauseDialogWithSound(final JFrame window) {
+        final JDialog dialog = new JDialog(window, "Menu di Pausa", true);
+        dialog.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.anchor = GridBagConstraints.WEST;
+        
+        // Leggi la preferenza all'apertura
+        boolean currentSoundOn = PREFS.getBoolean("soundOn", true);
+        JCheckBox soundCheck = new JCheckBox("Abilita suoni", currentSoundOn);
+
+        JButton mainMenuButton = new JButton("Torna al menu");
+        JButton cancelButton = new JButton("Riprendi");
+
+        final boolean[] result = {false}; // Per sapere se ha scelto "torna al menu"
+
+        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
+        dialog.add(soundCheck, gbc);
+
+        gbc.gridwidth = 1; gbc.gridy = 1; gbc.gridx = 0;
+        dialog.add(mainMenuButton, gbc);
+        gbc.gridx = 1;
+        dialog.add(cancelButton, gbc);
+
+        mainMenuButton.addActionListener(e -> {
+            boolean newSoundOn = soundCheck.isSelected();
+            PREFS.putBoolean("soundOn", newSoundOn); // <-- Salva preferenza!
+            result[0] = true; // utente vuole tornare al menu
+            dialog.dispose();
+        });
+        cancelButton.addActionListener(e -> {
+            boolean newSoundOn = soundCheck.isSelected();
+            PREFS.putBoolean("soundOn", newSoundOn); // <-- Salva preferenza anche su annulla se vuoi
+            dialog.dispose();
+        });
+
+        dialog.setSize(300, 160);
+        dialog.setLocationRelativeTo(window);
+        dialog.setVisible(true);
+        return result[0];
     }
 
     private JButton createStyledButton(final String text) {
