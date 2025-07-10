@@ -73,21 +73,21 @@ public class EndGameMenu extends JPanel {
      * @param parentWindow the parent window
      * @param player the player object containing completion data
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", 
+                   justification = "JFrame and Player references are needed for proper functionality. "
+                   + "EndGameMenu is not intended to be serialized and these references are used internally.")
+    @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
     public EndGameMenu(final JFrame parentWindow, final Player player) {
         this.parentWindow = parentWindow;
         this.player = player;
         this.leaderboard = new LeaderboardManage();
-        initializeUI();
-    }
 
-    /**
-     * Initializes the user interface components.
-     */
-    private void initializeUI() {
-        setLayout(new BorderLayout());
+        // Setup layout
+        super.setLayout(new BorderLayout());
         setBackground(BACKGROUND_COLOR);
         setPreferredSize(parentWindow.getSize());
 
+        // Add components
         add(createTitlePanel(), BorderLayout.NORTH);
         add(createMainContentPanel(), BorderLayout.CENTER);
     }
@@ -331,7 +331,7 @@ public class EndGameMenu extends JPanel {
             JOptionPane.QUESTION_MESSAGE
         );
 
-        if (playerName != null && !playerName.trim().isEmpty()) {
+        if (playerName != null && !playerName.isBlank()) {
             final boolean added = leaderboard.addScore(playerName.trim(), totalScore, 0);
             if (added) {
                 JOptionPane.showMessageDialog(

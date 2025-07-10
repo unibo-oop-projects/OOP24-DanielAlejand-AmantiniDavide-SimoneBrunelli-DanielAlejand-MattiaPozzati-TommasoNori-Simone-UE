@@ -1,7 +1,8 @@
 package it.unibo.exam.view.panel;
 
 import it.unibo.exam.utility.geometry.Point2D;
-
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -28,6 +29,8 @@ import javax.swing.JPanel;
 public final class MainMenuPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOGGER = Logger.getLogger(MainMenuPanel.class.getName());
 
     // Button size constants
     private static final int WIDTHBUTTON = 800;
@@ -73,12 +76,15 @@ public final class MainMenuPanel extends JPanel {
         try {
             final var resource = getClass().getClassLoader().getResource("MainMenu/MainMenuBackGround.png");
             if (resource == null) {
-                throw new IllegalArgumentException("Immagine non trovata!");
+                LOGGER.warning("Background image not found: MainMenu/MainMenuBackGround.png");
+                backgroundImage = null;
+                return;
             }
             backgroundImage = ImageIO.read(resource);
-            } catch (IOException | IllegalArgumentException e) {
-                e.printStackTrace();
-            }
+        } catch (final IOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load background image: MainMenu/MainMenuBackGround.png", e);
+            backgroundImage = null;
+        }
 
         // Creates the panel where the buttons will stay
         final JPanel buttonPanel = createButtonPanel();

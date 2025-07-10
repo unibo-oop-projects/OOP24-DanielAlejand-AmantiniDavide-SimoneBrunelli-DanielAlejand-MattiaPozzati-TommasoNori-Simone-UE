@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Manages the game leaderboard with persistent storage in a text file.
@@ -46,7 +47,7 @@ public final class LeaderboardManage {
      */
 
     public boolean addScore(final String playerName, final int score, final int totalTime) {
-        if (playerName == null || playerName.trim().isEmpty()) {
+        if (playerName == null || playerName.isBlank()) {
             throw new IllegalArgumentException("Player name cannot be null or empty");
         }
 
@@ -167,13 +168,14 @@ public final class LeaderboardManage {
             return;
         }
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
+            String line = reader.readLine();
+            while (line != null) {
                 final LeaderboardEntry entry = parseEntry(line);
                 if (entry != null) {
                     entries.add(entry);
                 }
+                line = reader.readLine();
             }
 
             // Sort entries after loading
@@ -196,7 +198,7 @@ public final class LeaderboardManage {
      * Saves the leaderboard to the text file.
      */
     private void saveLeaderboard() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(LEADERBOARD_FILE))) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(LEADERBOARD_FILE, StandardCharsets.UTF_8))) {
             for (final LeaderboardEntry entry : entries) {
                 writer.println(formatEntry(entry));
             }
@@ -228,7 +230,7 @@ public final class LeaderboardManage {
 
             return new LeaderboardEntry(name, score, time, date);
 
-        } catch (final Exception e) {
+        } catch (final NumberFormatException | java.time.format.DateTimeParseException e) {
             LOGGER.log(Level.WARNING, "Error parsing leaderboard entry: " + line, e);
             return null;
         }
