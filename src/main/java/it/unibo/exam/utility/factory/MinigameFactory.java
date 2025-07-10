@@ -63,7 +63,7 @@ public final class MinigameFactory {
             default:
                 throw new IllegalArgumentException(
                     "Invalid room ID for minigame: " + roomId
-                  + ". Valid room IDs are " + ROOM_LAB + "–" + ROOM_BAR + "-" + ROOM_GYM + "-" + ROOM_GARDEN +"."
+                  + ". Valid room IDs are " + ROOM_LAB + "–" + ROOM_BAR + "-" + ROOM_GYM + "-" + ROOM_GARDEN + "."
                 );
         }
     }
