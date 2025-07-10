@@ -36,7 +36,7 @@ public final class BarMinigame implements Minigame {
     private static final int BONUS_TIME_THRESHOLD_SECONDS = 30;
     private static final int BONUS_POINTS                 = 10;
     private static final int MAX_POINTS_CAP               = 100;
-    private static final int CAPACITY       = 4;
+    private static final int CAPACITY       = 5;
     private static final int TOTAL_GLASSES  = 6;
     private static final int ROOM_ID        = 5;
     private static final int FRAME_WIDTH    = 1000; // Preferred width for the minigame window
