@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 import it.unibo.exam.controller.input.KeyHandler;
 import it.unibo.exam.controller.position.PlayerPositionManager;
@@ -16,7 +17,7 @@ import it.unibo.exam.utility.generator.RoomGenerator;
 import it.unibo.exam.utility.geometry.Point2D;
 import it.unibo.exam.view.GameRenderer;
 import it.unibo.exam.view.hud.ScoreHud;
-
+import it.unibo.exam.view.panel.EndGameMenu;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
@@ -39,6 +40,9 @@ public class MainController {
     private Point2D               environmentSize;
     private boolean minigameActive;
     private int currentMinigameRoomId = -1;
+    @SuppressFBWarnings(value = {"EI_EXPOSE_REP", "EI_EXPOSE_REP2"}, 
+                   justification = "JFrame reference is intentionally stored for UI operations and cannot be defensively copied")
+    private JFrame parentFrame;
 
     /**
      * Constructor with parent frame for minigame integration.
@@ -52,6 +56,7 @@ public class MainController {
         this.gameState       = new GameState(environmentSize);
         this.gameRenderer    = new GameRenderer(gameState);
         this.environmentSize = new Point2D(environmentSize);
+        this.parentFrame     = parentFrame;
 
         // —— MinigameManager setup ——
         if (parentFrame != null) {
@@ -82,6 +87,7 @@ public class MainController {
      * @param parentFrame the JFrame to use as parent for all minigame windows
      */
     public void setParentFrame(final JFrame parentFrame) {
+        this.parentFrame = parentFrame;
         if (parentFrame != null && this.minigameManager == null) {
             this.minigameManager = new MinigameManager(this, parentFrame);
             LOGGER.info("MinigameManager initialized with parent frame");
@@ -190,6 +196,53 @@ public class MainController {
         if (gameState.getPlayer().allRoomsCompleted(totalPuzzleRooms)) {
             LOGGER.info("Player has completed all rooms! Game won!");
             // You can implement a win screen or callback here
+            running = false;
+
+            SwingUtilities.invokeLater(() -> {
+                if (parentFrame != null) {
+                    showEndGameMenu();
+                } else {
+                    LOGGER.warning("Cannot show EndGameMenu: parent frame is null");
+                }
+            });
+        }
+    }
+
+    /**
+     * Shows the EndGameMenu by replacing the current panel content.
+     */
+    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", 
+                   justification = "Exception handling pattern is intentional for UI operations")
+    private void showEndGameMenu() {
+        // Validate prerequisites before attempting UI operations
+        if (parentFrame == null) {
+            LOGGER.severe("Cannot show EndGameMenu: parent frame is null");
+            return;
+        }
+
+        if (gameState == null || gameState.getPlayer() == null) {
+            LOGGER.severe("Cannot show EndGameMenu: game state or player is null");
+            return;
+        }
+
+        try {
+            // Stop any running minigames
+            if (minigameManager != null) {
+                minigameManager.stopCurrentMinigame();
+            }
+
+            // Remove current content and add EndGameMenu
+            parentFrame.getContentPane().removeAll();
+            final EndGameMenu endGameMenu = new EndGameMenu(parentFrame, gameState.getPlayer());
+            parentFrame.add(endGameMenu);
+            parentFrame.revalidate();
+            parentFrame.repaint();
+
+            LOGGER.info("EndGameMenu displayed successfully");
+        } catch (final IllegalStateException e) {
+            LOGGER.log(Level.SEVERE, "UI state error when showing EndGameMenu", e);
+        } catch (final SecurityException e) {
+            LOGGER.log(Level.SEVERE, "Security error when showing EndGameMenu", e);
         }
     }
 
