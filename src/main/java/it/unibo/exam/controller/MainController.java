@@ -37,7 +37,6 @@ public class MainController {
     private MinigameManager minigameManager;
     private boolean               running;
     private Point2D               environmentSize;
-
     private boolean minigameActive;
     private int currentMinigameRoomId = -1;
 
@@ -374,6 +373,7 @@ public class MainController {
      */
     public void endMinigame(final boolean success, final int timeTaken, final int score) {
         if (minigameActive && currentMinigameRoomId >= 0 && success) {
+            // store and notify observers
             gameState.getPlayer().addRoomScore(currentMinigameRoomId, timeTaken, score);
             // log success
             LOGGER.info("Minigame completed successfully! Room "

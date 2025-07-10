@@ -3,6 +3,7 @@ package it.unibo.exam.utility.factory;
 import it.unibo.exam.model.entity.minigame.Minigame;
 import it.unibo.exam.controller.minigame.bar.BarMinigame;
 import it.unibo.exam.controller.minigame.kahoot.KahootMinigame;
+import it.unibo.exam.controller.minigame.gym.GymMinigame;
 
 /**
  * Factory class for creating different types of minigames based on room ID.
@@ -12,6 +13,9 @@ public final class MinigameFactory {
 
     /** Room ID for the Garden minigame. */
     public static final int ROOM_LAB = 2;
+
+    /** Room ID for the Gym minigame. */
+    public static final int ROOM_GYM = 4;
 
     /** Room ID for the Sort & Serve Bar minigame. */
     public static final int ROOM_BAR = 5;
@@ -46,12 +50,14 @@ public final class MinigameFactory {
         switch (roomId) {
             case ROOM_LAB:
                 return new KahootMinigame();
+            case ROOM_GYM:
+                return new GymMinigame();
             case ROOM_BAR:
                 return new BarMinigame();
             default:
                 throw new IllegalArgumentException(
                     "Invalid room ID for minigame: " + roomId
-                  + ". Valid room IDs are " + ROOM_LAB + "–" + ROOM_BAR + "."
+                  + ". Valid room IDs are " + ROOM_LAB + "–" + ROOM_BAR + "-" + ROOM_GYM + "."
                 );
         }
     }
@@ -67,6 +73,8 @@ public final class MinigameFactory {
         switch (roomId) {
             case ROOM_LAB:
                 return "Kahoot";
+            case ROOM_GYM:
+                return "Catch the Ball";
             case ROOM_BAR:
                 return "Sort & Serve";
             default:
@@ -85,6 +93,8 @@ public final class MinigameFactory {
         switch (roomId) {
             case ROOM_LAB:
                 return "Answer quiz questions correctly";
+            case ROOM_GYM:
+                return "Hit all disks with the cannon to win! Use mouse and keyboard.";
             case ROOM_BAR:
                 return "Pour colored layers until each glass is uniform.";
             default:

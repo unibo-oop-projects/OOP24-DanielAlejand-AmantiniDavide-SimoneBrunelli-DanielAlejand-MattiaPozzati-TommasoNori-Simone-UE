@@ -11,7 +11,7 @@ public interface MinigameCallback {
      * 
      * @param success true if the minigame was completed successfully, false otherwise
      * @param timeSeconds the time taken to complete the minigame in seconds
-     * @param score the score achieved in the minigame
+     * @param score the final score achieved in the minigame
      */
     void onComplete(boolean success, int timeSeconds, int score);
 }
