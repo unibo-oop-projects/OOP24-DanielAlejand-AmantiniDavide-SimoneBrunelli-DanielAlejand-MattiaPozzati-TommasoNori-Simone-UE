@@ -33,7 +33,20 @@ public class MovementEntity extends Entity {
      * @param environmentSize the size of the environment
      */
     public MovementEntity(final Point2D initialPosition, final Point2D environmentSize) {
-        super(initialPosition, environmentSize);
+        this(initialPosition, environmentSize, 1, 1);
+    }
+
+    /**
+     * Constructs a MovementEntity placed at a given starting position.
+     * Calculates its initial speed based on the environment’s width.
+     *
+     * @param initialPosition the starting position of the entity
+     * @param environmentSize the size of the environment
+     * @param xFactor 
+     * @param yFactor
+     */
+    public MovementEntity(final Point2D initialPosition, final Point2D environmentSize, final int xFactor, final int yFactor) {
+        super(initialPosition, environmentSize, xFactor, yFactor);
         this.speed = calculateSpeed(environmentSize);
     }
 
