@@ -132,7 +132,7 @@ class UtilityTest {
     void testNpcGenerator() {
         final Point2D envSize = new Point2D(ENV_WIDTH, ENV_HEIGHT);
         final NpcGenerator npcGenerator = new NpcGenerator(envSize);
-        final var npc = npcGenerator.generate(0);
+        final var npc = npcGenerator.generate(1);
         assertNotNull(npc);
         assertNotNull(npc.getName());
         assertNotNull(npc.getDescription());

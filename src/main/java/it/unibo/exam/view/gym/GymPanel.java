@@ -1,5 +1,4 @@
 package it.unibo.exam.view.gym;
-
 import it.unibo.exam.model.entity.minigame.gym.GymModel;
 import it.unibo.exam.model.entity.minigame.gym.Cannon;
 import it.unibo.exam.model.entity.minigame.gym.Disk;
@@ -45,6 +44,7 @@ public class GymPanel extends JPanel {
         this.model = model;
         this.keyHandler = new KeyHandler();
         setFocusable(true);
+        this.backgroundImage = AssetLoader.loadImage("gym/background/gback.jpg");
         this.backgroundImage = AssetLoader.loadImage("gym/background/gback.jpg");
 
         final Timer timer = new Timer(REFRESH_RATE, e -> {

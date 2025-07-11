@@ -2,6 +2,7 @@ package it.unibo.exam.view.renderer;
 
 import it.unibo.exam.model.entity.Entity;
 import it.unibo.exam.model.entity.Npc;
+import it.unibo.exam.model.entity.RoamingNpc;                // ADDED
 import it.unibo.exam.utility.geometry.Point2D;
 
 import java.awt.Graphics2D;
@@ -17,16 +18,32 @@ public class NpcRenderer extends EntityRenderer {
     private static final Color NPC_BORDER_COLOR = new Color(255, 140, 0); // Dark Orange
     private static final Color INTERACTION_INDICATOR_COLOR = new Color(255, 255, 0); // Yellow
     private static final Color BACKGROUND_COLOR = new Color(0, 0, 0, 128);
+
     /**
-     * Renders an NPC with interaction indicators.
-     * 
+     * Renders an NPC or a roaming NPC.
+     *
      * @param g the graphics context
-     * @param entity the NPC entity to render
+     * @param entity the entity to render
      */
     @Override
     public void render(final Graphics2D g, final Entity entity) {
+        // Handle roaming NPCs first
+        if (entity instanceof RoamingNpc) {                           // ADDED
+            final RoamingNpc rn = (RoamingNpc) entity;
+            final Point2D pos = rn.getPosition();
+            final Point2D dim = rn.getDimension();
+
+            // Draw roaming NPC body (same style but no indicator/name)
+            g.setColor(NPC_COLOR);
+            g.fillRect(pos.getX(), pos.getY(), dim.getX(), dim.getY());
+            g.setColor(NPC_BORDER_COLOR);
+            g.drawRect(pos.getX(), pos.getY(), dim.getX(), dim.getY());
+            return;                                                   // ADDED
+        }
+
+        // Existing logic for interactive NPCs
         if (!(entity instanceof Npc)) {
-            throw new IllegalArgumentException("Entity must be an Npc instance");
+            throw new IllegalArgumentException("Entity must be an Npc or RoamingNpc instance");
         }
 
         final Npc npc = (Npc) entity;

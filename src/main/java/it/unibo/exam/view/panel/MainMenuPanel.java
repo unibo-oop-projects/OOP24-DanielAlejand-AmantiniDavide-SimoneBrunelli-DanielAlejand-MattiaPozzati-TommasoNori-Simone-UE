@@ -125,15 +125,22 @@ public final class MainMenuPanel extends JPanel {
 
     private void startGame(final JFrame window) {
         window.getContentPane().removeAll();
+        // ensure the content pane is using BorderLayout
+        window.getContentPane().setLayout(new java.awt.BorderLayout());
 
         final Dimension size = window.getSize();
         final Point2D gameSize = new Point2D(size.width, size.height);
 
         gamePanel = new GamePanel(gameSize, window);
-        window.add(gamePanel);
+        window.getContentPane().add(gamePanel, java.awt.BorderLayout.CENTER);
+
+        // now validate and repaint the content pane
+        window.getContentPane().validate();
+        window.getContentPane().repaint();
+
+        // give the game panel focus
         gamePanel.requestFocusInWindow();
-        window.revalidate();
-        window.repaint();
+
         addReturnToMenuListener(window);
     }
 

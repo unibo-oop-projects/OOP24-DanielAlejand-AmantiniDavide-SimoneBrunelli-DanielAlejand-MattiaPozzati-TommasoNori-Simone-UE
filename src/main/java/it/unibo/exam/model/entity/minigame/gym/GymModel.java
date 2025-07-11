@@ -292,9 +292,9 @@ public class GymModel {
                 for (int row = 0; row < ROWS; row++) {
                     for (int col = 0; col < COLS; col++) {
                         if (diskIdx < disks.size()) {
-                            Disk disk = disks.get(diskIdx);
-                            int x = startX + col * radius * 2 + (row % 2 == 0 ? 0 : radius + 2);
-                            int y = row * radius * 2 + startY;
+                            final Disk disk = disks.get(diskIdx);
+                            final int x = startX + col * radius * 2 + (row % 2 == 0 ? 0 : radius + 2);
+                            final int y = row * radius * 2 + startY;
                             disk.setPosition(new Point2D(x, y));
                             diskIdx++;
                         }
@@ -303,8 +303,8 @@ public class GymModel {
             }
             // Clamp the projectile within the new bounds if present
             if (projectile != null && projectile.isActive()) {
-                int px = Math.max(0, Math.min(projectile.getPosition().getX(), newWidth - 1));
-                int py = Math.max(0, Math.min(projectile.getPosition().getY(), newHeight - 1));
+                final int px = Math.max(0, Math.min(projectile.getPosition().getX(), newWidth - 1));
+                final int py = Math.max(0, Math.min(projectile.getPosition().getY(), newHeight - 1));
                 projectile.setPosition(new Point2D(px, py));
             }
         }
