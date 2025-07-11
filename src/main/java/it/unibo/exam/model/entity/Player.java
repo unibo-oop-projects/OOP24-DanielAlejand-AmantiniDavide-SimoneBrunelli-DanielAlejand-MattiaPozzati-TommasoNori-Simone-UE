@@ -41,7 +41,7 @@ public class Player extends MovementEntity {
                              final int timeTaken,
                              final int pointsGained) {
         roomScores.put(roomId,
-            new RoomScoreData(roomId, timeTaken, pointsGained, true));
+            new RoomScoreData(timeTaken, pointsGained, true));
 
         final int total = getTotalScore();
         for (final ScoreListener listener : scoreListeners) {

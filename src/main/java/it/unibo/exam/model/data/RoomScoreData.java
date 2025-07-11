@@ -6,7 +6,6 @@ package it.unibo.exam.model.data;
  */
 public class RoomScoreData {
 
-    private final int roomId;
     private final int timeTaken;
     private final int pointsGained;
     private final boolean completed;
@@ -14,13 +13,11 @@ public class RoomScoreData {
     /**
      * Constructs a RoomScoreData object with the given details.
      *
-     * @param roomId        the ID of the room
      * @param timeTaken     time taken to complete the minigame (seconds or ms)
      * @param pointsGained  points gained for the room
      * @param completed     true if the room has been completed, false otherwise
      */
-    public RoomScoreData(final int roomId, final int timeTaken, final int pointsGained, final boolean completed) {
-        this.roomId = roomId;
+    public RoomScoreData(final int timeTaken, final int pointsGained, final boolean completed) {
         this.timeTaken = timeTaken;
         this.pointsGained = pointsGained;
         this.completed = completed;
@@ -61,7 +58,6 @@ public class RoomScoreData {
     @Override
     public String toString() {
         return "RoomScoreData{"
-            + "roomId=" + roomId
             + ", timeTaken=" + timeTaken
             + ", pointsGained=" + pointsGained
             + ", completed=" + completed
