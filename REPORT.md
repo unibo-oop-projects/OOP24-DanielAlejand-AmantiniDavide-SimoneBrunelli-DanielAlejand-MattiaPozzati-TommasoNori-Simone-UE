@@ -16,6 +16,7 @@
     1. [Architettura](#architettura)
     2. [Design dettagliato](#design-dettagliato)
         1. [Pozzati Mattia](#pozzati-mattia)
+        1. [Amantini Davide](#amantini-davide)
         2. [Altri membri](#altri-membri)
 3. [Sviluppo](#sviluppo)
     1. [Testing automatizzato](#testing-automatizzato)
