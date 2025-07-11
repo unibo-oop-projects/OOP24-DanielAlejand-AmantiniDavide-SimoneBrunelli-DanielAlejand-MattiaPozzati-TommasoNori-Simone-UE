@@ -85,6 +85,7 @@ Mi sono occupato della progettazione e dello sviluppo del minigioco della stanza
 Ho contribuito all’implementazione delle classi relative all'accesso alle risorse del progetto.
 Ho partecipato alla progettazione delle interfacce principali e alla definizione delle entità del dominio.
 
+---
 
 #### 2.2.2 Davide Amantini
 
@@ -107,8 +108,6 @@ Ho progettato e sviluppato la **GUI del menu principale** utilizzando Swing, seg
   - Il **salvataggio delle preferenze** avviene in modo persistente usando le Preferences di Java (se necessario si può estendere con serialization o salvataggio file JSON/XML).
 
 - **Comandi Principali**: sotto ai pulsanti del menu viene visualizzata una label HTML stilizzata che evidenzia i tasti di movimento e interazione, per una user experience chiara anche a nuovi giocatori.
-
----
 
 **Minigioco CatchBall - Architettura e Sviluppo**
 
@@ -135,15 +134,13 @@ Ho progettato e realizzato il **minigioco CatchBall** (MVC pattern), ambientato 
   - Ogni aspetto grafico e di input è pensato per garantire immediatezza, chiarezza e coerenza con lo stile del resto del gioco (font, colori, trasparenze, icone, feedback visivi).
   - L’utente può sempre tornare al menu principale tramite ESC, senza rischiare di perdere i progressi o le impostazioni scelte.
 
----
-
 **Altre Responsabilità e Contributi**
 
 - Ho contribuito alla gestione centralizzata dell’audio di gioco (`AudioManager`).
 - Ho collaborato nella definizione degli standard di stile (colori, font, layout) per assicurare coerenza visiva tra menu, minigiochi e HUD.
 - Mi sono occupato della progettazione delle interfacce principali e della definizione delle principali entità di dominio.
 
-
+---
 
 #### 2.2.3 Daniel Alejandro Horna
 
