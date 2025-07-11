@@ -33,7 +33,6 @@ public final class Main {
 
     /**
      * Main method that starts the game.
-     *
      * @param args command line arguments (not used)
      */
     public static void main(final String[] args) {

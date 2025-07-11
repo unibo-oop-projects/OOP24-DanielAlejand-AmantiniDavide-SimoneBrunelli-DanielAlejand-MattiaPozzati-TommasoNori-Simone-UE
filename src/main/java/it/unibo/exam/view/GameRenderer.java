@@ -21,6 +21,13 @@ public class GameRenderer {
     private static final Color MAIN_ROOM_COLOR    = new Color(70, 70, 90);
     private static final Color PUZZLE_ROOM_COLOR  = new Color(60, 80, 60);
     private static final Color DEFAULT_ROOM_COLOR = new Color(50, 50, 50);
+    private static final int REC_X = 5;
+    private static final int REC_Y = 5;
+    private static final int REC_WIDTH = 10;
+    private static final int REC_HEIGHT = 10;
+    private static final int STRING_X = 10;
+    private static final int STRING_Y = 25;
+
 
     private final GameState      gs;
     private final ScoreHud       scoreHud;
@@ -129,9 +136,10 @@ public class GameRenderer {
      */
     private void drawRoomBackground(final Graphics2D g, final Room room) {
         final java.awt.Rectangle bounds = g.getClipBounds();
-        if (bounds == null) return;
-
-        Color roomColor = switch (room.getRoomType()) {
+        if (bounds == null) {
+            return;
+        }
+        final Color roomColor = switch (room.getRoomType()) {
             case RoomGenerator.MAIN_ROOM   -> MAIN_ROOM_COLOR;
             case RoomGenerator.PUZZLE_ROOM -> PUZZLE_ROOM_COLOR;
             default                         -> DEFAULT_ROOM_COLOR;
@@ -142,8 +150,8 @@ public class GameRenderer {
 
         // Draw room border and title
         g.setColor(Color.WHITE);
-        g.drawRect(5, 5, bounds.width - 10, bounds.height - 10);
-        g.drawString(room.getId() == 0 ? "Hub" : room.getName(), 10, 25);
+        g.drawRect(REC_X, REC_Y, bounds.width - REC_WIDTH, bounds.height - REC_HEIGHT);
+        g.drawString(room.getId() == 0 ? "Hub" : room.getName(), STRING_X, STRING_Y);
     }
 
     /**

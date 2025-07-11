@@ -63,16 +63,16 @@ public class MainController {
         this.parentFrame     = parentFrame;
 
         // ── ADDED: spawn both interactive and roaming NPCs via generator ──
-        NpcGenerator npcGen = new NpcGenerator(environmentSize);
-        for (Room r : gameState.getAllRooms()) {
+        final NpcGenerator npcGen = new NpcGenerator(environmentSize);
+        for (final Room r : gameState.getAllRooms()) {
             // Only attach an interactive NPC for puzzle rooms
             if (r.getRoomType() == RoomGenerator.PUZZLE_ROOM) {
-                Npc interactive = npcGen.generate(r.getId());
+                final Npc interactive = npcGen.generate(r.getId());
                 r.attachNpc(interactive);
             }
 
             // Always (or conditionally) add roaming NPCs
-            RoamingNpc wanderer = npcGen.generateRoamingNpc(r);
+            final RoamingNpc wanderer = npcGen.generateRoamingNpc(r);
             r.addRoamingNpc(wanderer);
         }
         // ─────────────────────────────────────────────────────────────────────
@@ -205,7 +205,7 @@ public class MainController {
         final Room room     = gameState.getCurrentRoom();
 
         // ── ADDED: move all roaming NPCs each tick ──
-        for (RoamingNpc rn : room.getRoamingNpcs()) {
+        for (final RoamingNpc rn : room.getRoamingNpcs()) {
             rn.update(deltaTime, room);
         }
         // ─────────────────────────────────────────────

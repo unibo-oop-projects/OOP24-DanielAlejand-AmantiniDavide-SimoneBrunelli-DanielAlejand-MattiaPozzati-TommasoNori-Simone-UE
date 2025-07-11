@@ -180,27 +180,32 @@ public class GameState {
         final int npcWidth = environmentSize.getX() / 20;
         final int npcHeight = environmentSize.getY() / 20;
 
+        // Skip room 0 (main room), start from room 1 (index 1)
         for (int i = 1; i < rooms.size(); i++) {
             final Room room = rooms.get(i);
+
+            // Check if it's a puzzle room and generate NPC
             if (room.getRoomType() == RoomGenerator.PUZZLE_ROOM) {
                 try {
-                    final Npc npc = npcGenerator.generate(i - 1);
+                    // Generate NPC for puzzle room
+                    final Npc npc = npcGenerator.generate(i);  // Avoid using room 0
 
-                    // Posizioni personalizzate per ogni stanza
+                    // Calculate NPC position for the room
                     final Point2D npcPosition = calculateNpcPosition(i, environmentSize, npcWidth, npcHeight);
-
                     npc.setPosition(npcPosition);
+
+                    // Attach NPC to the room
                     room.attachNpc(npc);
 
-                    LOGGER.info("NPC " + npc.getName() + " posizionato in room " + i 
-                        + " alla posizione (" + npcPosition.getX() + "," + npcPosition.getY() + ")");
-
+                    LOGGER.info("NPC " + npc.getName() + " placed in room " + i 
+                        + " at position (" + npcPosition.getX() + "," + npcPosition.getY() + ")");
                 } catch (final IllegalArgumentException e) {
                     LOGGER.log(Level.SEVERE, "Failed to generate NPC for room " + i + ": " + e.getMessage(), e);
                 }
             }
         }
     }
+
 
     /**
      * Calculates custom position for NPC based on room ID.

@@ -12,6 +12,11 @@ import it.unibo.exam.model.entity.enviroments.Room;
  */
 public final class NpcGenerator extends EntityGenerator<Npc> {
 
+    private static final int X = 50;
+    private static final int Y = 80;
+    private static final int DELTA =  100;
+
+
     private static final String[] NAMES = {
         "Giardiniere Mario",    // room 1
         "Prof.ssa Bianchi",     // room 2
@@ -77,11 +82,11 @@ public final class NpcGenerator extends EntityGenerator<Npc> {
      * @return a RoamingNpc that will wander within the environment bounds
      */
     public RoamingNpc generateRoamingNpc(final Room room) {
-        Point2D start = new Point2D(
-            50 + 100 * room.getId(),
-            80
+        final Point2D start = new Point2D(
+            X + DELTA * room.getId(),
+            Y
         );
-        MovementStrategy strategy = new RandomWalkStrategy(super.getEnv());
+        final MovementStrategy strategy = new RandomWalkStrategy(super.getEnv());
         return new RoamingNpc(start, super.getEnv(), strategy);
     }
 }
