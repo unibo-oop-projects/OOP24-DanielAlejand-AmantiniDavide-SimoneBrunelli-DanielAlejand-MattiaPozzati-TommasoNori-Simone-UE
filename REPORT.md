@@ -16,8 +16,8 @@
     1. [Architettura](#architettura)
     2. [Design dettagliato](#design-dettagliato)
         1. [Pozzati Mattia](#pozzati-mattia)
-        1. [Amantini Davide](#amantini-davide)
-        2. [Altri membri](#altri-membri)
+        2. [Amantini Davide](#amantini-davide)
+        3. [Brunelli Simone](#brunelli-simone)
 3. [Sviluppo](#sviluppo)
     1. [Testing automatizzato](#testing-automatizzato)
     2. [Metodologia di lavoro](#metodologia-di-lavoro)
@@ -142,6 +142,400 @@ Ho progettato e realizzato il **minigioco CatchBall** (MVC pattern), ambientato 
 
 ---
 
+#### 2.2.3 Simone Brunelli
+
+## Panoramica
+
+Questo documento dettaglia l'implementazione di quattro componenti sviluppati per il progetto UniversityEscape. Ogni classe dimostra diversi pattern architetturali e soluzioni tecniche, progettate con particolare attenzione alla robustezza, estensibilità e integrazione con il sistema complessivo.
+
+---
+
+## 🎯 1. KahootMinigame - Quiz Interattivo con Pattern MVC
+
+### Approccio Progettuale
+
+La classe `KahootMinigame` implementa il pattern MVC per separare chiaramente la logica, la presentazione e il controllo. L'implementazione si integra con il sistema di scoring esistente del team.
+
+### Caratteristiche Principali
+
+#### Integrazione con Sistema Scoring Esistente
+
+```java
+// Implementazione flessibile per integrazione con sistema scoring
+public KahootMinigame(final ScoringStrategy scoringStrategy) {
+    this.scoringStrategy = Objects.requireNonNull(scoringStrategy,
+        "scoringStrategy must not be null");
+}
+```
+
+#### Gestione Stati e Threading
+
+Implementazione di un workflow per gestire il ciclo vita del quiz:
+
+```java
+// Gestione del threading per feedback non bloccante
+new Thread(() -> {
+    try {
+        Thread.sleep(FEEDBACK_DELAY);
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            if (model.isGameCompleted()) {
+                showDetailedFinalResults();
+            } else {
+                showCurrentQuestion();
+            }
+        });
+    } catch (final InterruptedException e) {
+        Thread.currentThread().interrupt();
+        javax.swing.SwingUtilities.invokeLater(this::showDetailedFinalResults);
+    }
+}).start();
+```
+
+#### Sistema Penalità Personalizzato
+
+Aggiunge 10 secondi per ogni risposta sbagliata:
+
+```java
+public int getFinalTimeWithPenalty(final int penaltyPerWrongAnswer) {
+    return getElapsedTimeSeconds() + (wrongAnswers * penaltyPerWrongAnswer);
+}
+```
+
+#### Interfaccia Utente Dinamica
+
+* Feedback colorato per risposte corrette/errate
+* Aggiornamento real-time di progresso e statistiche
+* Gestione graceful degli stati di transizione
+
+---
+
+## ⌨️ 2. KeyHandler - Sistema di Input
+
+### Filosofia di Design
+
+La classe `KeyHandler` fornisce un sistema di input che supporta sia azioni continue (movimento) che discrete (interazioni). L'implementazione risolve il problema classico del "key repeat" per le azioni singole.
+
+### Innovazioni Tecniche
+
+#### Pattern Auto-Reset per Azioni Singole
+
+```java
+// Soluzione al problema del key repeat
+public boolean isInteractJustPressed() {
+    if (interactJustPressed) {
+        interactJustPressed = false; // Auto-reset immediato
+        return true;
+    }
+    return false;
+}
+
+public boolean isSpaceBarPressed() {
+    if (spaceBarPressed) {
+        spaceBarPressed = false; // Reset dopo lettura
+        return true;
+    }
+    return false;
+}
+```
+
+#### Sistema Dual-Key Mapping
+
+Supporto per tasti primari e alternativi per migliorare l'accessibilità:
+
+```java
+// Supporto sia WASD che frecce direzionali
+if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
+    upPressed = true;
+}
+if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) {
+    leftPressed = true;
+}
+```
+
+### Vantaggi Implementativi
+
+* **Efficienza di Polling**: I controller leggono lo stato quando necessario
+* **Coerenza dello Stato**: Prevenzione stati inconsistenti con auto-reset
+* **Esperienza Utente**: Supporto sia WASD che frecce per inclusività
+* **Precisione delle Azioni**: Distinzione netta tra azioni continue e discrete
+
+---
+
+## 🎨 3. AssetLoader - Gestione Risorse in Collaborazione
+
+### Approccio Collaborativo
+
+La classe `AssetLoader` è stata sviluppata in stretta collaborazione con un membro del team, combinando le competenze per creare una classe utility robusta per la gestione delle risorse. Insieme è stato progettato un sistema che enfatizza la robustezza e graceful degradation.
+
+### Soluzioni Tecniche
+
+#### Sistema Fallback Intelligente
+
+```java
+// Implementazione collaborativa del fallback automatico
+public static Image loadImageWithFallback(final String resourcePath, final String fallbackPath) {
+    Image image = loadImage(resourcePath);
+    if (image == null && fallbackPath != null) {
+        LOGGER.info("Attempting to load fallback image: " + fallbackPath);
+        image = loadImage(fallbackPath);
+    }
+    return image;
+}
+```
+
+#### Gestione Completa degli Errori
+
+```java
+// Approccio comprensivo all'error handling
+try {
+    final var resource = AssetLoader.class.getClassLoader().getResource(resourcePath);
+    if (resource == null) {
+        LOGGER.warning("Resource not found: " + resourcePath);
+        return null;
+    }
+    
+    final Image image = ImageIO.read(resource);
+    if (image == null) {
+        LOGGER.warning("Failed to read image from resource: " + resourcePath);
+        return null;
+    }
+    
+    LOGGER.info("Image loaded successfully: " + resourcePath);
+    return image;
+    
+} catch (final IOException e) {
+    LOGGER.log(Level.WARNING, "Failed to load image: " + resourcePath + " - " + e.getMessage(), e);
+    return null;
+} catch (final IllegalArgumentException e) {
+    LOGGER.log(Level.WARNING, "Invalid image format: " + resourcePath + " - " + e.getMessage(), e);
+    return null;
+}
+```
+
+### Caratteristiche Collaborative
+
+* **Validazione Risorse**: Controllo esistenza sviluppato congiuntamente
+* **Logging Dettagliato**: Sistema di logging progettato insieme per debugging completo
+* **Efficienza di Memoria**: Strategia di caricamento lazy definita in team
+
+---
+
+## 🏭 4. MinigameFactory - Implementazione del Factory Pattern
+
+### Pattern di Design
+
+La classe `MinigameFactory` implementa il Factory Pattern per centralizzare la creazione dei minigame e fornire un'interfaccia uniforme per il sistema.
+
+### Architettura
+
+#### Mapping Room-to-Minigame
+
+```java
+// Implementazione del mapping centralizzato
+public static Minigame createMinigame(final int roomId) {
+    switch (roomId) {
+        case ROOM_GARDEN:
+            return new CatchBallMinigame();
+        case ROOM_LAB:
+            return new KahootMinigame();
+        case ROOM_MAZE:
+            return new MazeMinigame();
+        case ROOM_GYM:
+            return new GymMinigame();
+        case ROOM_BAR:
+            return new BarMinigame();
+        default:
+            throw new IllegalArgumentException(
+                "Invalid room ID for minigame: " + roomId
+                + ". Valid room IDs are " + FIRST_ROOM + "–" + LAST_ROOM + "."
+            );
+    }
+}
+```
+
+#### Metodi di Utilità
+
+Metodi per evitare istanziazioni inutili:
+
+```java
+// Informazioni sui minigame senza istanziazione
+public static String getMinigameName(final int roomId) {
+    switch (roomId) {
+        case ROOM_GARDEN: return "Catch the Ball";
+        case ROOM_LAB: return "Kahoot";
+        case ROOM_MAZE: return "Maze Runner";
+        case ROOM_GYM: return "Bubble shooter";
+        case ROOM_BAR: return "Sort & Serve";
+        default: throw new IllegalArgumentException("Invalid room ID: " + roomId);
+    }
+}
+
+public static boolean hasMinigame(final int roomId) {
+    return roomId >= FIRST_ROOM && roomId <= LAST_ROOM;
+}
+```
+
+### Vantaggi Architetturali
+
+* **Creazione Centralizzata**: Unico punto per creazione minigame
+* **Type Safety**: Validazione input con eccezioni descrittive
+* **Estensibilità**: Facile aggiunta nuovi minigame
+* **Accesso alle Informazioni**: Metadati senza istanziazione
+
+---
+
+## 📊 Diagramma UML delle Classi
+
+```mermaid
+classDiagram
+    %% Classi principali implementate
+    class KahootMinigame {
+        -scoringStrategy: ScoringStrategy
+        -gameFrame: JFrame
+        -model: KahootModel
+        -view: KahootPanel
+        -callback: MinigameCallback
+        +start(JFrame, MinigameCallback)
+        +stop()
+        +onAnswerSubmitted(boolean, String)
+        +showDetailedFinalResults()
+        +getName() String
+        +getDescription() String
+    }
+
+    class KeyHandler {
+        -upPressed: boolean
+        -downPressed: boolean
+        -leftPressed: boolean
+        -rightPressed: boolean
+        -interactPressed: boolean
+        -interactJustPressed: boolean
+        -spaceBarPressed: boolean
+        +isUpPressed() boolean
+        +isInteractJustPressed() boolean
+        +isSpaceBarPressed() boolean
+        +keyPressed(KeyEvent)
+        +keyReleased(KeyEvent)
+    }
+
+    class AssetLoader {
+        <<utility>>
+        +loadImage(String) Image
+        +loadImageWithFallback(String, String) Image
+        +imageExists(String) boolean
+    }
+
+    class MinigameFactory {
+        <<factory>>
+        +ROOM_GARDEN: int
+        +ROOM_LAB: int
+        +ROOM_MAZE: int
+        +ROOM_GYM: int
+        +ROOM_BAR: int
+        +createMinigame(int) Minigame
+        +getMinigameName(int) String
+        +getMinigameDescription(int) String
+        +hasMinigame(int) boolean
+    }
+
+    %% Interfacce utilizzate
+    class Minigame {
+        <<interface>>
+        +start(JFrame, MinigameCallback)
+        +stop()
+        +getName() String
+        +getDescription() String
+    }
+
+    class KeyListener {
+        <<interface>>
+        +keyPressed(KeyEvent)
+        +keyReleased(KeyEvent)
+        +keyTyped(KeyEvent)
+    }
+
+    class KahootListener {
+        <<interface>>
+        +onQuizStarted()
+        +onAnswerSubmitted(boolean, String)
+        +onNextQuestion(QuizQuestion)
+        +onQuizCompleted(boolean, int, int, int)
+    }
+
+    %% Classi del team integrate
+    class KahootModel {
+        -questions: List~QuizQuestion~
+        -currentQuestionIndex: int
+        -correctAnswers: int
+        -wrongAnswers: int
+        +startQuiz()
+        +submitAnswer(int) boolean
+        +getCurrentQuestion() QuizQuestion
+        +isGameCompleted() boolean
+    }
+
+    class KahootPanel {
+        -model: KahootModel
+        -answerButtons: JButton[]
+        +showQuestion(QuizQuestion)
+        +showFeedback(boolean, String)
+        +disableAnswerButtons()
+    }
+
+    class ScoringStrategy {
+        <<interface>>
+        +calculate(int) int
+    }
+
+    %% Relazioni
+    KahootMinigame ..|> Minigame
+    KahootMinigame ..|> KahootListener
+    KahootMinigame --> KahootModel
+    KahootMinigame --> KahootPanel
+    KahootMinigame --> ScoringStrategy
+    
+    KeyHandler ..|> KeyListener
+    
+    MinigameFactory ..> Minigame : creates
+    MinigameFactory ..> KahootMinigame : creates
+    
+    KahootModel --> KahootListener : notifies
+    KahootPanel --> KahootModel : observes
+```
+
+---
+
+## 🔧 Tecnologie e Pattern Utilizzati
+
+* **Java Swing** per l'interfaccia utente
+* **Pattern MVC** per separazione delle responsabilità
+* **Factory Pattern** per creazione centralizzata
+* **Observer Pattern** per notifiche eventi
+* **Strategy Pattern** per sistemi di scoring flessibili
+* **Thread Management** per operazioni non bloccanti
+
+---
+
+## 🚀 Caratteristiche Chiave
+
+* **Robustezza**: Gestione completa degli errori con fallback intelligenti
+* **Estensibilità**: Architettura modulare per facilità di espansione
+* **Usabilità**: Interfacce intuitive con supporto accessibilità
+* **Performance**: Gestione efficiente delle risorse e threading ottimizzato
+* **Collaborazione**: Sviluppo in team con integrazione seamless
+
+---
+
+## 📝 Note sull'Implementazione
+
+* Implementazione **MVC** con gestione threading avanzata per `KahootMinigame`
+* Sistema **input** con auto-reset per azioni singole in `KeyHandler`
+* Utility **robusta** sviluppata in collaborazione con fallback per `AssetLoader`
+* **Factory** per creazione centralizzata minigame in `MinigameFactory`
+
+
+---
+
 #### 2.2.3 Daniel Alejandro Horna
 
 **Gestione sistema di punteggi**
@@ -220,5 +614,3 @@ Raggiungere l’uscita dell’università risolvendo tutti i minigiochi.
 - [Ispirazione e tutorial](https://www.youtube.com/@RyiSnow)
 
 ---
-
-*(Personalizza i dettagli tecnici, i nomi dei membri e le sezioni secondo il tuo progetto!)* 
