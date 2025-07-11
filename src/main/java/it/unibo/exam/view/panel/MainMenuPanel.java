@@ -1,6 +1,8 @@
 package it.unibo.exam.view.panel;
 
 import it.unibo.exam.utility.geometry.Point2D;
+import it.unibo.exam.utility.medialoader.AssetLoader;
+import it.unibo.exam.utility.medialoader.AudioManager;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -19,9 +21,6 @@ import javax.swing.JPanel;
 import javax.swing.plaf.basic.BasicButtonUI;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
-
-import it.unibo.exam.utility.AssetLoader;
-import it.unibo.exam.utility.AudioManager;
 
 /**
  * Main menu panel for the game, displays play, options and exit buttons.

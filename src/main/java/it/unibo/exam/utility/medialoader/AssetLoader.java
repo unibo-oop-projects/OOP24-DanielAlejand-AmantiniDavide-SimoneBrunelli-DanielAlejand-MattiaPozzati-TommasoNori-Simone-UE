@@ -1,4 +1,4 @@
-package it.unibo.exam.utility;
+package it.unibo.exam.utility.medialoader;
 
 import java.awt.Image;
 import java.io.IOException;

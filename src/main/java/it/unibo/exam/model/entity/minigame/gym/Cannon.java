@@ -79,7 +79,7 @@ public class Cannon extends MovementEntity {
      */
     public Point2D getCannonTip() {
         final int x = super.getPosition().getX() + size.getX() / 2 + (int) (size.getX() * Math.cos(angle));
-        final int y = super.getPosition().getY() + (int) (size.getX() * Math.sin(angle));
+        final int y = super.getPosition().getY() - (int) (size.getX() * Math.sin(angle));
         return new Point2D(x, y);
     }
 }

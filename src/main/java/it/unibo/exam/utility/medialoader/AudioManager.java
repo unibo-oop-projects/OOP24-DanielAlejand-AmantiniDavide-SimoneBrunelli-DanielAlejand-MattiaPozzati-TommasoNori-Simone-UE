@@ -1,4 +1,4 @@
-package it.unibo.exam.utility;
+package it.unibo.exam.utility.medialoader;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;

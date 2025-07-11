@@ -3,7 +3,7 @@ package it.unibo.exam.view.garden;
 import it.unibo.exam.model.entity.minigame.garden.BallEntity;
 import it.unibo.exam.model.entity.minigame.garden.BottleEntity;
 import it.unibo.exam.model.entity.minigame.garden.CatchBallModel;
-import it.unibo.exam.utility.AssetLoader;
+import it.unibo.exam.utility.medialoader.AssetLoader;
 
 import javax.swing.JPanel;
 import java.awt.Graphics;

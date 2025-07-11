@@ -1,8 +1,8 @@
 package it.unibo.exam;
 
 import it.unibo.exam.controller.input.KeyHandler;
+import it.unibo.exam.utility.medialoader.AudioManager;
 import it.unibo.exam.view.panel.MainMenuPanel;
-import it.unibo.exam.utility.AudioManager;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;

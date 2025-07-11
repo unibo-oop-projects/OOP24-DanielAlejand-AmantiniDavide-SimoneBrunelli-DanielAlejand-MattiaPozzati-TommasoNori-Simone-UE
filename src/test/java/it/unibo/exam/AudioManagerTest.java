@@ -1,7 +1,9 @@
 package it.unibo.exam;
 
-import it.unibo.exam.utility.AudioManager;
 import org.junit.jupiter.api.Test;
+
+import it.unibo.exam.utility.medialoader.AudioManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertFalse;

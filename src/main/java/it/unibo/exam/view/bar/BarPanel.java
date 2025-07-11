@@ -3,7 +3,7 @@ package it.unibo.exam.view.bar;
 import it.unibo.exam.controller.minigame.bar.GlassClickListener;
 import it.unibo.exam.model.entity.minigame.bar.BarModel;
 import it.unibo.exam.model.entity.minigame.bar.Glass;
-import it.unibo.exam.utility.AssetLoader;
+import it.unibo.exam.utility.medialoader.AssetLoader;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import javax.swing.JPanel;
