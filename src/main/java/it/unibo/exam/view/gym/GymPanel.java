@@ -45,7 +45,6 @@ public class GymPanel extends JPanel {
         this.keyHandler = new KeyHandler();
         setFocusable(true);
         this.backgroundImage = AssetLoader.loadImage("gym/background/gback.jpg");
-        this.backgroundImage = AssetLoader.loadImage("gym/background/gback.jpg");
 
         final Timer timer = new Timer(REFRESH_RATE, e -> {
             // Handle key input for cannon
