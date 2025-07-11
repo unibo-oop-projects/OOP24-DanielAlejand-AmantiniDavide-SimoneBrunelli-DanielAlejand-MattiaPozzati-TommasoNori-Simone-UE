@@ -18,13 +18,16 @@ public class GymModel {
     private static final int POINTS_PER_DISK = 10;
     private static final int WIN_SCORE = 500;
     private static final int CANNON_PADDING = 50;
-    private static final int DISK_GAP = 10;
     private static final int ROWS = 4;
     private static final int COLS = 8;
+    private static final int DISK_GAP = 2; // Gap between disks in the grid
 
     private static final Color[] DISK_COLORS = {
         Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW,
     };
+
+    private static final int MIN_DISK_RADIUS = 18;
+    private static final int MAX_DISK_RADIUS = 40;
 
     private Cannon cannon;
     private List<Disk> disks;
@@ -67,7 +70,7 @@ public class GymModel {
         final int availableHeight = env.getY() / 2;
         final int maxRadiusX = (availableWidth - (COLS - 1) * DISK_GAP) / (2 * COLS);
         final int maxRadiusY = (availableHeight - (ROWS - 1) * DISK_GAP) / (2 * ROWS);
-        this.diskRadius = Math.max(10, Math.min(maxRadiusX, maxRadiusY));
+        this.diskRadius = Math.max(MIN_DISK_RADIUS, Math.min(MAX_DISK_RADIUS, Math.min(maxRadiusX, maxRadiusY)));
     }
 
     /**
@@ -138,12 +141,12 @@ public class GymModel {
     private void createDisks() {
         final int radius = diskRadius;
         final int startY = CANNON_PADDING;
-        final int totalWidth = COLS * (radius * 2 + DISK_GAP) - DISK_GAP;
+        final int totalWidth = COLS * radius * 2;
         final int startX = (env.getX() - totalWidth) / 2;
         for (int row = 0; row < ROWS; row++) {
             for (int col = 0; col < COLS; col++) {
-                final int x = startX + col * (radius * 2 + DISK_GAP) + (row % 2 == 0 ? 0 : radius + 2);
-                final int y = row * (radius * 2 + DISK_GAP) + startY;
+                final int x = startX + col * radius * 2 + (row % 2 == 0 ? 0 : radius + 2);
+                final int y = row * radius * 2 + startY;
                 final Color color = DISK_COLORS[random.nextInt(DISK_COLORS.length)];
                 disks.add(new Disk(new Point2D(x, y), color, radius, env));
             }
@@ -223,7 +226,7 @@ public class GymModel {
             if (!neighbor.isPopped() 
                 && !matches.contains(neighbor)
                 && current.getColor().equals(neighbor.getColor())
-                && current.getPosition().distance(neighbor.getPosition()) <= 2 * r + DISK_GAP) {
+                && current.getPosition().distance(neighbor.getPosition()) <= 2 * r) {
                 findMatchesRecursive(neighbor, matches);
             }
         }
@@ -243,6 +246,7 @@ public class GymModel {
         if (projectile == null || !projectile.isActive()) {
             final Point2D tip = cannon.getCannonTip();
             final Color color = nextProjectileColor;
+            // Usa sempre diskRadius per il proiettile
             projectile = new Projectile(new Point2D(tip), color, diskRadius, cannon.getAngle(), env);
             nextProjectileColor = DISK_COLORS[random.nextInt(DISK_COLORS.length)];
         }
@@ -257,13 +261,52 @@ public class GymModel {
     }
 
     /**
-     * Resizes the game environment and restarts the game with the new size.
+     * Resizes the game environment in a robust way: the cannon is always centered at the bottom with padding,
+     * the disks are realigned in a grid at the top, and the projectile is clamped within the new bounds.
+     * This ensures the minigame remains playable in fullscreen or with extreme proportions.
      * @param newSize the new environment size
      */
     public void resize(final Point2D newSize) {
         if (newSize != null) {
-            env.setXY(newSize.getX(), newSize.getY());
-            initializeGame();
+            final int newWidth = newSize.getX();
+            final int newHeight = newSize.getY();
+            // Update the environment size
+            env.setXY(newWidth, newHeight);
+            // Update the disk radius based on the new environment
+            updateDiskRadius();
+            // Recenter the cannon at the bottom
+            if (cannon != null) {
+                final int cannonWidth = diskRadius * 2;
+                final int cannonHeight = diskRadius * 2;
+                final int x = newWidth / 2 - cannonWidth / 2;
+                final int y = newHeight - CANNON_PADDING - cannonHeight;
+                cannon.setPosition(new Point2D(x, y));
+            }
+            // Recalculate the grid of disks at the top, preserving color and popped state
+            if (disks != null && !disks.isEmpty()) {
+                final int radius = diskRadius;
+                final int startY = CANNON_PADDING;
+                final int totalWidth = COLS * radius * 2;
+                final int startX = (newWidth - totalWidth) / 2;
+                int diskIdx = 0;
+                for (int row = 0; row < ROWS; row++) {
+                    for (int col = 0; col < COLS; col++) {
+                        if (diskIdx < disks.size()) {
+                            final Disk disk = disks.get(diskIdx);
+                            final int x = startX + col * radius * 2 + (row % 2 == 0 ? 0 : radius + 2);
+                            final int y = row * radius * 2 + startY;
+                            disk.setPosition(new Point2D(x, y));
+                            diskIdx++;
+                        }
+                    }
+                }
+            }
+            // Clamp the projectile within the new bounds if present
+            if (projectile != null && projectile.isActive()) {
+                final int px = Math.max(0, Math.min(projectile.getPosition().getX(), newWidth - 1));
+                final int py = Math.max(0, Math.min(projectile.getPosition().getY(), newHeight - 1));
+                projectile.setPosition(new Point2D(px, py));
+            }
         }
     }
 

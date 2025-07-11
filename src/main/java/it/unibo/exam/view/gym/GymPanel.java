@@ -1,11 +1,10 @@
 package it.unibo.exam.view.gym;
-
 import it.unibo.exam.model.entity.minigame.gym.GymModel;
 import it.unibo.exam.model.entity.minigame.gym.Cannon;
 import it.unibo.exam.model.entity.minigame.gym.Disk;
 import it.unibo.exam.model.entity.minigame.gym.Projectile;
-import it.unibo.exam.utility.AssetLoader;
 import it.unibo.exam.utility.geometry.Point2D;
+import it.unibo.exam.utility.AssetLoader;
 import it.unibo.exam.controller.input.KeyHandler;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -45,7 +44,7 @@ public class GymPanel extends JPanel {
         this.model = model;
         this.keyHandler = new KeyHandler();
         setFocusable(true);
-        this.backgroundImage = AssetLoader.loadImage("gym/background/gback.png");
+        this.backgroundImage = AssetLoader.loadImage("gym/background/gback.jpg");
 
         final Timer timer = new Timer(REFRESH_RATE, e -> {
             // Handle key input for cannon
