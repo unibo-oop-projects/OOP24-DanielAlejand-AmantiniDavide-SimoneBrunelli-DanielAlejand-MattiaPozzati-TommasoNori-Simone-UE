@@ -5,14 +5,6 @@ package it.unibo.exam.model.data;
  * Updated to include the new Library room.
  */
 public class RoomScoreData {
-    // Room names mapped by room ID
-    private static final String[] ROOM_NAMES = {
-        "Garden",
-        "2.12",
-        "Lab",
-        "Gym",
-        "Bar",
-    };
 
     private final int roomId;
     private final int timeTaken;
@@ -32,18 +24,6 @@ public class RoomScoreData {
         this.timeTaken = timeTaken;
         this.pointsGained = pointsGained;
         this.completed = completed;
-    }
-
-    /**
-     * Gets the name of the room based on its ID.
-     *
-     * @return the room's name
-     */
-    public String getRoomName() {
-        if (roomId >= 0 && roomId < ROOM_NAMES.length) {
-            return ROOM_NAMES[roomId];
-        }
-        return "Unknown";
     }
 
     /**
@@ -82,7 +62,6 @@ public class RoomScoreData {
     public String toString() {
         return "RoomScoreData{"
             + "roomId=" + roomId
-            + ", roomName='" + getRoomName() + '\''
             + ", timeTaken=" + timeTaken
             + ", pointsGained=" + pointsGained
             + ", completed=" + completed
