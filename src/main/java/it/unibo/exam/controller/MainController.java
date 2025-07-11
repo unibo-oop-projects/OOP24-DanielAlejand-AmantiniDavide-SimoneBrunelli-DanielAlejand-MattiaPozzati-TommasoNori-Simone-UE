@@ -11,9 +11,12 @@ import it.unibo.exam.controller.input.KeyHandler;
 import it.unibo.exam.controller.position.PlayerPositionManager;
 import it.unibo.exam.controller.minigame.MinigameManager;
 import it.unibo.exam.model.entity.Player;
+import it.unibo.exam.model.entity.Npc;
+import it.unibo.exam.model.entity.RoamingNpc;                    // ADDED
 import it.unibo.exam.model.entity.enviroments.Door;
 import it.unibo.exam.model.entity.enviroments.Room;
 import it.unibo.exam.model.game.GameState;
+import it.unibo.exam.utility.generator.NpcGenerator;              // ADDED
 import it.unibo.exam.utility.generator.RoomGenerator;
 import it.unibo.exam.utility.geometry.Point2D;
 import it.unibo.exam.view.GameRenderer;
@@ -37,14 +40,14 @@ public class MainController {
     private final KeyHandler      keyHandler;
     private final GameState       gameState;
     private final GameRenderer    gameRenderer;
-    private MinigameManager minigameManager;
+    private MinigameManager       minigameManager;
     private boolean               running;
     private Point2D               environmentSize;
-    private boolean minigameActive;
-    private int currentMinigameRoomId = -1;
+    private boolean               minigameActive;
+    private int                   currentMinigameRoomId = -1;
     @SuppressFBWarnings(value = {"EI_EXPOSE_REP", "EI_EXPOSE_REP2"}, 
                    justification = "JFrame reference is intentionally stored for UI operations and cannot be defensively copied")
-    private JFrame parentFrame;
+    private JFrame                parentFrame;
 
     /**
      * Constructor with parent frame for minigame integration.
@@ -56,9 +59,22 @@ public class MainController {
         // Core setup
         this.keyHandler      = new KeyHandler();
         this.gameState       = new GameState(environmentSize);
-        this.gameRenderer    = new GameRenderer(gameState);
         this.environmentSize = new Point2D(environmentSize);
         this.parentFrame     = parentFrame;
+
+        // ── ADDED: spawn both interactive and roaming NPCs via generator ──
+        NpcGenerator npcGen = new NpcGenerator(environmentSize);
+        for (Room r : gameState.getAllRooms()) {
+            // 1) interactive puzzle NPC
+            Npc interactive = npcGen.generate(r.getId());
+            r.attachNpc(interactive);
+            // 2) roaming background NPC
+            RoamingNpc wanderer = npcGen.generateRoamingNpc(r);
+            r.addRoamingNpc(wanderer);
+        }
+        // ─────────────────────────────────────────────────────────────────────
+
+        this.gameRenderer    = new GameRenderer(gameState);
 
         // —— MinigameManager setup ——
         if (parentFrame != null) {
@@ -181,8 +197,15 @@ public class MainController {
      * Updates the game state.
      */
     private void update() {
+        final double deltaTime = 1.0 / FPS;                            // ADDED: compute timestep
         final Player player = gameState.getPlayer();
-        final Room room = gameState.getCurrentRoom();
+        final Room room     = gameState.getCurrentRoom();
+
+        // ── ADDED: move all roaming NPCs each tick ──
+        for (RoamingNpc rn : room.getRoamingNpcs()) {
+            rn.update(deltaTime, room);
+        }
+        // ─────────────────────────────────────────────
 
         movePlayer(player);
         checkInteraction(player, room);
@@ -202,32 +225,26 @@ public class MainController {
      * Shows the EndGameMenu by replacing the current panel content.
      */
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", 
-                   justification = "Exception handling pattern is intentional for UI operations")
+                       justification = "Exception handling pattern is intentional for UI operations")
     private void showEndGameMenu() {
-        // Validate prerequisites before attempting UI operations
         if (parentFrame == null) {
             LOGGER.severe("Cannot show EndGameMenu: parent frame is null");
             return;
         }
-
         if (gameState == null || gameState.getPlayer() == null) {
             LOGGER.severe("Cannot show EndGameMenu: game state or player is null");
             return;
         }
 
         try {
-            // Stop any running minigames
             if (minigameManager != null) {
                 minigameManager.stopCurrentMinigame();
             }
-
-            // Remove current content and add EndGameMenu
             parentFrame.getContentPane().removeAll();
             final EndGameMenu endGameMenu = new EndGameMenu(parentFrame, gameState.getPlayer());
             parentFrame.add(endGameMenu);
             parentFrame.revalidate();
             parentFrame.repaint();
-
             LOGGER.info("EndGameMenu displayed successfully");
         } catch (final IllegalStateException e) {
             LOGGER.log(Level.SEVERE, "UI state error when showing EndGameMenu", e);
@@ -251,9 +268,7 @@ public class MainController {
                 return;
             }
             if (room.getId() == 0 && door.isEndgameDoor()) {
-                // Delegate the win logic to checkWin()
                 checkWin();
-                // If still running, player hasn't met the condition
                 if (running) {
                     JOptionPane.showMessageDialog(
                         null,
@@ -263,7 +278,6 @@ public class MainController {
                     );
                 }
             } else {
-                // Normal transition
                 gameState.changeRoom(door.getToId());
                 positionPlayerAfterRoomChange(door);
                 LOGGER.info("Moved from room "
@@ -306,7 +320,6 @@ public class MainController {
      */
     private boolean isNearDoor(final Player player, final Door door) {
         final int proximityBuffer = 30;
-
         final Point2D playerPos = player.getPosition();
         final Point2D playerSize = player.getDimension();
         final Point2D doorPos = door.getPosition();
@@ -324,9 +337,8 @@ public class MainController {
      * @param npc the NPC
      * @return true if player is close enough to interact
      */
-    private boolean isNearNpc(final Player player, final it.unibo.exam.model.entity.Npc npc) {
+    private boolean isNearNpc(final Player player, final Npc npc) {
         final int proximityBuffer = 30;
-
         final Point2D playerPos = player.getPosition();
         final Point2D playerSize = player.getDimension();
         final Point2D npcPos = npc.getPosition();
@@ -373,25 +385,25 @@ public class MainController {
 
         if (keyHandler.isUpPressed()) {
             final int newY = currentPos.getY() - speed;
-            if (newY >= 10) { // 10 pixel margin from top
+            if (newY >= 10) {
                 player.move(0, -speed);
             }
         }
         if (keyHandler.isDownPressed()) {
             final int newY = currentPos.getY() + speed;
-            if (newY + playerSize.getY() <= environmentSize.getY() - 10) { // 10 pixel margin from bottom
+            if (newY + playerSize.getY() <= environmentSize.getY() - 10) {
                 player.move(0, speed);
             }
         }
         if (keyHandler.isLeftPressed()) {
             final int newX = currentPos.getX() - speed;
-            if (newX >= 10) { // 10 pixel margin from left
+            if (newX >= 10) {
                 player.move(-speed, 0);
             }
         }
         if (keyHandler.isRightPressed()) {
             final int newX = currentPos.getX() + speed;
-            if (newX + playerSize.getX() <= environmentSize.getX() - 10) { // 10 pixel margin from right
+            if (newX + playerSize.getX() <= environmentSize.getX() - 10) {
                 player.move(speed, 0);
                 ensurePlayerInBounds(player);
             }
@@ -439,17 +451,13 @@ public class MainController {
      */
     public void endMinigame(final boolean success, final int timeTaken, final int score) {
         if (minigameActive && currentMinigameRoomId >= 0 && success) {
-            // store and notify observers
             gameState.getPlayer().addRoomScore(currentMinigameRoomId, timeTaken, score);
-            // log success
             LOGGER.info("Minigame completed successfully! Room "
                         + currentMinigameRoomId
                         + ", Time: " + timeTaken + "s, Points: " + score);
         } else if (minigameActive) {
-            // log failure
             LOGGER.info("Minigame failed for room " + currentMinigameRoomId);
         }
-        // reset state
         minigameActive        = false;
         currentMinigameRoomId = -1;
     }

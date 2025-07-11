@@ -1,7 +1,11 @@
 package it.unibo.exam.utility.generator;
 
 import it.unibo.exam.model.entity.Npc;
+import it.unibo.exam.model.entity.RoamingNpc;                   // ADDED
+import it.unibo.exam.model.entity.MovementStrategy;             // ADDED
+import it.unibo.exam.model.entity.RandomWalkStrategy;           // ADDED
 import it.unibo.exam.utility.geometry.Point2D;
+import it.unibo.exam.model.entity.enviroments.Room;
 
 /**
  * NPC generator.
@@ -40,23 +44,44 @@ public final class NpcGenerator extends EntityGenerator<Npc> {
     /**
      * Constructor for NpcGenerator.
      *
-     * @param enviromentSize the size of the environment
+     * @param environmentSize the size of the environment
      */
-    public NpcGenerator(final Point2D enviromentSize) {
-        super(enviromentSize);
+    public NpcGenerator(final Point2D environmentSize) {
+        super(environmentSize);
     }
 
     /**
-     * Generates an NPC based on the given ID.
+     * Generates an interactable NPC based on the given ID.
      *
      * @param id the ID of the NPC to generate
      * @return the generated NPC
      */
     @Override
     public Npc generate(final int id) {
-        final String name = NAMES[id];
-        final String description = DESCRIPTIONS[id];
-        final String dialogue = DIALOGUES[id];
+        final String name       = NAMES[id];
+        final String description= DESCRIPTIONS[id];
+        final String dialogue   = DIALOGUES[id];
         return new Npc(super.getEnv(), name, description, dialogue);
+    }
+
+    // ── NEW METHOD ─────────────────────────────────────────────────────────────
+
+    /**
+     * Generates a single non-interactable, roaming NPC for the given room.
+     *
+     * @param room the room to populate
+     * @return a RoamingNpc that will wander within the environment bounds
+     */
+    public RoamingNpc generateRoamingNpc(final Room room) {
+        // pick a spawn point (here: staggered by room ID, feel free to customize)
+        Point2D start = new Point2D(
+            50 + 100 * room.getId(),
+            80
+        );
+
+        // movement strategy knows the world bounds from getEnv()
+        MovementStrategy strategy = new RandomWalkStrategy(super.getEnv());
+
+        return new RoamingNpc(start, super.getEnv(), strategy);
     }
 }
