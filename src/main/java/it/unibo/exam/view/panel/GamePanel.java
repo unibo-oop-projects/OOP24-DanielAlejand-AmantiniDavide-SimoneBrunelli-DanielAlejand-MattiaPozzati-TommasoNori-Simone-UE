@@ -143,6 +143,7 @@ public final class GamePanel extends JPanel {
      * Starts the game controller in a separate thread.
      */
     private void startGameController() {
+        LOGGER.info("Starting game loop in thread " + Thread.currentThread().getName());
         final Thread gameThread = new Thread(mainController::start,
                                              "GameControllerThread");
         gameThread.setDaemon(true);

@@ -11,8 +11,7 @@ public interface ScoringStrategy {
      * Calculate the points to award for clearing a room.
      *
      * @param timeTaken the time taken to complete the room (in seconds)
-     * @param roomId    the identifier of the room
      * @return the number of points to award
      */
-    int calculate(int timeTaken, int roomId);
+    int calculate(int timeTaken);
 }

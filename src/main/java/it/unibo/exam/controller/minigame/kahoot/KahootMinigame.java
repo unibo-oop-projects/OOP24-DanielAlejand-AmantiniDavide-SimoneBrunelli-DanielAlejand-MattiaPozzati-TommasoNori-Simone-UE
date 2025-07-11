@@ -36,7 +36,6 @@ public final class KahootMinigame implements Minigame, KahootListener {
     private static final int WINDOW_HEIGHT = 400;
     private static final int FEEDBACK_DELAY = 2000;
     private static final int PENALTY_SECONDS = 10;
-    private static final int ROOM_ID = 2; // Kahoot is in room 2
 
     // Scoring configuration constants
     private static final int BONUS_TIME_THRESHOLD_SECONDS = 15; // Faster threshold for quiz
@@ -258,7 +257,7 @@ public final class KahootMinigame implements Minigame, KahootListener {
         final int totalQuestions = model.getTotalQuestions();
 
         // Calculate score using the strategy pattern
-        final int calculatedScore = scoringStrategy.calculate(finalTime, ROOM_ID);
+        final int calculatedScore = scoringStrategy.calculate(finalTime);
 
         gameFrame.getContentPane().removeAll();
 

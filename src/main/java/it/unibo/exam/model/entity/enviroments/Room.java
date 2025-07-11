@@ -1,11 +1,13 @@
 package it.unibo.exam.model.entity.enviroments;
 
 import java.util.ArrayList;
+import java.util.Collections; // ADDED
 import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import it.unibo.exam.model.entity.Npc;
 import it.unibo.exam.model.entity.minigame.Minigame;
+import it.unibo.exam.model.entity.RoamingNpc; // ADDED
 import it.unibo.exam.utility.generator.RoomGenerator;
 
 /**
@@ -18,6 +20,7 @@ public class Room {
     private final int roomType;
     private Npc npc;
     private List<Door> doors;
+    private final List<RoamingNpc> roamingNpcs = new ArrayList<>(); // ADDED
 
     /**
      * Constructor.
@@ -104,7 +107,7 @@ public class Room {
      * Attaches an NPC to this room.
      * @param npc the NPC to attach
      */
-     @SuppressFBWarnings(value = "EI_EXPOSE_REP2", 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", 
                        justification = "NPC is designed to be shared and modified by room, defensive copy not needed")
     public void attachNpc(final Npc npc) {
         if (roomType == RoomGenerator.MAIN_ROOM) {
@@ -122,5 +125,22 @@ public class Room {
             throw new IllegalStateException("Main room has no minigame");
         }
         this.minigame = mg;
+    }
+
+    // ------------------- ADDED: ROAMING NPC SUPPORT -------------------
+
+    /**
+     * Adds a roaming NPC to this room.
+     * @param npc the roaming NPC to add
+     */
+    public void addRoamingNpc(final RoamingNpc npc) {
+        this.roamingNpcs.add(npc);
+    }
+
+    /**
+     * @return unmodifiable list of roaming NPCs in this room
+     */
+    public List<RoamingNpc> getRoamingNpcs() {
+        return Collections.unmodifiableList(roamingNpcs);
     }
 }

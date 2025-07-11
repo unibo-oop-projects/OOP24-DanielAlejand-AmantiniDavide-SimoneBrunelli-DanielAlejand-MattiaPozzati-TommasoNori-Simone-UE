@@ -29,7 +29,6 @@ import it.unibo.exam.utility.AudioManager;
  * This class is final as it's not designed for extension.
  */
 public final class MainMenuPanel extends JPanel {
-
     private static final long serialVersionUID = 1L;
 
     // Button size constants
@@ -37,17 +36,21 @@ public final class MainMenuPanel extends JPanel {
     private static final int HEIGHTBUTTON   = 80;
     private static final int BUTTONFONTSIZE = 30;
     private static final int BUTTONSPACING  = 20;
-    private static final int DIALOGUE_WIDTH  = 20;
-    private static final int DIALOGUE_HEIGHT  = 20;
 
-    // Color constants for magic numbers
-    private static final int BUTTON_TEXT_RED      = 255;
-    private static final int BUTTON_TEXT_GREEN    = 255;
-    private static final int BUTTON_TEXT_BLUE     = 255;
-    private static final int BUTTON_TEXT_ALPHA    = 220;
+    // Color constants for button text
+    private static final int BUTTON_TEXT_RED   = 255;
+    private static final int BUTTON_TEXT_GREEN = 255;
+    private static final int BUTTON_TEXT_BLUE  = 255;
+    private static final int BUTTON_TEXT_ALPHA = 220;
     private static final int BUTTON_BORDER_RADIUS = 30;
-    // Constant for the Mute button text
-    private static final String MUTE_STRING = "\ud83d\udd07 Mute";
+
+    // Pause dialog size constants
+    private static final int PAUSE_DIALOG_WIDTH  = 300;
+    private static final int PAUSE_DIALOG_HEIGHT = 160;
+
+    // Audio label constants
+    private static final String MUTE_LABEL   = "🔇 Mute";
+    private static final String UNMUTE_LABEL = "🔊 Unmute";
 
     /** The background image drawn behind the menu. */
     private transient Image backgroundImage;
@@ -73,7 +76,7 @@ public final class MainMenuPanel extends JPanel {
         setLayout(new GridBagLayout());
         setPreferredSize(window.getSize());
 
-        // --- LOAD BACKGROUND IMAGE ---
+        // Load background image
         backgroundImage = AssetLoader.loadImage("MainMenu/MainMenuBackGround.png");
 
         // Prepare buttons
@@ -123,15 +126,22 @@ public final class MainMenuPanel extends JPanel {
 
     private void startGame(final JFrame window) {
         window.getContentPane().removeAll();
+        // ensure the content pane is using BorderLayout
+        window.getContentPane().setLayout(new java.awt.BorderLayout());
 
         final Dimension size = window.getSize();
         final Point2D gameSize = new Point2D(size.width, size.height);
 
         gamePanel = new GamePanel(gameSize, window);
-        window.add(gamePanel);
+        window.getContentPane().add(gamePanel, java.awt.BorderLayout.CENTER);
+
+        // now validate and repaint the content pane
+        window.getContentPane().validate();
+        window.getContentPane().repaint();
+
+        // give the game panel focus
         gamePanel.requestFocusInWindow();
-        window.revalidate();
-        window.repaint();
+
         addReturnToMenuListener(window);
     }
 
@@ -142,6 +152,7 @@ public final class MainMenuPanel extends JPanel {
             gamePanel.getActionMap().put("returnToMenu",
                 new javax.swing.AbstractAction() {
                     private static final long serialVersionUID = 1L;
+
                     @Override
                     public void actionPerformed(final java.awt.event.ActionEvent e) {
                         returnToMenu(window);
@@ -158,10 +169,10 @@ public final class MainMenuPanel extends JPanel {
                 gamePanel.stopGame();
                 gamePanel = null;
             }
-        window.getContentPane().removeAll();
-        window.add(this);
-        window.revalidate();
-        window.repaint();
+            window.getContentPane().removeAll();
+            window.add(this);
+            window.revalidate();
+            window.repaint();
         }
     }
 
@@ -184,16 +195,16 @@ public final class MainMenuPanel extends JPanel {
         });
 
         // Mute checkbox
-        final JButton muteButton = new JButton(AudioManager.isMuted() ? "🔇 Unmute" : MUTE_STRING);
+        final JButton muteButton = new JButton(AudioManager.isMuted() ? UNMUTE_LABEL : MUTE_LABEL);
         muteButton.addActionListener(e -> {
             final boolean newMutedState = !AudioManager.isMuted();
             AudioManager.setMuted(newMutedState);
-            muteButton.setText(newMutedState ? "🔊 Unmute" : MUTE_STRING);
+            muteButton.setText(newMutedState ? UNMUTE_LABEL : MUTE_LABEL);
         });
 
         // Layout
-        gbc.gridx = 0; 
-        gbc.gridy = 0; 
+        gbc.gridx = 0;
+        gbc.gridy = 0;
         gbc.insets = new Insets(BUTTONSPACING, BUTTONSPACING, BUTTONSPACING, BUTTONSPACING);
         optionsPanel.add(musicLabel, gbc);
         gbc.gridx = 1;
@@ -221,13 +232,13 @@ public final class MainMenuPanel extends JPanel {
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Leggi la preferenza all'apertura
-        final JCheckBox soundCheck = new JCheckBox(AudioManager.isMuted() ? "🔇 Unmute" : MUTE_STRING);
+        // Sound toggle checkbox
+        final JCheckBox soundCheck = new JCheckBox(AudioManager.isMuted() ? UNMUTE_LABEL : MUTE_LABEL);
 
         final JButton mainMenuButton = new JButton("Torna al menu");
-        final JButton cancelButton = new JButton("Riprendi");
+        final JButton cancelButton   = new JButton("Riprendi");
 
-        final boolean[] result = {false}; // Per sapere se ha scelto "torna al menu"
+        final boolean[] result = {false}; // Tracks if user chose to return to menu
 
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
         dialog.add(soundCheck, gbc);
@@ -240,18 +251,16 @@ public final class MainMenuPanel extends JPanel {
         soundCheck.addActionListener(e -> {
             final boolean newMutedState = !AudioManager.isMuted();
             AudioManager.setMuted(newMutedState);
-            soundCheck.setText(newMutedState ? "🔊 Unmute" : MUTE_STRING);
+            soundCheck.setText(newMutedState ? UNMUTE_LABEL : MUTE_LABEL);
         });
 
         mainMenuButton.addActionListener(e -> {
-            result[0] = true; // utente vuole tornare al menu
+            result[0] = true;
             dialog.dispose();
         });
-        cancelButton.addActionListener(e -> {
-            dialog.dispose();
-        });
+        cancelButton.addActionListener(e -> dialog.dispose());
 
-        dialog.setSize(DIALOGUE_WIDTH, DIALOGUE_HEIGHT);
+        dialog.setSize(PAUSE_DIALOG_WIDTH, PAUSE_DIALOG_HEIGHT);
         dialog.setLocationRelativeTo(window);
         dialog.setVisible(true);
         return result[0];
@@ -264,8 +273,7 @@ public final class MainMenuPanel extends JPanel {
         button.setContentAreaFilled(false);
         button.setOpaque(false);
         button.setForeground(new Color(
-            BUTTON_TEXT_RED, BUTTON_TEXT_GREEN,
-            BUTTON_TEXT_BLUE, BUTTON_TEXT_ALPHA
+            BUTTON_TEXT_RED, BUTTON_TEXT_GREEN, BUTTON_TEXT_BLUE, BUTTON_TEXT_ALPHA
         ));
         button.setFont(new Font("Arial", Font.BOLD, BUTTONFONTSIZE));
         button.setPreferredSize(new Dimension(WIDTHBUTTON, HEIGHTBUTTON));
@@ -286,11 +294,7 @@ public final class MainMenuPanel extends JPanel {
                 } else {
                     g2.setColor(baseColor);
                 }
-                g2.fillRoundRect(
-                    0, 0,
-                    button.getWidth(), button.getHeight(),
-                    BUTTON_BORDER_RADIUS, BUTTON_BORDER_RADIUS
-                );
+                g2.fillRoundRect(0, 0, button.getWidth(), button.getHeight(), BUTTON_BORDER_RADIUS, BUTTON_BORDER_RADIUS);
                 g2.dispose();
                 super.paint(g, c);
             }

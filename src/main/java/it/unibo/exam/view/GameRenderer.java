@@ -11,23 +11,31 @@ import it.unibo.exam.utility.generator.RoomGenerator;
 
 import java.awt.Graphics2D;
 import java.awt.Color;
+
 /**
  * Handles rendering of the game elements such as rooms and players.
  * Updated with entity-specific renderers.
  */
 public class GameRenderer {
 
-    private static final Color MAIN_ROOM_COLOR = new Color(70, 70, 90);
-    private static final Color PUZZLE_ROOM_COLOR = new Color(60, 80, 60);
+    private static final Color MAIN_ROOM_COLOR    = new Color(70, 70, 90);
+    private static final Color PUZZLE_ROOM_COLOR  = new Color(60, 80, 60);
     private static final Color DEFAULT_ROOM_COLOR = new Color(50, 50, 50);
+    private static final int REC_X = 5;
+    private static final int REC_Y = 5;
+    private static final int REC_WIDTH = 10;
+    private static final int REC_HEIGHT = 10;
+    private static final int STRING_X = 10;
+    private static final int STRING_Y = 25;
 
-    private final GameState gs;
-    private final ScoreHud scoreHud;
+
+    private final GameState      gs;
+    private final ScoreHud       scoreHud;
 
     // Entity renderers
     private final PlayerRenderer playerRenderer;
-    private final DoorRenderer doorRenderer;
-    private final NpcRenderer npcRenderer;
+    private final DoorRenderer   doorRenderer;
+    private final NpcRenderer    npcRenderer;
 
     /**
      * Constructor for GameRenderer.
@@ -35,38 +43,26 @@ public class GameRenderer {
      * @param gs the game state to render
      */
     public GameRenderer(final GameState gs) {
-        this.gs = gs;
-        this.scoreHud = new ScoreHud(gs);
+        this.gs             = gs;
+        this.scoreHud       = new ScoreHud(gs);
 
         // Initialize renderers
         this.playerRenderer = new PlayerRenderer();
-        this.doorRenderer = new DoorRenderer();
-        this.npcRenderer = new NpcRenderer();
+        this.doorRenderer   = new DoorRenderer();
+        this.npcRenderer    = new NpcRenderer();
     }
 
     /**
      * Renders the game by rendering the current room and player.
-     * This method should be called from a component with a Graphics2D context.
-     * 
+     *
      * @param g the graphics context to render on
      */
     public void renderGame(final Graphics2D g) {
         if (g == null) {
             throw new IllegalArgumentException("Graphics context cannot be null");
         }
-
         renderRoom(g, gs.getCurrentRoom());
         renderPlayer(g, gs.getPlayer());
-    }
-
-    /**
-     * Legacy method for backward compatibility.
-     * @deprecated Use renderGame(Graphics2D) instead
-     */
-    @Deprecated
-    public void renderGame() {
-        // This method is deprecated but kept for backward compatibility
-        // The actual rendering should be done externally with Graphics2D context
     }
 
     /**
@@ -79,7 +75,7 @@ public class GameRenderer {
     }
 
     /** 
-     * Renders the current room background, doors, and NPCs.
+     * Renders the current room background, doors, NPCs, and roaming NPCs.
      *
      * @param g the graphics context
      * @param currentRoom the room to render
@@ -89,19 +85,21 @@ public class GameRenderer {
             throw new IllegalArgumentException("Room cannot be null");
         }
 
-        // Clear background
         clearBackground(g);
-
-        // Draw room background
         drawRoomBackground(g, currentRoom);
 
-        // Render all doors
+        // Draw doors
         currentRoom.getDoors().forEach(door -> doorRenderer.render(g, door));
 
-        // Render NPC if present and room has one
-        if (currentRoom.getRoomType() == RoomGenerator.PUZZLE_ROOM && currentRoom.getNpc() != null) {
+        // Draw the puzzle NPC if present
+        if (currentRoom.getRoomType() == RoomGenerator.PUZZLE_ROOM
+            && currentRoom.getNpc() != null) {
             npcRenderer.render(g, currentRoom.getNpc());
         }
+
+        // ADDED: Draw all roaming NPCs (non-interactable)
+        currentRoom.getRoamingNpcs()
+                   .forEach(rn -> npcRenderer.render(g, rn));
     }
 
     /**
@@ -114,7 +112,6 @@ public class GameRenderer {
         if (player == null) {
             throw new IllegalArgumentException("Player cannot be null");
         }
-
         playerRenderer.render(g, player);
     }
 
@@ -124,7 +121,6 @@ public class GameRenderer {
      * @param g the graphics context
      */
     private void clearBackground(final Graphics2D g) {
-        // Get the clip bounds to know what area to clear
         final java.awt.Rectangle bounds = g.getClipBounds();
         if (bounds != null) {
             g.setColor(DEFAULT_ROOM_COLOR);
@@ -143,35 +139,25 @@ public class GameRenderer {
         if (bounds == null) {
             return;
         }
-
-        // Different background colors for different room types
         final Color roomColor = switch (room.getRoomType()) {
-            case RoomGenerator.MAIN_ROOM -> MAIN_ROOM_COLOR;
+            case RoomGenerator.MAIN_ROOM   -> MAIN_ROOM_COLOR;
             case RoomGenerator.PUZZLE_ROOM -> PUZZLE_ROOM_COLOR;
-            default -> DEFAULT_ROOM_COLOR;
+            default                         -> DEFAULT_ROOM_COLOR;
         };
 
         g.setColor(roomColor);
         g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
 
-        // Draw room borders
+        // Draw room border and title
         g.setColor(Color.WHITE);
-        final int x = 5, y = 5;
-        g.drawRect(x, y, bounds.width - 10, bounds.height - 10);
-
-        g.setColor(Color.WHITE);
-        final int offset = 25;
-        if (room.getId() == 0) {
-            g.drawString("Hub", 10, offset);
-        } else {
-            g.drawString(room.getName(), 10, offset);
-        }
+        g.drawRect(REC_X, REC_Y, bounds.width - REC_WIDTH, bounds.height - REC_HEIGHT);
+        g.drawString(room.getId() == 0 ? "Hub" : room.getName(), STRING_X, STRING_Y);
     }
 
     /**
-     * Temporary accessor for integration with future GamePanel.
+     * Accessor for the ScoreHud.
      *
-     * @return the ScoreHud used for rendering the HUD
+     * @return the ScoreHud used for rendering
      */
     public ScoreHud getScoreHud() {
         return scoreHud;

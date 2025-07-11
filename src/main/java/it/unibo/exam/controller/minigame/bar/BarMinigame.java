@@ -38,7 +38,6 @@ public final class BarMinigame implements Minigame {
     private static final int MAX_POINTS_CAP               = 100;
     private static final int CAPACITY       = 5;
     private static final int TOTAL_GLASSES  = 6;
-    private static final int ROOM_ID        = 5;
     private static final int FRAME_WIDTH    = 1000; // Preferred width for the minigame window
     private static final int FRAME_HEIGHT   = 600;  // Preferred height for the minigame window
     private static final Random RNG = new Random();
@@ -177,7 +176,7 @@ public final class BarMinigame implements Minigame {
             public void onCompleted() {
                 final long elapsedMillis  = System.currentTimeMillis() - startTimeMillis;
                 final int  elapsedSeconds = (int) (elapsedMillis / 1_000L);
-                final int  score          = scoringStrategy.calculate(elapsedSeconds, ROOM_ID);
+                final int  score          = scoringStrategy.calculate(elapsedSeconds);
 
                 JOptionPane.showMessageDialog(frame,
                     "Puzzle completed!\nMoves: " + moveCount

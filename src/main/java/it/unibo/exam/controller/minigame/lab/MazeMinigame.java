@@ -26,7 +26,6 @@ public final class MazeMinigame implements Minigame {
     private static final int BONUS_TIME_THRESHOLD_SECONDS = 30;
     private static final int BONUS_POINTS = 20;
     private static final int MAX_POINTS_CAP = 120;
-    private static final int ROOM_ID = 3;  // Example room ID for scoring
     private static final int WINDOW_WIDTH = 800;  // Window width constant
     private static final int WINDOW_HEIGHT = 600; // Window height constant
     private static final int MAX_LEVEL = 3;  // Maximum number of levels
@@ -133,7 +132,7 @@ public final class MazeMinigame implements Minigame {
                 } else {
                     // If all levels completed, notify callback
                     final int elapsedSeconds = getElapsedTimeSeconds();
-                    final int score = scoringStrategy.calculate(elapsedSeconds, ROOM_ID);
+                    final int score = scoringStrategy.calculate(elapsedSeconds);
                     callback.onComplete(true, elapsedSeconds, score);
                     JOptionPane.showMessageDialog(frame, "Congratulations! You completed all levels!");
                 }

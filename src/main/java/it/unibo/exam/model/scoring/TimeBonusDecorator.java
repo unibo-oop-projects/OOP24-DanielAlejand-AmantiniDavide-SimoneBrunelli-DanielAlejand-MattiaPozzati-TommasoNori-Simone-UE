@@ -32,12 +32,11 @@ public final class TimeBonusDecorator extends ScoringDecorator {
      * the timeTaken is strictly less than bonusThreshold.
      *
      * @param timeTaken the time taken to complete the room (seconds)
-     * @param roomId    the identifier of the room (unused in this decorator)
      * @return the points awarded, including any bonus
      */
     @Override
-    public int calculate(final int timeTaken, final int roomId) {
-        final int base = super.calculate(timeTaken, roomId);
+    public int calculate(final int timeTaken) {
+        final int base = super.calculate(timeTaken);
         return (timeTaken < bonusThreshold)
              ? base + bonusPoints
              : base;
