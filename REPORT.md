@@ -70,9 +70,20 @@ Per la logica delle entità, è stato utilizzato il pattern **ECS (Entity-Compon
 
 #### 2.2.1 Pozzati Mattia
 
-**Gestione della creazione delle entità:**  
-Utilizzo del **Factory Pattern** per la creazione centralizzata delle entità.
-Le entità sono composte tramite componenti (es. movimento, collisione, input). Le collisioni sono gestite tramite hitbox e metodi dedicati.
+**Gestione della creazione delle entità:**
+![Testo alternativo](reportImg/EntityUML.png)
+Ho implementato il **Factory Pattern** per centralizzare la creazione delle entità di gioco (giocatore, NPC, oggetti interattivi). Questo approccio permette di gestire facilmente la complessità e la varietà delle entità, garantendo coerenza e riusabilità del codice. Le entità sono composte seguendo il paradigma ECS (Entity-Component-System). Le collisioni sono gestite tramite hitbox e metodi dedicati, assicurando un’interazione precisa tra le entità e l’ambiente. Queste sono le entità globali. In ogni minigioco sono presenti Entità caratteristiche sviluppate estendendo quelle globali.
+**Minigioco stanza Gym "Bubble Shooter":**
+![Testo alternativo](reportImg/GymUML.png)
+Mi sono occupato della progettazione e dello sviluppo del minigioco della stanza Gym, ispirato al classico "Bubble Shooter". Ho realizzato sia la logica di gioco (model) che la gestione degli input e la visualizzazione grafica (controller e view).
+- Model: Ho definito le classi per rappresentare i dischi (bubbles), il cannone e i proiettili, implementando la logica di movimento, collisione e rimozione dei dischi colpiti.
+- Controller: Ho gestito gli input da tastiera e mouse per controllare il cannone e sparare i proiettili, integrando la logica di aggiornamento dello stato del gioco.
+- View: Ho curato la visualizzazione grafica del minigioco, disegnando dinamicamente i dischi, il cannone e gli effetti di gioco, mantenendo uno stile coerente con il resto del progetto.
+
+**Altre responsabilità:**
+Ho contribuito all’implementazione delle classi relative all'accesso alle risorse del progetto.
+Ho partecipato alla progettazione delle interfacce principali e alla definizione delle entità del dominio.
+
 
 #### 2.2.2 Davide Amantini
 

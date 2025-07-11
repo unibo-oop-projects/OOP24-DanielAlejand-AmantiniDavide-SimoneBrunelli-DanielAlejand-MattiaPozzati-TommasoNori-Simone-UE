@@ -3,11 +3,8 @@ package it.unibo.exam.model.entity.minigame.garden;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.io.IOException;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 
-import javax.imageio.ImageIO;
+import it.unibo.exam.utility.medialoader.AssetLoader;
 
 /**
  * Represents a falling ball in the CatchBall minigame.
@@ -19,19 +16,9 @@ public final class BallEntity {
     /** Falling speed in pixels per update. */
     private static final int FALL_SPEED = 4;
     private static final Image DROP_IMAGE;
-    private static final Logger LOGGER = Logger.getLogger(BottleEntity.class.getName());
 
     static {
-        Image img = null;
-        try {
-            final var res = BallEntity.class.getClassLoader().getResource("Garden/water.png");
-            if (res != null) {
-                img = ImageIO.read(res);
-            }
-        } catch (final IOException e) {
-            LOGGER.log(Level.WARNING, "Could not load water image", e);
-        }
-        DROP_IMAGE = img;
+        DROP_IMAGE = AssetLoader.loadImage("Garden/water.png");
     }
 
     @SuppressWarnings("PMD.ImmutableField")

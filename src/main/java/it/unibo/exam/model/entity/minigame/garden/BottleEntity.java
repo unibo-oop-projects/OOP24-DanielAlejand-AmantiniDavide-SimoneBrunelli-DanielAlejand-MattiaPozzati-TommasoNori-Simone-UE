@@ -3,10 +3,9 @@ package it.unibo.exam.model.entity.minigame.garden;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.io.IOException;
-import javax.imageio.ImageIO;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import it.unibo.exam.utility.medialoader.AssetLoader;
+
 
 /**
  * Represents the bottle controlled by the player in the CatchBall minigame.
@@ -15,19 +14,9 @@ public final class BottleEntity {
 
     /** The horizontal move speed of the bottle (pixels per update). */
     private static final int MOVE_SPEED = 6;
-    private static final Logger LOGGER = Logger.getLogger(BottleEntity.class.getName());
     private static final Image BOTTLE_IMAGE;
     static {
-        Image img = null;
-        try {
-            final var res = BottleEntity.class.getClassLoader().getResource("Garden/bottle.png");
-            if (res != null) {
-                img = ImageIO.read(res);
-            }
-        } catch (final IOException e) {
-            LOGGER.log(Level.WARNING, "Could not load bottle image", e);
-        }
-        BOTTLE_IMAGE = img;
+        BOTTLE_IMAGE = AssetLoader.loadImage("Garden/bottle.png");
     }
 
     @SuppressWarnings("PMD.ImmutableField")
