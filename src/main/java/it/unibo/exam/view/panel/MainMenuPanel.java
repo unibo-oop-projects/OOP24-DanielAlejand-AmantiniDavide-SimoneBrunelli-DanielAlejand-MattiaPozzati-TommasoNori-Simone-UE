@@ -37,6 +37,8 @@ public final class MainMenuPanel extends JPanel {
     private static final int HEIGHTBUTTON   = 80;
     private static final int BUTTONFONTSIZE = 30;
     private static final int BUTTONSPACING  = 20;
+    private static final int DIALOGUE_WIDTH  = 20;
+    private static final int DIALOGUE_HEIGHT  = 20;
 
     // Color constants for magic numbers
     private static final int BUTTON_TEXT_RED      = 255;
@@ -44,6 +46,8 @@ public final class MainMenuPanel extends JPanel {
     private static final int BUTTON_TEXT_BLUE     = 255;
     private static final int BUTTON_TEXT_ALPHA    = 220;
     private static final int BUTTON_BORDER_RADIUS = 30;
+    // Constant for the Mute button text
+    private static final String MUTE_STRING = "\ud83d\udd07 Mute";
 
     /** The background image drawn behind the menu. */
     private transient Image backgroundImage;
@@ -148,7 +152,7 @@ public final class MainMenuPanel extends JPanel {
     }
 
     private void returnToMenu(final JFrame window) {
-        boolean goToMenu = showPauseDialogWithSound(window);
+        final boolean goToMenu = showPauseDialogWithSound(window);
         if (goToMenu) {
             if (gamePanel != null) {
                 gamePanel.stopGame();
@@ -180,11 +184,11 @@ public final class MainMenuPanel extends JPanel {
         });
 
         // Mute checkbox
-        final JButton muteButton = new JButton(AudioManager.isMuted() ? "🔇 Unmute" : "🔇 Mute");
+        final JButton muteButton = new JButton(AudioManager.isMuted() ? "🔇 Unmute" : MUTE_STRING);
         muteButton.addActionListener(e -> {
             final boolean newMutedState = !AudioManager.isMuted();
             AudioManager.setMuted(newMutedState);
-            muteButton.setText(newMutedState ? "🔊 Unmute" : "🔇 Mute");
+            muteButton.setText(newMutedState ? "🔊 Unmute" : MUTE_STRING);
         });
 
         // Layout
@@ -213,15 +217,15 @@ public final class MainMenuPanel extends JPanel {
     private boolean showPauseDialogWithSound(final JFrame window) {
         final JDialog dialog = new JDialog(window, "Menu di Pausa", true);
         dialog.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
+        final GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.anchor = GridBagConstraints.WEST;
-        
-        // Leggi la preferenza all'apertura
-        JCheckBox soundCheck = new JCheckBox(AudioManager.isMuted() ? "🔇 Unmute" : "🔇 Mute");
 
-        JButton mainMenuButton = new JButton("Torna al menu");
-        JButton cancelButton = new JButton("Riprendi");
+        // Leggi la preferenza all'apertura
+        final JCheckBox soundCheck = new JCheckBox(AudioManager.isMuted() ? "🔇 Unmute" : MUTE_STRING);
+
+        final JButton mainMenuButton = new JButton("Torna al menu");
+        final JButton cancelButton = new JButton("Riprendi");
 
         final boolean[] result = {false}; // Per sapere se ha scelto "torna al menu"
 
@@ -233,13 +237,11 @@ public final class MainMenuPanel extends JPanel {
         gbc.gridx = 1;
         dialog.add(cancelButton, gbc);
 
-        
-
         soundCheck.addActionListener(e -> {
             final boolean newMutedState = !AudioManager.isMuted();
             AudioManager.setMuted(newMutedState);
-            soundCheck.setText(newMutedState ? "🔊 Unmute" : "🔇 Mute");
-        });    
+            soundCheck.setText(newMutedState ? "🔊 Unmute" : MUTE_STRING);
+        });
 
         mainMenuButton.addActionListener(e -> {
             result[0] = true; // utente vuole tornare al menu
@@ -249,12 +251,11 @@ public final class MainMenuPanel extends JPanel {
             dialog.dispose();
         });
 
-        dialog.setSize(300, 160);
+        dialog.setSize(DIALOGUE_WIDTH, DIALOGUE_HEIGHT);
         dialog.setLocationRelativeTo(window);
         dialog.setVisible(true);
         return result[0];
     }
-
 
     private JButton createStyledButton(final String text) {
         final JButton button = new JButton(text);

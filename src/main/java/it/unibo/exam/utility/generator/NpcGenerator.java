@@ -25,7 +25,10 @@ public final class NpcGenerator extends EntityGenerator<Npc> {
     };
 
     private static final String[] DIALOGUES = {
-        "Benvenuto nel giardino! Raccogli tutte le gocce d'acqua con la bottiglia per aiutare le piante. \nMuovi la bottiglia utilizzando i tasti A e D per spostarla a sinistra e a destra, \nma fai attenzione! Se lasci cadere anche solo 3 gocce avrai perso! \nRaccogline 10 per completare il minigioco",
+        "Benvenuto nel giardino! Raccogli tutte le gocce d'acqua con la bottiglia per aiutare le piante. "
+        + "Muovi la bottiglia utilizzando i tasti A e D per spostarla a sinistra e a destra, "
+        + "ma fai attenzione! Se lasci cadere anche solo 3 gocce avrai perso! "
+        + "Raccogline 10 per completare il minigioco",
         "Ciao! Risolvi il quiz per dimostrare le tue conoscenze.",
         "Bzz bzz! Trova l'uscita dal labirinto del laboratorio informatico.",
         "Pronto per una sfida fisica? Colpisci tutti i dischi per vincere!",
