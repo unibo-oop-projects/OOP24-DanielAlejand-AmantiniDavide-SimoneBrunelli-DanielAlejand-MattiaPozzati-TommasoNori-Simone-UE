@@ -32,7 +32,7 @@ public class MainController {
 
     private static final int FPS = 60;
     private static final double SECOND = 1_000_000_000.0;
-    private static final int TOTALPUZZLEROOMS = 0; // Rooms 1–5
+    private static final int TOTALPUZZLEROOMS = 5; // Rooms 1–5
 
     private final KeyHandler      keyHandler;
     private final GameState       gameState;

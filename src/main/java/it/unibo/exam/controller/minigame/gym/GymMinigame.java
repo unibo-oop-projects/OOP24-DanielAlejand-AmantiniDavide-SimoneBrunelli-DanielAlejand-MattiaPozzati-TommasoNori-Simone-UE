@@ -33,7 +33,6 @@ public class GymMinigame implements Minigame {
     private static final int MAX_POINTS_CAP               = 100;
     private static final int FRAME_WIDTH    = 1000; // Preferred width for the minigame window
     private static final int FRAME_HEIGHT   = 600;  // Preferred height for the minigame window
-    private static final int ROOM_ID = 3;
     private JFrame gameFrame;
     private GymModel model;
     private MinigameCallback onComplete;
@@ -146,7 +145,7 @@ public class GymMinigame implements Minigame {
             if (model != null && model.getStartTimeMillis() > 0) {
                 elapsedSeconds = (int) ((System.currentTimeMillis() - model.getStartTimeMillis()) / 1000L);
             }
-                final int finalScore = scoringStrategy.calculate(elapsedSeconds, /*roomId*/ ROOM_ID); // 3 = Gym
+                final int finalScore = scoringStrategy.calculate(elapsedSeconds);
             if (gameFrame != null) {
                 JOptionPane.showMessageDialog(gameFrame,
                     "Minigame completed!\nTime: " + elapsedSeconds + " seconds"

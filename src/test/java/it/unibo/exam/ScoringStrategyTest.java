@@ -14,12 +14,11 @@ class ScoringStrategyTest {
     private static final int BONUS_THRESHOLD = 30;
     private static final int BONUS_POINTS = 30;
     private static final int CAP_LIMIT = 150;
-    private static final int ROOM_ID = 1;
 
     @Test
     void testTieredScoringStrategy() {
         final ScoringStrategy strategy = new TieredScoringStrategy();
-        final int score = strategy.calculate(FAST_TIME, ROOM_ID);
+        final int score = strategy.calculate(FAST_TIME);
         assertTrue(score > 0);
     }
 
@@ -28,7 +27,7 @@ class ScoringStrategyTest {
         final ScoringStrategy baseStrategy = new TieredScoringStrategy();
         final ScoringStrategy cappedStrategy = new CapDecorator(baseStrategy, CAP_LIMIT);
 
-        final int score = cappedStrategy.calculate(FAST_TIME, ROOM_ID);
+        final int score = cappedStrategy.calculate(FAST_TIME);
         assertTrue(score <= CAP_LIMIT);
     }
 
@@ -37,8 +36,8 @@ class ScoringStrategyTest {
         final ScoringStrategy baseStrategy = new TieredScoringStrategy();
         final ScoringStrategy timeBonusStrategy = new TimeBonusDecorator(baseStrategy, BONUS_THRESHOLD, BONUS_POINTS);
 
-        final int score = timeBonusStrategy.calculate(FAST_TIME, ROOM_ID);
-        final int baseScore = baseStrategy.calculate(FAST_TIME, ROOM_ID);
+        final int score = timeBonusStrategy.calculate(FAST_TIME);
+        final int baseScore = baseStrategy.calculate(FAST_TIME);
         assertEquals(baseScore + BONUS_POINTS, score);
     }
 
@@ -48,7 +47,7 @@ class ScoringStrategyTest {
         final ScoringStrategy timeBonusStrategy = new TimeBonusDecorator(baseStrategy, BONUS_THRESHOLD, BONUS_POINTS);
         final ScoringStrategy finalStrategy = new CapDecorator(timeBonusStrategy, CAP_LIMIT);
 
-        final int score = finalStrategy.calculate(FAST_TIME, ROOM_ID);
+        final int score = finalStrategy.calculate(FAST_TIME);
         assertTrue(score > 0);
         assertTrue(score <= CAP_LIMIT);
     }

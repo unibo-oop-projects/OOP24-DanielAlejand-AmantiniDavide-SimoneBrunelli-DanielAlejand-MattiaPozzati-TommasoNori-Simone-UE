@@ -4,10 +4,8 @@ import it.unibo.exam.model.entity.minigame.Minigame;
 import it.unibo.exam.model.entity.minigame.MinigameCallback;
 import it.unibo.exam.view.garden.CatchBallPanel;
 import it.unibo.exam.model.entity.minigame.garden.CatchBallModel;
-import it.unibo.exam.model.scoring.CapDecorator;
+import it.unibo.exam.model.scoring.LifeScoringStrategy;
 import it.unibo.exam.model.scoring.ScoringStrategy;
-import it.unibo.exam.model.scoring.TimeBonusDecorator;
-import it.unibo.exam.model.scoring.TieredScoringStrategy;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -22,13 +20,9 @@ import java.util.Objects;
  */
 public final class CatchBallMinigame implements Minigame {
 
-    private static final int BONUS_TIME_THRESHOLD_SECONDS = 30;
-    private static final int BONUS_POINTS = 10;
-    private static final int MAX_POINTS_CAP = 120;
     private static final int WIDTH = 600;
     private static final int HEIGHT = 400;
     private static final int TIMER_DELAY = 16;
-    private static final int ROOM_ID = 1;
 
     private JFrame frame;
     private CatchBallModel model;
@@ -45,16 +39,7 @@ public final class CatchBallMinigame implements Minigame {
      * No‐arg constructor for factory instantiation (uses default scoring).
      */
     public CatchBallMinigame() {
-        this(
-            new CapDecorator(
-                new TimeBonusDecorator(
-                    new TieredScoringStrategy(),
-                    BONUS_TIME_THRESHOLD_SECONDS,
-                    BONUS_POINTS
-                ),
-                MAX_POINTS_CAP
-            )
-        );
+        this(new LifeScoringStrategy());
     }
 
     /**
@@ -127,15 +112,14 @@ public final class CatchBallMinigame implements Minigame {
         frame.dispose();
         final long elapsedMillis = System.currentTimeMillis() - startTimeMillis;
         final int elapsedSeconds = (int) (elapsedMillis / 1000L);
-        final int score = scoringStrategy.calculate(elapsedSeconds, ROOM_ID);
-
+        final int score = scoringStrategy.calculate(model.getLives());
         if (success) {
             JOptionPane.showMessageDialog(null, "You win!\nTime: " + elapsedSeconds 
             + " seconds\nScore: " + score, "Victory", JOptionPane.INFORMATION_MESSAGE);
             callback.onComplete(true, elapsedSeconds, score);
         } else {
             JOptionPane.showMessageDialog(null, "Game Over! You lost!", "Defeat", JOptionPane.ERROR_MESSAGE);
-            callback.onComplete(false, elapsedSeconds, score); // o zero, oppure calcola comunque lo score
+            callback.onComplete(false, elapsedSeconds, 0);
         }
     }
 

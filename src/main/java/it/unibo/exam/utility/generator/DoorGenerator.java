@@ -140,20 +140,50 @@ public class DoorGenerator extends EntityGenerator<List<Door>> {
      * @throws IllegalArgumentException if indices are out of range
      */
     private Point2D getPosition(final int fromId, final int toId) {
+        final int doorWidth = Math.max(MIN_DOOR_DIMENSION, environmentSize.getX() / DOOR_DIVIDER);
+        final int doorHeight = Math.max(MIN_DOOR_DIMENSION, environmentSize.getY() / DOOR_DIVIDER);
+        final int margin = DOOR_MARGIN;
+
         if (fromId == HUB_ROOM_ID) {
-            final int index = toId - 1;
-            if (index < 0 || index >= dir.size()) {
-                throw new IllegalArgumentException("Invalid toId: " + toId);
+            // Hub: use standard positions
+            final int dirIndex = toId - 1;
+            if (dirIndex < 0 || dirIndex >= dir.size()) {
+                throw new IllegalArgumentException("Invalid toId: " + toId + " for fromId: " + fromId);
             }
-            return new Point2D(dir.get(index));
+            return new Point2D(dir.get(dirIndex));
+        } else if (toId == HUB_ROOM_ID) {
+            // Puzzle Room: MIRROR the hub's door position to the opposite wall
+
+            // Get the position as in the hub, to know which wall it's on
+            final int dirIndex = fromId - 1;
+            if (dirIndex < 0 || dirIndex >= dir.size()) {
+                throw new IllegalArgumentException("Invalid fromId: " + fromId + " for toId: " + toId);
+            }
+            final Point2D hubPos = dir.get(dirIndex);
+
+            // Mirror logic: check which wall it's on, and return the opposite
+            if (hubPos.getX() == margin) {
+                // Left wall in hub → Right wall in room
+                return new Point2D(environmentSize.getX() - doorWidth - margin, hubPos.getY());
+            } else if (hubPos.getX() == environmentSize.getX() - doorWidth - margin) {
+                // Right wall in hub → Left wall in room
+                return new Point2D(margin, hubPos.getY());
+            } else if (hubPos.getY() == margin) {
+                // Top wall in hub → Bottom wall in room
+                return new Point2D(hubPos.getX(), environmentSize.getY() - doorHeight - margin);
+            } else if (hubPos.getY() == environmentSize.getY() - doorHeight - margin) {
+                // Bottom wall in hub → Top wall in room
+                return new Point2D(hubPos.getX(), margin);
+            } else {
+                // Center or unclassified: just mirror vertically and horizontally (if needed)
+                return new Point2D(environmentSize.getX() - hubPos.getX() - doorWidth, 
+                                environmentSize.getY() - hubPos.getY() - doorHeight);
+            }
         } else {
-            final int index = fromId - 1;
-            if (index < 0 || index >= dir.size()) {
-                throw new IllegalArgumentException("Invalid fromId: " + fromId);
-            }
-            return new Point2D(dir.get(index));
+            throw new IllegalArgumentException("Invalid fromId/toId combination: " + fromId + "->" + toId);
         }
     }
+
 
     /**
      * Generates the special endgame exit door in the hub (room 0).

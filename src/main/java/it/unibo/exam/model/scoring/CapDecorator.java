@@ -24,12 +24,11 @@ public final class CapDecorator extends ScoringDecorator {
      * Calculates points using the wrapped strategy and then caps the result.
      *
      * @param timeTaken the time taken to complete the room (in seconds)
-     * @param roomId    the identifier of the room
      * @return the capped points, never greater than {@code maxPoints}
      */
     @Override
-    public int calculate(final int timeTaken, final int roomId) {
-        final int scored = super.calculate(timeTaken, roomId);
+    public int calculate(final int timeTaken) {
+        final int scored = super.calculate(timeTaken);
         return Math.min(maxPoints, scored);
     }
 }
