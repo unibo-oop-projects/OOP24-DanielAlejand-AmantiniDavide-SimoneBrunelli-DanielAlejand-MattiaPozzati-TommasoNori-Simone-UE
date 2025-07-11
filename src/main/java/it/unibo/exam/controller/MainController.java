@@ -65,10 +65,13 @@ public class MainController {
         // ── ADDED: spawn both interactive and roaming NPCs via generator ──
         NpcGenerator npcGen = new NpcGenerator(environmentSize);
         for (Room r : gameState.getAllRooms()) {
-            // 1) interactive puzzle NPC
-            Npc interactive = npcGen.generate(r.getId());
-            r.attachNpc(interactive);
-            // 2) roaming background NPC
+            // Only attach an interactive NPC for puzzle rooms
+            if (r.getRoomType() == RoomGenerator.PUZZLE_ROOM) {
+                Npc interactive = npcGen.generate(r.getId());
+                r.attachNpc(interactive);
+            }
+
+            // Always (or conditionally) add roaming NPCs
             RoamingNpc wanderer = npcGen.generateRoamingNpc(r);
             r.addRoamingNpc(wanderer);
         }

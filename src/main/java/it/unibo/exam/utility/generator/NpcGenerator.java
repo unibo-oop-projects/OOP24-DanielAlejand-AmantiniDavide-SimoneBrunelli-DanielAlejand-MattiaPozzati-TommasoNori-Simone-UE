@@ -1,9 +1,9 @@
 package it.unibo.exam.utility.generator;
 
 import it.unibo.exam.model.entity.Npc;
-import it.unibo.exam.model.entity.RoamingNpc;                   // ADDED
-import it.unibo.exam.model.entity.MovementStrategy;             // ADDED
-import it.unibo.exam.model.entity.RandomWalkStrategy;           // ADDED
+import it.unibo.exam.model.entity.RoamingNpc;
+import it.unibo.exam.model.entity.MovementStrategy;
+import it.unibo.exam.model.entity.RandomWalkStrategy;
 import it.unibo.exam.utility.geometry.Point2D;
 import it.unibo.exam.model.entity.enviroments.Room;
 
@@ -13,11 +13,11 @@ import it.unibo.exam.model.entity.enviroments.Room;
 public final class NpcGenerator extends EntityGenerator<Npc> {
 
     private static final String[] NAMES = {
-        "Giardiniere Mario",         // 1: Giardino
-        "Prof.ssa Bianchi",          // 2: Aula universitaria
-        "R2D2",                      // 3: Laboratorio informatico
-        "Coach Luca",                // 4: Palestra
-        "Barista Anna",              // 5: Bar
+        "Giardiniere Mario",    // room 1
+        "Prof.ssa Bianchi",     // room 2
+        "R2D2",                 // room 3
+        "Coach Luca",           // room 4
+        "Barista Anna",         // room 5
     };
 
     private static final String[] DESCRIPTIONS = {
@@ -33,7 +33,7 @@ public final class NpcGenerator extends EntityGenerator<Npc> {
         Benvenuto nel giardino! Raccogli tutte le gocce d'acqua con la bottiglia per aiutare le piante.
         Muovi la bottiglia utilizzando i tasti A e D per spostarla a sinistra e a destra,
         ma fai attenzione! Se lasci cadere anche solo 3 gocce avrai perso!
-        Raccogline 10 per completare il minigioco
+        Raccogliene 10 per completare il minigioco
         """,
         "Ciao! Risolvi il quiz per dimostrare le tue conoscenze.",
         "Bzz bzz! Trova l'uscita dal labirinto del laboratorio informatico.",
@@ -51,20 +51,24 @@ public final class NpcGenerator extends EntityGenerator<Npc> {
     }
 
     /**
-     * Generates an interactable NPC based on the given ID.
+     * Generates an interactable NPC based on the given room ID.
+     * Expects room IDs 1–5; maps to index ID-1 in the arrays.
      *
-     * @param id the ID of the NPC to generate
+     * @param id the ID of the room (1–5)
      * @return the generated NPC
+     * @throws IllegalArgumentException if id < 1 or id > NAMES.length
      */
     @Override
     public Npc generate(final int id) {
-        final String name       = NAMES[id];
-        final String description= DESCRIPTIONS[id];
-        final String dialogue   = DIALOGUES[id];
+        if (id < 1 || id > NAMES.length) {
+            throw new IllegalArgumentException("Invalid room ID for NPC: " + id);
+        }
+        final int idx = id - 1;                              // ADJUST INDEX
+        final String name        = NAMES[idx];
+        final String description = DESCRIPTIONS[idx];
+        final String dialogue    = DIALOGUES[idx];
         return new Npc(super.getEnv(), name, description, dialogue);
     }
-
-    // ── NEW METHOD ─────────────────────────────────────────────────────────────
 
     /**
      * Generates a single non-interactable, roaming NPC for the given room.
@@ -73,15 +77,11 @@ public final class NpcGenerator extends EntityGenerator<Npc> {
      * @return a RoamingNpc that will wander within the environment bounds
      */
     public RoamingNpc generateRoamingNpc(final Room room) {
-        // pick a spawn point (here: staggered by room ID, feel free to customize)
         Point2D start = new Point2D(
             50 + 100 * room.getId(),
             80
         );
-
-        // movement strategy knows the world bounds from getEnv()
         MovementStrategy strategy = new RandomWalkStrategy(super.getEnv());
-
         return new RoamingNpc(start, super.getEnv(), strategy);
     }
 }
