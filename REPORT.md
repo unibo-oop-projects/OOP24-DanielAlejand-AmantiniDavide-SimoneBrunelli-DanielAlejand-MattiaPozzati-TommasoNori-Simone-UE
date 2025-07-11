@@ -87,11 +87,61 @@ Ho partecipato alla progettazione delle interfacce principali e alla definizione
 
 #### 2.2.2 Davide Amantini
 
-**Gestione del menu:**  
-Il menu iniziale consente di avviare la partita, accedere alle impostazioni e uscire. Gli input sono gestiti tramite listener generici e notificano il controller per cambiare stato.
+**Gestione del Menu Principale e delle Opzioni**
 
-**Gestione delle impostazioni:**  
-Permette di modificare audio e musica di sottofondo, con una logica simile a quella del menu.
+![UML Menu](reportImg/MenuUML.png)
+
+Ho progettato e sviluppato la **GUI del menu principale** utilizzando Swing, seguendo le best practice dell’architettura **MVC** e tenendo conto della futura integrazione di minigiochi e opzioni di gioco.
+
+- **Componenti principali**:
+  - **MainMenuPanel**: pannello principale con i pulsanti “Gioca”, “Opzioni” e “Esci”, sfondo personalizzato e label esplicativa dei comandi principali (WASD, E, ESC).
+  - **Integrazione responsive**: il layout è realizzato tramite GridBagLayout per adattarsi a qualsiasi dimensione finestra, e la grafica è caricata tramite l’utility `AssetLoader` per una gestione centralizzata delle risorse.
+
+- **Gestione Eventi**:
+  - Ogni bottone è associato a un’azione ben distinta tramite listener lambda, che comunica con il controller per avviare il gioco, mostrare il dialog delle opzioni, o uscire dal programma.
+  - Il tasto **ESC** è intercettato tramite l’ActionMap/InputMap del pannello di gioco, permettendo di aprire un **menu di pausa** da cui si può tornare al menu principale o regolare le opzioni audio senza perdere lo stato corrente.
+
+- **Gestione delle Opzioni (Audio/Musica)**:
+  - La finestra **Opzioni** permette di modificare in tempo reale il volume della musica di sottofondo tramite uno **slider** (JSlider) e di attivare/disattivare l’audio generale tramite un pulsante mute.
+  - Il **salvataggio delle preferenze** avviene in modo persistente usando le Preferences di Java (se necessario si può estendere con serialization o salvataggio file JSON/XML).
+
+- **Comandi Principali**: sotto ai pulsanti del menu viene visualizzata una label HTML stilizzata che evidenzia i tasti di movimento e interazione, per una user experience chiara anche a nuovi giocatori.
+
+---
+
+**Minigioco CatchBall - Architettura e Sviluppo**
+
+![UML CatchBall](reportImg/CatchBallUML.png)
+
+Ho progettato e realizzato il **minigioco CatchBall** (MVC pattern), ambientato nella stanza Garden, che simula la raccolta di gocce d’acqua con una borraccia.
+
+- **Architettura MVC**:
+  - **Model** (`CatchBallModel`): mantiene lo stato del gioco (posizione e vite, gestione palline, logica di vittoria/sconfitta, generazione random delle gocce).
+  - **View** (`CatchBallPanel`): si occupa del rendering della scena, usando immagini custom per la bottiglia e le gocce. Il rendering è double-buffered e ottimizzato per evitare flicker.
+  - **Controller** (`CatchBallMinigame`): gestisce input tastiera (A/D per movimento), timer per aggiornare la partita e sincronizza model e view; aggiorna la logica di punteggio con una strategia a decoratori (es. bonus tempo, cap massimo punti).
+
+- **Gestione delle risorse**:
+  - Tutte le immagini (sfondo, bottiglia, goccia) sono caricate centralmente con `AssetLoader` e ridimensionate dove necessario, garantendo efficienza e riuso.
+  - Uso di fallback: se un’immagine non viene trovata, si passa automaticamente a un disegno placeholder.
+
+- **Salvataggio delle Preferenze**:
+  - Le preferenze audio e volume vengono lette/salvate ogni volta che si apre il dialog opzioni o il menu di pausa, usando `AudioManager` e, dove necessario, le Preferences di Java.
+
+- **Comunicazione tra componenti**:
+  - Il minigioco notifica il controller principale tramite callback (`MinigameCallback`), passando esito e punteggio. Questo permette di aggiornare la schermata HUD e i punteggi globali.
+
+- **User Experience**:
+  - Ogni aspetto grafico e di input è pensato per garantire immediatezza, chiarezza e coerenza con lo stile del resto del gioco (font, colori, trasparenze, icone, feedback visivi).
+  - L’utente può sempre tornare al menu principale tramite ESC, senza rischiare di perdere i progressi o le impostazioni scelte.
+
+---
+
+**Altre Responsabilità e Contributi**
+
+- Ho contribuito al design delle utility di gestione risorse (`AssetLoader`) e alla gestione centralizzata dell’audio di gioco (`AudioManager`).
+- Ho collaborato nella definizione degli standard di stile (colori, font, layout) per assicurare coerenza visiva tra menu, minigiochi e HUD.
+- Ho curato la documentazione di ogni classe e metodo sviluppato, seguendo lo standard Javadoc.
+
 
 #### 2.2.3 Daniel Alejandro Horna
 
