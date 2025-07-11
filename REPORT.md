@@ -139,9 +139,10 @@ Ho progettato e realizzato il **minigioco CatchBall** (MVC pattern), ambientato 
 
 **Altre Responsabilità e Contributi**
 
-- Ho contribuito al design delle utility di gestione risorse (`AssetLoader`) e alla gestione centralizzata dell’audio di gioco (`AudioManager`).
+- Ho contribuito alla gestione centralizzata dell’audio di gioco (`AudioManager`).
 - Ho collaborato nella definizione degli standard di stile (colori, font, layout) per assicurare coerenza visiva tra menu, minigiochi e HUD.
-- Ho curato la documentazione di ogni classe e metodo sviluppato, seguendo lo standard Javadoc.
+- Mi sono occupato della progettazione delle interfacce principali e della definizione delle principali entità di dominio.
+
 
 
 #### 2.2.3 Daniel Alejandro Horna
