@@ -122,7 +122,11 @@ cd UniversityEscape
 
 # Esegui
 java -jar build/libs/university-escape-1.0.jar
+
 ```
+A causa delle limitazioni di dimensione di GitHub, il file eseguibile university-escape.jar non è stato incluso nel repository pubblico.
+Tuttavia, il progetto è conforme alla regola P8, poiché il file .jar può essere ricreato localmente utilizzando il sistema di build Gradle.
+
 
 ### Altri comandi utili
 ```bash

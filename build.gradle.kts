@@ -1,57 +1,70 @@
-plugins {
-    // Apply the java plugin to add support for Java
-    java
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.gradle.api.tasks.bundling.Zip
+import org.gradle.api.tasks.bundling.Tar
+import org.gradle.jvm.application.tasks.CreateStartScripts
 
-    // Apply the application plugin to add support for building a CLI application
-    // You can run your app via task "run": ./gradlew run
+plugins {
+    java
     application
 
-    /*
-     * Adds tasks to export a runnable jar.
-     * In order to create it, launch the "shadowJar" task.
-     * The runnable jar will be found in build/libs/projectname-all.jar
-     */
+    // Fat-jar plugin
     id("com.github.johnrengelman.shadow") version "8.1.1"
+    // QA plugin (SpotBugs, static checks, config-cache)
     id("org.danilopianini.gradle-java-qa") version "1.96.0"
 }
 
-repositories { // Where to search for dependencies
+repositories {
     mavenCentral()
 }
 
 dependencies {
-    // Suppressions for SpotBugs
     compileOnly("com.github.spotbugs:spotbugs-annotations:4.9.3")
-
-    // Maven dependencies are composed by a group name, a name and a version, separated by colons
     implementation("com.omertron:API-OMDB:1.5")
     implementation("org.jooq:jool:0.9.15")
 
-    /*
-     * Simple Logging Facade for Java (SLF4J) with Apache Log4j
-     * See: http://www.slf4j.org/
-     */
     val slf4jVersion = "2.0.17"
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
-    // Logback backend for SLF4J
     runtimeOnly("ch.qos.logback:logback-classic:1.5.18")
 
-    // JUnit API and testing engine
-    val jUnitVersion = "5.11.4"
-    // when dependencies share the same version, grouping in a val helps to keep them in sync
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$jUnitVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jUnitVersion")
+    val junit = "5.11.4"
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$junit")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junit")
 }
 
 application {
-    // Define the main class for the application.
     mainClass.set("it.unibo.exam.Main")
 }
 
 tasks.test {
     useJUnitPlatform()
     testLogging {
-        events(*org.gradle.api.tasks.testing.logging.TestLogEvent.values())
         showStandardStreams = true
+        events(*org.gradle.api.tasks.testing.logging.TestLogEvent.values())
     }
+}
+
+// 1) Configure the ShadowJar to produce a single fat-jar
+tasks.named<ShadowJar>("shadowJar") {
+    archiveBaseName.set("university-escape")
+    archiveClassifier.set("")   // omit “-all”
+    archiveVersion.set("")      // omit version
+    mergeServiceFiles()
+    manifest {
+        attributes["Main-Class"] = application.mainClass.get()
+    }
+}
+
+// 2) Make `./gradlew build` also run shadowJar
+tasks.named("build") {
+    dependsOn("shadowJar")
+}
+
+// 3) Ensure distributions & scripts wait for the fat-jar
+tasks.named<Zip>("distZip") { dependsOn("shadowJar") }
+tasks.named<Tar>("distTar") { dependsOn("shadowJar") }
+tasks.named<CreateStartScripts>("startShadowScripts") {
+    dependsOn("jar", "shadowJar")
+}
+tasks.named<CreateStartScripts>("startScripts") {
+    dependsOn("jar", "shadowJar")
 }
