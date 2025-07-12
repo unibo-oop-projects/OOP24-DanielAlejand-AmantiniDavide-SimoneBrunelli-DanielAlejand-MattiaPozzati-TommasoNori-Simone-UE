@@ -840,10 +840,11 @@ Abbiamo adottato una **metodologia di sviluppo agile** basata su iterazioni brev
 - **Pull request** obbligatorie per ogni integrazione
 
 **Organizzazione del Team:**
-- **Project Manager**: Horna Daniel Alejandro
+- **Project Manager/Code Checker**: Horna Daniel Alejandro
   - Coordinamento attività e milestone
   - Gestione comunicazione e risoluzione conflitti
   - Monitoraggio progressi e qualità
+  - Verifica aderenza agli standard
 - **Code Checker**: Pozzati Mattia
   - Code review sistematica
   - Verifica aderenza agli standard
