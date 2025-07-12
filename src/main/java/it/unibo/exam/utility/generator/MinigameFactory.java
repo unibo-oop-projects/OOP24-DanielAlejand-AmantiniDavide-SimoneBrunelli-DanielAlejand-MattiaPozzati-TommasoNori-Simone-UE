@@ -15,19 +15,19 @@ import it.unibo.exam.controller.minigame.gym.GymMinigame;
 public final class MinigameFactory {
 
     /** Room ID for the Maze Runner minigame. */
-    public static final int ROOM_MAZE = 3;
+    public static final int ROOM_MAZE = 2;
 
     /** Room ID for the Garden minigame. */
     public static final int ROOM_GARDEN = 1;
 
     /** Room ID for the Garden minigame. */
-    public static final int ROOM_LAB = 2;
+    public static final int ROOM_LAB = 5;
 
     /** Room ID for the Gym minigame. */
-    public static final int ROOM_GYM = 4;
+    public static final int ROOM_GYM = 3;
 
     /** Room ID for the Bar minigame. */
-    public static final int ROOM_BAR = 5;
+    public static final int ROOM_BAR = 4;
 
     /** First room ID with a minigame (inclusive). */
     public static final int FIRST_ROOM = ROOM_GARDEN;

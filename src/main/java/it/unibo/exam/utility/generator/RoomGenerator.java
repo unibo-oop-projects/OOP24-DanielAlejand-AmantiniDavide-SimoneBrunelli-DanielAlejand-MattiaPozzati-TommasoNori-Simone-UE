@@ -27,10 +27,10 @@ public class RoomGenerator extends EntityGenerator<Room> {
     private static final String[] ROOM_NAMES = {
         "Hub",      // 0 - Main room (chiamato Hub invece di Main)
         "Garden",
-        "2.12",
         "Lab",
         "Gym",
         "Bar",
+        "2.12",
     };
 
     private final DoorGenerator dg;
