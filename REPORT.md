@@ -931,6 +931,13 @@ Abbiamo adottato una **metodologia di sviluppo agile** basata su iterazioni brev
 **Pozzati Mattia:**  
 All’inizio il progetto è stato impegnativo, ma lavorando in gruppo e suddividendo le responsabilità sono riuscito a migliorare sia tecnicamente che come membro di un team. La gestione delle entità e l'implementazione del minigioco Gym mi hanno permesso di approfondire i pattern architetturali e la gestione delle collisioni. In futuro vorrei approfondire la gestione di animazioni, l’ottimizzazione delle performance e l’implementazione di sistemi di fisica più avanzati.
 
+<<<<<<< HEAD
+**Amantini Davide:**
+Sicuramente è stato un progetto impegnativo, però sento che mi ha fatto imparare molto, sia dal punto di vista della programmazione, dal punto di vista del lavoro di gruppo, e nel cercare di rispettare una deadline a lungo termine. Mi sarebbe piaciuto approfondire la parte grafica e l'implementazione di altri pattern.
+
+**[Altri membri]:**  
+*(Aggiungi qui le autovalutazioni degli altri membri, seguendo lo stile sopra)*
+=======
 **Amantini Davide:**  
 Il progetto mi ha permesso di sviluppare competenze significative nella progettazione di interfacce utente e nella gestione degli eventi. L’implementazione del menu principale e del minigioco CatchBall mi ha insegnato l’importanza della user experience e della robustezza del codice. La collaborazione con il team per l’AssetLoader è stata particolarmente formativa. In futuro vorrei esplorare framework più moderni per lo sviluppo di interfacce e approfondire le tecniche di game design.
 
@@ -942,6 +949,7 @@ Il progetto mi ha permesso di sviluppare competenze avanzate nella gestione del 
 
 **Nori Tommaso:**  
 Il progetto mi ha permesso di sviluppare competenze nella gestione delle schermate finali e della logica di fine gioco. Ho contribuito all'implementazione del sistema di conclusione del gioco e alla gestione delle condizioni di vittoria. In futuro vorrei approfondire lo sviluppo di interfacce grafiche avanzate e l'ottimizzazione delle performance di rendering.
+>>>>>>> 5e7296f69de6bf3f20957e079f63403cdcf81150
 
 ---
 
