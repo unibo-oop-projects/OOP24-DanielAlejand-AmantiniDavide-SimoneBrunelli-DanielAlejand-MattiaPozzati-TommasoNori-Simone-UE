@@ -64,6 +64,7 @@ public final class MazeMinigame implements Minigame {
     public MazeMinigame(final ScoringStrategy scoringStrategy) {
         this.scoringStrategy = Objects.requireNonNull(scoringStrategy,
             "scoringStrategy must not be null");
+        this.level = 1;  // Initialize level to 1
     }
 
     /**

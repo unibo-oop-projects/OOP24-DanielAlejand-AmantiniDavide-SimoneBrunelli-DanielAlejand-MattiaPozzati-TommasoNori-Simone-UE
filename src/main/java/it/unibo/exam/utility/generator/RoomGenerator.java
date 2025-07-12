@@ -9,7 +9,7 @@ import it.unibo.exam.utility.geometry.Point2D;
  * Room Generator.
  * @see Room
  */
-public class RoomGenerator extends EntityGenerator<Room> {
+public class RoomGenerator implements Generator<Room> {
 
     /**
      * RoomType: 2 = PuzzleRoom.
@@ -40,7 +40,6 @@ public class RoomGenerator extends EntityGenerator<Room> {
      * @param enviromentSize the size of the environment
      */
     public RoomGenerator(final Point2D enviromentSize) {
-        super(enviromentSize);
         this.dg = new DoorGenerator(enviromentSize);
     }
 
