@@ -18,11 +18,11 @@ public final class NpcGenerator extends EntityGenerator<Npc> {
 
 
     private static final String[] NAMES = {
-        "Giardiniere Mario",    // room 1
+        "Mario the Gardener",    // room 1
         "R2D2",     // room 2
-        "Coach Luca",                 // room 3
+        "Coach Andrew",                 // room 3
         "Barista Bro",           // room 4
-        "Prof.ssa Bianchi",         // room 5
+        "Einstein",         // room 5
     };
 
     private static final String[] DESCRIPTIONS = {
@@ -34,10 +34,7 @@ public final class NpcGenerator extends EntityGenerator<Npc> {
     };
 
     private static final String[] DIALOGUES = {
-        "Benvenuto nel giardino! Raccogli tutte le gocce d'acqua con la bottiglia per aiutare le piante. "
-        + "Muovi la bottiglia utilizzando i tasti A e D per spostarla a sinistra e a destra, "
-        + "ma fai attenzione! Se lasci cadere anche solo 3 gocce avrai perso! "
-        + "Raccogline 10 per completare il minigioco",
+        "Benvenuto nel giardino! Raccogli tutte le gocce d'acqua con la bottiglia per aiutare le piante. ",
         "Bzz bzz! Trova l'uscita dal labirinto del laboratorio informatico.",
         "Pronto per una sfida fisica? Colpisci tutti i dischi per vincere!",
         "Ciao! Mescola i drink correttamente per servire i clienti del bar.",

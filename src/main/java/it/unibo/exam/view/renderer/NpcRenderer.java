@@ -21,20 +21,14 @@ public final class NpcRenderer extends EntityRenderer {
 
     private static final Color NPC_COLOR                  = new Color(255, 165, 0);
     private static final Color NPC_BORDER_COLOR           = new Color(255, 140, 0);
-    private static final Color INTERACTION_INDICATOR_COLOR = new Color(255, 255, 0);
     private static final Color NAME_BACKGROUND_COLOR      = new Color(0, 0, 0, 128);
 
     private static final double SPRITE_SCALE              = 2.5;
-    private static final int    INDICATOR_FONT_SIZE       = 10;
     private static final int    NAME_FONT_SIZE            = 8;
     private static final int    NAME_MAX_LENGTH           = 12;
     private static final int    NAME_TRIM_LENGTH          = 9;
     private static final int    TEXT_PADDING              = 2;
     private static final int    NAME_BACKGROUND_HEIGHT    = 9;
-    private static final int    INDICATOR_SIZE            = 12;
-    private static final int    INDICATOR_OFFSET_X        = 5;
-    private static final int    INDICATOR_OFFSET_Y        = 5;
-    private static final int    INDICATOR_CIRCLE_MARGIN   = 3;
 
     /** room-name → sprite for roaming NPCs. */
     private final Map<String, Image> roamingSprites     = new HashMap<>();
@@ -139,27 +133,7 @@ public final class NpcRenderer extends EntityRenderer {
             drawCenteredText(g, npc, "N", Color.WHITE);
         }
 
-        drawInteractionIndicator(g, npc);
         drawNpcName(g, npc);
-    }
-
-    private void drawInteractionIndicator(final Graphics2D g, final Npc npc) {
-        final Point2D pos = npc.getPosition();
-        final Point2D dim = npc.getDimension();
-        final int indicatorX = pos.getX() + dim.getX() / 2 - INDICATOR_OFFSET_X;
-        final int indicatorY = pos.getY() - INDICATOR_OFFSET_Y;
-
-        g.setColor(INTERACTION_INDICATOR_COLOR);
-        g.fillOval(
-            indicatorX - INDICATOR_CIRCLE_MARGIN,
-            indicatorY - INDICATOR_CIRCLE_MARGIN,
-            INDICATOR_SIZE,
-            INDICATOR_SIZE
-        );
-
-        g.setColor(Color.BLACK);
-        g.setFont(new Font("Arial", Font.BOLD, INDICATOR_FONT_SIZE));
-        g.drawString("E", indicatorX, indicatorY);
     }
 
     private void drawNpcName(final Graphics2D g, final Npc npc) {
