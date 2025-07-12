@@ -583,23 +583,150 @@ La classe `AssetLoader` è stata sviluppata in stretta collaborazione con un mem
 
 ---
 
-#### 2.2.5 Nori Tommaso
+Absolutely! Here’s your **combined report** in clean Markdown, with the **Endgame Feature** section first, followed by the **Maze Minigame** section. All formatting is unified for pasting into your final document.
 
-**Gestione schermata finale e fine gioco**
+---
 
-Ho progettato e implementato il sistema di gestione della schermata finale e delle condizioni di vittoria del gioco. Il sistema verifica il completamento di tutti i minigiochi e gestisce la transizione alla schermata di conclusione.
+#### 2.2.5 Tommaso Nori
 
-**Implementazione del sistema di vittoria:**
-- Verifica automatica del completamento di tutti i minigiochi
-- Calcolo del punteggio totale e del tempo complessivo
-- Gestione delle condizioni di vittoria e sconfitta
-- Transizione fluida alla schermata finale
+### Schermata Finale Universale: Architettura e Flusso
 
-**Schermata finale:**
-- Visualizzazione del punteggio totale e statistiche di gioco
-- Opzioni per ricominciare o uscire dal gioco
-- Salvataggio dei risultati per future sessioni
-- Interfaccia user-friendly per la conclusione dell'esperienza di gioco
+Ho progettato e sviluppato la **schermata finale universale** (`EndGameMenu`) che viene visualizzata automaticamente al termine della partita, integrandola con il pannello di gioco principale (`GamePanel`), la gestione della leaderboard e il flusso generale dell’applicazione.
+
+---
+
+### Architettura e Pattern Utilizzati
+
+L’implementazione segue rigorosamente il **pattern MVC (Model-View-Controller)**:
+
+* **Model**
+
+  * `LeaderboardEntry`: rappresenta una voce della classifica con nome, punteggio, tempo e data.
+  * `LeaderboardManage`: gestisce tutte le operazioni sulla classifica, compresi caricamento/salvataggio persistente su file, aggiunta di nuovi punteggi e ordinamento delle entry.
+* **View**
+
+  * `GamePanel`: pannello principale del gioco, responsabile della visualizzazione dinamica delle stanze, degli HUD di gioco e, al termine della partita, della transizione alla schermata di fine gioco.
+  * `EndGameMenu`: pannello Swing che mostra il riepilogo finale dei risultati del giocatore e la leaderboard aggiornata.
+* **Controller**
+
+  * `MainController`: coordina il flusso dell’applicazione, verifica le condizioni di vittoria, gestisce la transizione tra i pannelli (`GamePanel` → `EndGameMenu`) e il passaggio dei dati tra le componenti.
+
+---
+
+### Flusso di Attivazione: Dal GamePanel alla Schermata Finale
+
+1. **Completamento del Gioco**
+
+   * All’interno di `GamePanel`, tramite il controller (`MainController`), viene costantemente monitorato lo stato di completamento delle stanze da parte del giocatore.
+   * Quando il giocatore completa tutte le stanze, viene invocato il metodo `checkWin()` nel controller:
+
+     ```java
+     private void checkWin() {
+         if (gameState.getPlayer().allRoomsCompleted(TOTALPUZZLEROOMS)) {
+             running = false;
+             SwingUtilities.invokeLater(this::showEndGameMenu);
+         }
+     }
+     ```
+
+2. **Transizione dal GamePanel all’EndGameMenu**
+
+   * `showEndGameMenu()` crea una nuova istanza di `EndGameMenu`, passando il frame principale e l’oggetto `Player`.
+   * Il `GamePanel` viene sostituito dall’`EndGameMenu` nel frame principale, congelando lo stato di gioco e presentando il riepilogo finale.
+
+3. **Gestione e Visualizzazione della Leaderboard**
+
+   * All’interno di `EndGameMenu`, viene richiesto al giocatore di inserire il proprio nome se il punteggio è tra i migliori dieci (`LeaderboardManage.addScore()`).
+   * La leaderboard viene aggiornata in tempo reale e salvata su file per garantire la persistenza tra le sessioni.
+   * La schermata finale mostra:
+
+     * Il punteggio totale
+     * Il tempo totale
+     * La posizione in classifica
+     * La top 10 aggiornata
+     * Bottoni per tornare al menu principale, riavviare la partita o uscire dal gioco
+
+4. **Ritorno o Restart**
+
+   * Dal pannello `EndGameMenu` l’utente può scegliere di tornare al menu principale, iniziare una nuova partita o chiudere il gioco, con la gestione degli eventi implementata nel controller.
+
+---
+
+### Principali Responsabilità e Vantaggi del Design
+
+* **Separazione dei ruoli:**
+  Ogni componente (`GamePanel`, `EndGameMenu`, `LeaderboardManage`) ha responsabilità chiare e ben definite secondo l’MVC, facilitando manutenzione e modifiche future.
+
+* **Transizione fluida:**
+  Il passaggio dal gioco attivo alla schermata finale è gestito in modo trasparente per l’utente grazie al controller e al sistema di pannelli Swing.
+
+* **Universalità:**
+  La soluzione è pronta per essere estesa con nuove metriche di classifica, diversi tipi di riepilogo, e nuovi flussi di fine gioco senza modificare la logica di base.
+
+* **Persistenza:**
+  I dati della classifica vengono salvati su file, garantendo storicizzazione e recupero alla successiva apertura del gioco.
+
+* **Esperienza utente curata:**
+  L’utente viene guidato nella visualizzazione del proprio risultato e ha sempre la possibilità di ripartire o uscire, mantenendo sempre la coerenza grafica.
+
+  ![UML di Endgame](reportImg/endgameUML.png)
+
+
+---
+
+## Maze Minigame
+
+La realizzazione del **Maze Minigame** (“Trova l’Uscita”) segue un approccio rigoroso all’**Object-Oriented Programming** (OOP) e sfrutta pattern consolidati per garantire modularità, estendibilità e una netta separazione delle responsabilità.
+
+---
+
+### 🧠 Pattern Principali Utilizzati
+
+Il minigioco utilizza in modo strutturato i pattern **MVC (Model-View-Controller)**, **Strategy**, e **Decorator** (per il sistema di punteggio), oltre a una forte separazione delle componenti tramite interfacce e callback.
+
+---
+
+### 1) Model-View-Controller (MVC)
+
+* **Model:**
+
+  * **`MazeModel`**
+
+    * Gestisce lo stato corrente della partita: matrice del labirinto, posizione del giocatore, stato di completamento.
+    * Valida gli spostamenti e verifica il raggiungimento dell’uscita.
+  * **`MazeGenerator`**
+
+    * Si occupa della generazione dinamica dei labirinti tramite un algoritmo di backtracking ricorsivo.
+    * Restituisce matrici parametrizzate in base al livello di difficoltà, garantendo almeno un percorso valido.
+* **View:**
+
+  * **`MazePanel`**
+
+    * Pannello Swing custom per il rendering del labirinto, del giocatore, dell’uscita e delle informazioni di stato (timer, livello).
+    * Gestisce la ricezione degli input da tastiera e comunica gli eventi di movimento al controller.
+* **Controller:**
+
+  * **`MazeMinigame`**
+
+    * Coordina il flusso del minigioco: avvio livelli, gestione timer, avanzamento tra livelli o reset in caso di fallimento.
+    * Riceve gli input dal view, chiama i metodi del model per validare e aggiornare lo stato, aggiorna la view.
+    * Segnala la fine del minigioco al sistema principale tramite callback, comunicando successo, tempo e punteggio.
+
+**Vantaggio:**
+Questa separazione permette di modificare la logica, l’aspetto grafico o le modalità di interazione senza influenzare le altre componenti.
+
+---
+
+### 2) Flow e Collegamento dei Componenti
+
+* **Integrazione col sistema di gioco:**
+  Il minigioco viene istanziato tramite la factory centrale (`MinigameFactory`) e utilizza un callback (`MinigameCallback`) per notificare successo/fallimento e passare tempo e punteggio al sistema principale.
+* **Progressione multilivello:**
+  Completato ogni labirinto, si avanza al successivo fino al completamento di tutti i livelli.
+* **HUD e stato:**
+  Il pannello il livello corrente, stato completamento e messaggi di feedback.
+
+  ![UML di Maze](reportImg/MazeminigameUML.png)
 
 ---
 
