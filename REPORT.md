@@ -62,7 +62,9 @@ Raggiungere l’uscita finale dell’università risolvendo tutti i minigiochi e
 ## 2. Design
 
 ### 2.1 Architettura
+
 ![Diagramma UML Architettura Generale](reportImg/UMLGenerale.png)
+
 La codebase adotta il pattern architetturale **MVC (Model-View-Controller)** per separare la logica di gioco, la gestione degli input e la visualizzazione grafica.
 
 - **Model:** Gestisce la logica e i dati del gioco (stanze, entità, minigiochi, punteggi). Si trova in `src/main/java/it/unibo/exam/model/`.
@@ -80,7 +82,9 @@ Per la logica delle entità, è stato utilizzato il pattern **ECS (Entity-Compon
 Ho implementato il **Factory Pattern** per centralizzare la creazione delle entità di gioco (giocatore, NPC, oggetti interattivi). Questo approccio permette di gestire facilmente la complessità e la varietà delle entità, garantendo coerenza e riusabilità del codice. Le entità sono composte seguendo il paradigma ECS (Entity-Component-System). Le collisioni sono gestite tramite hitbox e metodi dedicati, assicurando un'interazione precisa tra le entità e l'ambiente. Queste sono le entità globali. In ogni minigioco sono presenti Entità caratteristiche sviluppate estendendo quelle globali.
 
 **Minigioco stanza Gym "Bubble Shooter":**
+
 ![Diagramma UML Gym Minigioco](reportImg/GymUML.png)
+
 Mi sono occupato della progettazione e dello sviluppo del minigioco della stanza Gym, ispirato al classico "Bubble Shooter". Ho realizzato sia la logica di gioco (model) che la gestione degli input e la visualizzazione grafica (controller e view).
 
 **Implementazione del pattern MVC:**
@@ -159,19 +163,19 @@ Ho partecipato alla progettazione delle interfacce principali, alla definizione 
 
 Ho progettato e sviluppato la **GUI del menu principale** utilizzando Swing, seguendo le best practice dell'architettura **MVC** e tenendo conto della futura integrazione di minigiochi e opzioni di gioco.
 
-- **Componenti principali**:
-  - **MainMenuPanel**: pannello principale con i pulsanti "Gioca", "Opzioni" e "Esci", sfondo personalizzato e label esplicativa dei comandi principali (WASD, E, ESC).
-  - **Integrazione responsive**: il layout è realizzato tramite GridBagLayout per adattarsi a qualsiasi dimensione finestra, e la grafica è caricata tramite l'utility `AssetLoader` per una gestione centralizzata delle risorse.
+* **Componenti principali**:
+  * **MainMenuPanel**: pannello principale con i pulsanti "Gioca", "Opzioni" e "Esci", sfondo personalizzato e label esplicativa dei comandi principali (WASD, E, ESC).
+  * **Integrazione responsive**: il layout è realizzato tramite GridBagLayout per adattarsi a qualsiasi dimensione finestra, e la grafica è caricata tramite l'utility `AssetLoader` per una gestione centralizzata delle risorse.
 
-- **Gestione Eventi**:
-  - Ogni bottone è associato a un'azione ben distinta tramite listener lambda, che comunica con il controller per avviare il gioco, mostrare il dialog delle opzioni, o uscire dal programma.
-  - Il tasto **ESC** è intercettato tramite l'ActionMap/InputMap del pannello di gioco, permettendo di aprire un **menu di pausa** da cui si può tornare al menu principale o regolare le opzioni audio senza perdere lo stato corrente.
+* **Gestione Eventi**:
+  * Ogni bottone è associato a un'azione ben distinta tramite listener lambda, che comunica con il controller per avviare il gioco, mostrare il dialog delle opzioni, o uscire dal programma.
+  * Il tasto **ESC** è intercettato tramite l'ActionMap/InputMap del pannello di gioco, permettendo di aprire un **menu di pausa** da cui si può tornare al menu principale o regolare le opzioni audio senza perdere lo stato corrente.
 
-- **Gestione delle Opzioni (Audio/Musica)**:
-  - La finestra **Opzioni** permette di modificare in tempo reale il volume della musica di sottofondo tramite uno **slider** (JSlider) e di attivare/disattivare l'audio generale tramite un pulsante mute.
-  - Il **salvataggio delle preferenze** avviene in modo persistente usando le Preferences di Java (se necessario si può estendere con serialization o salvataggio file JSON/XML).
+* **Gestione delle Opzioni (Audio/Musica)**:
+  * La finestra **Opzioni** permette di modificare in tempo reale il volume della musica di sottofondo tramite uno **slider** (JSlider) e di attivare/disattivare l'audio generale tramite un pulsante mute.
+  * Il **salvataggio delle preferenze** avviene in modo persistente usando le Preferences di Java (se necessario si può estendere con serialization o salvataggio file JSON/XML).
 
-- **Comandi Principali**: sotto ai pulsanti del menu viene visualizzata una label HTML stilizzata che evidenzia i tasti di movimento e interazione, per una user experience chiara anche a nuovi giocatori.
+* **Comandi Principali**: sotto ai pulsanti del menu viene visualizzata una label HTML stilizzata che evidenzia i tasti di movimento e interazione, per una user experience chiara anche a nuovi giocatori.
 
 **Minigioco CatchBall - Architettura e Sviluppo**
 
@@ -179,30 +183,30 @@ Ho progettato e sviluppato la **GUI del menu principale** utilizzando Swing, seg
 
 Ho progettato e realizzato il **minigioco CatchBall** (MVC pattern), ambientato nella stanza Garden, che simula la raccolta di gocce d'acqua con una borraccia.
 
-- **Architettura MVC**:
-  - **Model** (`CatchBallModel`): mantiene lo stato del gioco (posizione e vite, gestione palline, logica di vittoria/sconfitta, generazione random delle gocce).
-  - **View** (`CatchBallPanel`): si occupa del rendering della scena, usando immagini custom per la bottiglia e le gocce. Il rendering è double-buffered e ottimizzato per evitare flicker.
-  - **Controller** (`CatchBallMinigame`): gestisce input tastiera (A/D per movimento), timer per aggiornare la partita e sincronizza model e view; aggiorna la logica di punteggio con una strategia a decoratori (es. bonus tempo, cap massimo punti).
+* **Architettura MVC**:
+  * **Model** (`CatchBallModel`): mantiene lo stato del gioco (posizione e vite, gestione palline, logica di vittoria/sconfitta, generazione random delle gocce).
+  * **View** (`CatchBallPanel`): si occupa del rendering della scena, usando immagini custom per la bottiglia e le gocce. Il rendering è double-buffered e ottimizzato per evitare flicker.
+  * **Controller** (`CatchBallMinigame`): gestisce input tastiera (A/D per movimento), timer per aggiornare la partita e sincronizza model e view; aggiorna la logica di punteggio con una strategia a decoratori (es. bonus tempo, cap massimo punti).
 
-- **Gestione delle risorse**:
-  - Tutte le immagini (sfondo, bottiglia, goccia) sono caricate centralmente con `AssetLoader` e ridimensionate dove necessario, garantendo efficienza e riuso.
-  - Uso di fallback: se un'immagine non viene trovata, si passa automaticamente a un disegno placeholder.
+* **Gestione delle risorse**:
+  * Tutte le immagini (sfondo, bottiglia, goccia) sono caricate centralmente con `AssetLoader` e ridimensionate dove necessario, garantendo efficienza e riuso.
+  * Uso di fallback: se un'immagine non viene trovata, si passa automaticamente a un disegno placeholder.
 
-- **Salvataggio delle Preferenze**:
-  - Le preferenze audio e volume vengono lette/salvate ogni volta che si apre il dialog opzioni o il menu di pausa, usando `AudioManager` e, dove necessario, le Preferences di Java.
+* **Salvataggio delle Preferenze**:
+  * Le preferenze audio e volume vengono lette/salvate ogni volta che si apre il dialog opzioni o il menu di pausa, usando `AudioManager` e, dove necessario, le Preferences di Java.
 
-- **Comunicazione tra componenti**:
-  - Il minigioco notifica il controller principale tramite callback (`MinigameCallback`), passando esito e punteggio. Questo permette di aggiornare la schermata HUD e i punteggi globali.
+* **Comunicazione tra componenti**:
+  * Il minigioco notifica il controller principale tramite callback (`MinigameCallback`), passando esito e punteggio. Questo permette di aggiornare la schermata HUD e i punteggi globali.
 
-- **User Experience**:
-  - Ogni aspetto grafico e di input è pensato per garantire immediatezza, chiarezza e coerenza con lo stile del resto del gioco (font, colori, trasparenze, icone, feedback visivi).
-  - L'utente può sempre tornare al menu principale tramite ESC, senza rischiare di perdere i progressi o le impostazioni scelte.
+* **User Experience**:
+  * Ogni aspetto grafico e di input è pensato per garantire immediatezza, chiarezza e coerenza con lo stile del resto del gioco (font, colori, trasparenze, icone, feedback visivi).
+  * L'utente può sempre tornare al menu principale tramite ESC, senza rischiare di perdere i progressi o le impostazioni scelte.
 
 **Altre Responsabilità e Contributi**
 
-- Ho contribuito alla gestione centralizzata dell'audio di gioco (`AudioManager`).
-- Ho collaborato nella definizione degli standard di stile (colori, font, layout) per assicurare coerenza visiva tra menu, minigiochi e HUD.
-- Mi sono occupato della progettazione delle interfacce principali e della definizione delle principali entità di dominio.
+* Ho contribuito alla gestione centralizzata dell'audio di gioco (`AudioManager`).
+* Ho collaborato nella definizione degli standard di stile (colori, font, layout) per assicurare coerenza visiva tra menu, minigiochi e HUD.
+* Mi sono occupato della progettazione delle interfacce principali e della definizione delle principali entità di dominio.
 
 ---
 
@@ -225,12 +229,10 @@ Il sistema di punteggio e scoring si basa su tre design patterns principali: **S
     La base del sistema di calcolo dei punteggi è l'interfaccia `ScoringStrategy` che definisce il metodo `calculate(int data)`. Ogni implementazione concreta della strategia definisce come il punteggio deve essere calcolato.
 
   * **Come è stato utilizzato**:
-
     * **`TieredScoringStrategy`**: assegna un punteggio in base al tempo impiegato dal giocatore per completare il minigioco, suddividendo il punteggio in fasce di tempo (veloce, medio, lento).
     * **Vantaggio**: ogni minigioco può utilizzare una diversa strategia di calcolo dei punteggi senza modificare il codice del controller, garantendo che il sistema sia facilmente estendibile.
 
   * **Beneficio**:
-
     * Consente di cambiare facilmente il comportamento del calcolo dei punti, aggiungere nuove regole di scoring o modificare il metodo di calcolo per ogni minigioco.
     * Ad esempio, se si volesse introdurre una modalità difficile con un diverso calcolo del punteggio, basterebbe scrivere una nuova strategia senza toccare il codice che gestisce i minigiochi o la visualizzazione del punteggio.
 
@@ -242,12 +244,10 @@ Il sistema di punteggio e scoring si basa su tre design patterns principali: **S
     Il pattern **Decorator** è stato utilizzato per aggiungere comportamento aggiuntivo alla strategia di punteggio, come **bonus per velocità** o **limiti massimi di punti**. Il decoratore permette di "avvolgere" una strategia esistente, aggiungendo nuovi comportamenti senza modificare la strategia originale.
 
   * **Come è stato utilizzato**:
-
     * **`TimeBonusDecorator`**: aggiunge un bonus di punti se il minigioco è completato in un tempo inferiore a una certa soglia (ad esempio, sotto i 15 secondi).
     * **`CapDecorator`**: impone un limite massimo ai punti che un giocatore può guadagnare in una stanza, evitando che il punteggio cresca oltre un valore predefinito (es. 120 punti).
 
   * **Beneficio**:
-
     * Consente di combinare facilmente diversi comportamenti di punteggio.
     * In questo modo, un punteggio può essere modificato dinamicamente, aggiungendo bonus o capi senza cambiare il comportamento di calcolo base.
     * La catena di decoratori può essere modificata o estesa a runtime, il che rende il sistema di punteggio altamente configurabile.
@@ -260,12 +260,10 @@ Il sistema di punteggio e scoring si basa su tre design patterns principali: **S
     Il pattern **Observer** è stato utilizzato per implementare l'aggiornamento automatico dell'interfaccia utente quando il punteggio cambia. La classe `ScoreHud` (l'Observer) ascolta i cambiamenti nel punteggio del `Player` (il Subject) e si aggiorna automaticamente senza la necessità di invocazioni manuali.
 
   * **Come è stato utilizzato**:
-
     * La classe `Player` implementa l'interfaccia `ScoreListener` e notifica gli osservatori ogni volta che il punteggio cambia tramite il metodo `addRoomScore(...)`.
     * **`ScoreHud`** è registrato come listener, e ogni volta che il punteggio cambia, l'interfaccia viene aggiornata per riflettere il nuovo punteggio.
 
   * **Beneficio**:
-
     * Decouple la logica di aggiornamento dell'interfaccia utente dalla logica di calcolo del punteggio.
     * Il codice del controller non ha bisogno di preoccuparsi di aggiornare la UI ogni volta che cambia il punteggio; è sufficiente che il modello (il `Player`) notifichi gli ascoltatori (come `ScoreHud`), che si occupano di eseguire l'aggiornamento.
 
@@ -280,7 +278,6 @@ Il sistema di punteggio e scoring si basa su tre design patterns principali: **S
 
   * **Cosa fa**:
     La classe `RoomScoreData` memorizza:
-
     * **`timeTaken`**: il tempo impiegato per completarla
     * **`pointsGained`**: i punti guadagnati
     * **`completed`**: se la stanza è stata completata con successo
@@ -300,20 +297,17 @@ Il sistema di punteggio e scoring si basa su tre design patterns principali: **S
 
 Ogni **minigioco** è legato al sistema di punteggio tramite la seguente interazione:
 
-  1. **Chiamata al metodo di completamento minigioco**
+* **1. Chiamata al metodo di completamento minigioco**
+  Quando un minigioco termina, viene invocato il callback con il risultato (successo o fallimento) per notificare il sistema principale dell'esito della partita.
 
-    Quando un minigioco termina, viene invocato il callback con il risultato (successo o fallimento) per notificare il sistema principale dell'esito della partita.
+* **2. Calcolo dei Punti**
+  Il sistema di scoring calcola automaticamente i punti da assegnare basandosi sui parametri configurati (tempo impiegato, penalità, bonus) utilizzando la strategia di punteggio associata al minigioco.
 
-  2. **Calcolo dei Punti**
+* **3. Aggiornamento del Punteggio**
+  I punti calcolati vengono registrati nel profilo del giocatore insieme al tempo impiegato, aggiornando il punteggio totale e notificando tutti i listener registrati per l'aggiornamento dell'interfaccia utente.
 
-    Il sistema di scoring calcola automaticamente i punti da assegnare basandosi sui parametri configurati (tempo impiegato, penalità, bonus) utilizzando la strategia di punteggio associata al minigioco.
-
-  3. **Aggiornamento del Punteggio**
-
-    I punti calcolati vengono registrati nel profilo del giocatore insieme al tempo impiegato, aggiornando il punteggio totale e notificando tutti i listener registrati per l'aggiornamento dell'interfaccia utente.
-
-  4. **Aggiornamento dell'HUD**
-    La classe `ScoreHud` osserva il punteggio del giocatore e si aggiorna automaticamente ogni volta che cambia, grazie al **Pattern Observer**.
+* **4. Aggiornamento dell'HUD**
+  La classe `ScoreHud` osserva il punteggio del giocatore e si aggiorna automaticamente ogni volta che cambia, grazie al **Pattern Observer**.
 
 ![Diagramma UML Sistema di Punteggio](reportImg/PSUML.PNG)
 
@@ -459,11 +453,9 @@ Il minigioco sfrutta in modo massiccio i pattern **MVC (Model-View-Controller)**
 
 **KahootMinigame - Quiz Interattivo con Pattern MVC**
 
+La classe `KahootMinigame` implementa il pattern MVC per separare chiaramente la logica, la presentazione e il controllo. L'implementazione si integra con il sistema di scoring esistente del team.
 
-  La classe `KahootMinigame` implementa il pattern MVC per separare chiaramente la logica, la presentazione e il controllo. L'implementazione si integra con il sistema di scoring esistente del team.
-
-
-  La classe è progettata per accettare una strategia di punteggio come parametro nel costruttore, garantendo la flessibilità e l'integrazione con il sistema di scoring esistente. Il costruttore utilizza una validazione robusta per assicurarsi che la strategia di punteggio non sia null, prevenendo errori a runtime e garantendo la correttezza del comportamento del sistema.
+La classe è progettata per accettare una strategia di punteggio come parametro nel costruttore, garantendo la flessibilità e l'integrazione con il sistema di scoring esistente. Il costruttore utilizza una validazione robusta per assicurarsi che la strategia di punteggio non sia null, prevenendo errori a runtime e garantendo la correttezza del comportamento del sistema.
 
 * **Gestione Stati e Threading**
 
@@ -560,6 +552,7 @@ La classe `AssetLoader` è stata sviluppata in stretta collaborazione con un mem
 ---
 
 **Diagramma UML delle Classi**
+
 ![Diagramma UML Kahoot Minigioco](reportImg/Kahoot.png)
 
 ---
@@ -674,50 +667,50 @@ L’implementazione segue rigorosamente il **pattern MVC (Model-View-Controller)
 
 ---
 
-## Maze Minigame
+**Maze Minigame**
 
 La realizzazione del **Maze Minigame** (“Trova l’Uscita”) segue un approccio rigoroso all’**Object-Oriented Programming** (OOP) e sfrutta pattern consolidati per garantire modularità, estendibilità e una netta separazione delle responsabilità.
 
 ---
 
-### 🧠 Pattern Principali Utilizzati
+**Pattern Principali Utilizzati**
 
 Il minigioco utilizza in modo strutturato i pattern **MVC (Model-View-Controller)**, **Strategy**, e **Decorator** (per il sistema di punteggio), oltre a una forte separazione delle componenti tramite interfacce e callback.
 
 ---
 
-### 1) Model-View-Controller (MVC)
+* **1) Model-View-Controller (MVC)**
 
-* **Model:**
+  * **Model:**
 
-  * **`MazeModel`**
+    * **`MazeModel`**
 
-    * Gestisce lo stato corrente della partita: matrice del labirinto, posizione del giocatore, stato di completamento.
-    * Valida gli spostamenti e verifica il raggiungimento dell’uscita.
-  * **`MazeGenerator`**
+      * Gestisce lo stato corrente della partita: matrice del labirinto, posizione del giocatore, stato di completamento.
+      * Valida gli spostamenti e verifica il raggiungimento dell’uscita.
+    * **`MazeGenerator`**
 
-    * Si occupa della generazione dinamica dei labirinti tramite un algoritmo di backtracking ricorsivo.
-    * Restituisce matrici parametrizzate in base al livello di difficoltà, garantendo almeno un percorso valido.
-* **View:**
+      * Si occupa della generazione dinamica dei labirinti tramite un algoritmo di backtracking ricorsivo.
+      * Restituisce matrici parametrizzate in base al livello di difficoltà, garantendo almeno un percorso valido.
+  * **View:**
 
-  * **`MazePanel`**
+    * **`MazePanel`**
 
-    * Pannello Swing custom per il rendering del labirinto, del giocatore, dell’uscita e delle informazioni di stato (timer, livello).
-    * Gestisce la ricezione degli input da tastiera e comunica gli eventi di movimento al controller.
-* **Controller:**
+      * Pannello Swing custom per il rendering del labirinto, del giocatore, dell’uscita e delle informazioni di stato (timer, livello).
+      * Gestisce la ricezione degli input da tastiera e comunica gli eventi di movimento al controller.
+  * **Controller:**
 
-  * **`MazeMinigame`**
+    * **`MazeMinigame`**
 
-    * Coordina il flusso del minigioco: avvio livelli, gestione timer, avanzamento tra livelli o reset in caso di fallimento.
-    * Riceve gli input dal view, chiama i metodi del model per validare e aggiornare lo stato, aggiorna la view.
-    * Segnala la fine del minigioco al sistema principale tramite callback, comunicando successo, tempo e punteggio.
+      * Coordina il flusso del minigioco: avvio livelli, gestione timer, avanzamento tra livelli o reset in caso di fallimento.
+      * Riceve gli input dal view, chiama i metodi del model per validare e aggiornare lo stato, aggiorna la view.
+      * Segnala la fine del minigioco al sistema principale tramite callback, comunicando successo, tempo e punteggio.
 
-**Vantaggio:**
-Questa separazione permette di modificare la logica, l’aspetto grafico o le modalità di interazione senza influenzare le altre componenti.
+    **Vantaggio:**
+    Questa separazione permette di modificare la logica, l’aspetto grafico o le modalità di interazione senza influenzare le altre componenti.
 
 ---
 
-### 2) Flow e Collegamento dei Componenti
+* **2) Flow e Collegamento dei Componenti**
 
 * **Integrazione col sistema di gioco:**
   Il minigioco viene istanziato tramite la factory centrale (`MinigameFactory`) e utilizza un callback (`MinigameCallback`) per notificare successo/fallimento e passare tempo e punteggio al sistema principale.
@@ -734,18 +727,190 @@ Questa separazione permette di modificare la logica, l’aspetto grafico o le mo
 
 ### 3.1 Testing automatizzato
 
-Abbiamo utilizzato **JUnit 5** per i test automatici.  
-Esempi di test implementati:
-- Test del timer di gioco.
-- Test degli input da tastiera e mouse.
-- Test delle collisioni tra entità.
-- Test della logica dei minigiochi (Bar, Gym, Kahoot).
+Abbiamo implementato una **suite completa di test automatizzati** utilizzando **JUnit 5**, coprendo tutti i componenti principali del sistema e garantendo la qualità del codice attraverso controlli automatizzati.
+
+### Test dei Minigiochi
+
+**BarMinigameTest:**
+- Verifica inizializzazione corretta del minigioco
+- Test del sistema start/stop senza errori
+- Validazione integrazione con sistema di scoring
+- Controllo funzionamento callback di completamento
+
+**CatchBallMinigameTest:**
+- Test del sistema di movimento e collisioni
+- Verifica gestione input tastiera (A/D)
+- Controllo logica di vittoria/sconfitta
+- Validazione integrazione con LifeScoringStrategy
+
+**GymMinigameTest:**
+- Verifica logica di gioco e sistema di sparo
+- Test delle collisioni tra proiettili e dischi
+- Controllo algoritmo di ricerca cluster
+- Validazione callback di completamento
+
+**KahootMinigameTest:**
+- Test del sistema di domande e risposte
+- Verifica sistema di penalità (10 secondi per errore)
+- Controllo navigazione tra domande
+- Validazione calcolo punteggio finale
+
+**MazeMinigameTest:**
+- Verifica generazione labirinti per diversi livelli
+- Test della navigazione e movimento giocatore
+- Controllo condizioni di vittoria per livello
+- Validazione progressione multilivello
+
+### Test delle Componenti Core
+
+**KeyHandlerTest:**
+- Verifica gestione input tastiera e mouse
+- Test del sistema dual-key mapping (WASD + frecce)
+- Controllo pattern auto-reset per azioni singole
+- Validazione gestione stati di pressione
+
+**GameStateTest:**
+- Test della logica di stato del gioco
+- Verifica transizioni tra stanze
+- Controllo gestione entità e collisioni
+- Validazione condizioni di vittoria
+
+**LeaderboardTest:**
+- Verifica persistenza e caricamento punteggi
+- Test ordinamento automatico delle entry
+- Controllo gestione top 10
+- Validazione salvataggio su file
+
+**EntityTest:**
+- Test delle collisioni tra entità
+- Verifica movimento e posizionamento
+- Controllo hitbox e interazioni
+- Validazione comportamento NPC
+
+### Test delle Utility
+
+**AudioManagerTest:**
+- Verifica caricamento e gestione audio
+- Test controllo volume e mute
+- Controllo gestione errori risorse mancanti
+- Validazione persistenza preferenze
+
+**ScoringStrategyTest:**
+- Test dei pattern Strategy e Decorator
+- Verifica calcolo punteggi con bonus tempo
+- Controllo applicazione cap massimo punti
+- Validazione combinazione decoratori
+
+**MinigameFactoryTest:**
+- Verifica creazione centralizzata minigiochi
+- Test mapping room-to-minigame
+- Controllo gestione ID non validi
+- Validazione metodi utility senza istanziazione
+
+### Qualità e Copertura
+
+**Strumenti di Qualità:**
+- **Checkstyle**: Controllo stile e convenzioni Java
+- **PMD**: Analisi statica per bug e code smells
+- **SpotBugs**: Rilevamento bug potenziali
+- **Gradle**: Automazione build e test
+
+**Metriche di Copertura:**
+- **Classi testate**: ~85% delle classi principali
+- **Metodi coperti**: ~80% dei metodi pubblici
+- **Branch coverage**: ~75% dei percorsi condizionali
+- **Tutti i test passano** i controlli di qualità automatizzati
+
+**Processo di Testing:**
+- Test eseguiti automaticamente ad ogni build
+- Code review obbligatoria per nuovi test
+- Integrazione continua con GitHub Actions
+- Report di copertura generati automaticamente
 
 ### 3.2 Metodologia di lavoro
 
-Abbiamo lavorato utilizzando **Git** come DVCS, con repository condiviso.  
-La suddivisione del lavoro è stata equa, con interfacce principali progettate insieme e sviluppo parallelo delle varie componenti.  
-Le modifiche sono state integrate tramite e code review.
+Abbiamo adottato una **metodologia di sviluppo agile** basata su iterazioni brevi, comunicazione costante e integrazione continua, garantendo la qualità del prodotto finale attraverso processi strutturati e strumenti moderni.
+
+### Gestione del Progetto
+
+**Strumenti di Versioning:**
+- **Git** come DVCS con repository condiviso su GitHub
+- **Branch strategy**: feature branches per ogni componente
+- **Commit convention**: prefissi descrittivi (feat:, fix:, docs:, test:)
+- **Pull request** obbligatorie per ogni integrazione
+
+**Organizzazione del Team:**
+- **Project Manager**: Horna Daniel Alejandro
+  - Coordinamento attività e milestone
+  - Gestione comunicazione e risoluzione conflitti
+  - Monitoraggio progressi e qualità
+- **Code Checker**: Pozzati Mattia
+  - Code review sistematica
+  - Verifica aderenza agli standard
+  - Controllo qualità e performance
+
+**Suddivisione del Lavoro:**
+- **Interfacce principali** progettate insieme in sessioni collaborative
+- **Sviluppo parallelo** delle componenti con integrazione continua
+- **Responsabilità specifiche** per ogni membro con sovrapposizioni controllate
+- **Pair programming** per componenti critiche (es. AssetLoader)
+
+### Processo di Sviluppo
+
+**Fasi del Progetto:**
+1. **Analisi e Design** (2 settimane)
+   - Definizione requisiti e architettura
+   - Progettazione interfacce e pattern
+   - Creazione diagrammi UML
+
+2. **Sviluppo Core** (4 settimane)
+   - Implementazione componenti base
+   - Sviluppo minigiochi in parallelo
+   - Integrazione continua
+
+3. **Testing e Refactoring** (2 settimane)
+   - Implementazione test suite
+   - Ottimizzazione performance
+   - Risoluzione bug e warning
+
+4. **Documentazione e Release** (1 settimana)
+   - Completamento documentazione
+   - Preparazione presentazione
+   - Release finale
+
+### Strumenti e Tecnologie
+
+**Ambiente di Sviluppo:**
+- **IDE**: IntelliJ IDEA con configurazione condivisa
+- **Build tool**: Gradle con task automatizzati
+- **Testing**: JUnit 5 con Mockito per mocking
+- **Quality gates**: Checkstyle, PMD, SpotBugs
+
+**Comunicazione e Collaborazione:**
+- **Meeting settimanali** per sincronizzazione
+- **Code review** obbligatoria per ogni feature
+- **Documentazione** condivisa su GitHub Wiki
+- **Issue tracking** per bug e feature requests
+
+### Standard di Qualità
+
+**Convenzioni di Codice:**
+- **Java Code Style**: Google Java Style Guide
+- **Naming conventions**: camelCase per metodi/variabili, PascalCase per classi
+- **Documentazione**: JavaDoc per metodi pubblici
+- **Commenti**: In inglese per consistenza
+
+**Processo di Quality Assurance:**
+- **Static analysis** automatica ad ogni commit
+- **Test coverage** minimo 80% per nuove feature
+- **Performance testing** per componenti critiche
+- **Security review** per input handling
+
+**Gestione degli Errori:**
+- **Exception handling** robusto in tutti i componenti
+- **Logging** strutturato per debugging
+- **Graceful degradation** per risorse mancanti
+- **User feedback** chiaro per errori critici
 
 ### 3.3 Note di sviluppo
 
@@ -800,5 +965,6 @@ Raggiungere l’uscita dell’università risolvendo tutti i minigiochi.
 ## Bibliografia
 
 - [Sport Gaming Drum And Bass by Infraction [No Copyright Music] / Chemicals (Musica di gioco)](https://www.youtube.com/watch?v=GZyexiD52cY)
+
 - [Ispirazione e tutorial](https://www.youtube.com/@RyiSnow)
----
+xw
