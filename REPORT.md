@@ -18,6 +18,7 @@
         1. [Pozzati Mattia](#pozzati-mattia)
         2. [Amantini Davide](#amantini-davide)
         3. [Brunelli Simone](#brunelli-simone)
+        4. [Horna Daniel Alejandro](#horna-daniel-alejandro)
 3. [Sviluppo](#sviluppo)
     1. [Testing automatizzato](#testing-automatizzato)
     2. [Metodologia di lavoro](#metodologia-di-lavoro)
@@ -67,9 +68,9 @@ La codebase adotta il pattern architetturale **MVC (Model-View-Controller)** per
 
 Per la logica delle entità, è stato utilizzato il pattern **ECS (Entity-Component-System)**, che permette di comporre comportamenti tramite componenti riutilizzabili.
 
-### 2.2 Design dettagliato
+# 2.2 Design dettagliato
 
-#### 2.2.1 Pozzati Mattia
+## 2.2.1 Pozzati Mattia
 
 **Gestione della creazione delle entità:**
 ![Testo alternativo](reportImg/EntityUML.png)
@@ -111,7 +112,7 @@ Ho progettato e sviluppato la **GUI del menu principale** utilizzando Swing, seg
 
 **Minigioco CatchBall - Architettura e Sviluppo**
 
-![UML CatchBall](reportImg/CatchBallUML.png)
+![UML CatchBall](reportImg/CatchBallUML.PNG)
 
 Ho progettato e realizzato il **minigioco CatchBall** (MVC pattern), ambientato nella stanza Garden, che simula la raccolta di gocce d’acqua con una borraccia.
 
@@ -536,9 +537,288 @@ classDiagram
 
 ---
 
-#### 2.2.3 Daniel Alejandro Horna
+## 2.2.3 Daniel Alejandro Horna
 
-**Gestione sistema di punteggi**
+## Sistema di Punteggio e della Logica di Scoring
+
+Il sistema di punteggio nel nostro gioco è stato progettato utilizzando **design patterns** per garantire un'architettura robusta, estensibile e facilmente manutenibile. I **design patterns** utilizzati sono fondamentali per la flessibilità del sistema, che permette di modificare facilmente il comportamento del calcolo del punteggio, aggiungere nuovi bonus o penalità, e aggiornare automaticamente l'interfaccia utente.
+
+Inoltre, il sistema è stato progettato per **rispettare il pattern MVC (Model-View-Controller)**, separando chiaramente la logica del gioco (Model), la logica di visualizzazione (View) e il flusso di controllo (Controller).
+
+### 🧠 I Pattern Utilizzati
+
+Il sistema di punteggio e scoring si basa su tre design patterns principali: **Strategy**, **Decorator** e **Observer**. Ogni pattern gioca un ruolo specifico nell'architettura, garantendo la separazione delle preoccupazioni e la facilità di estensione.
+
+
+### 1) Strategy Pattern
+
+* **Cos'è**:
+  Il pattern **Strategy** è stato utilizzato per definire una **famiglia di algoritmi** di calcolo del punteggio, che possono essere intercambiati senza modificare il codice cliente.
+  La base del sistema di calcolo dei punteggi è l'interfaccia `ScoringStrategy` che definisce il metodo `calculate(int data)`. Ogni implementazione concreta della strategia definisce come il punteggio deve essere calcolato.
+
+* **Come è stato utilizzato**:
+
+  * **`TieredScoringStrategy`**: assegna un punteggio in base al tempo impiegato dal giocatore per completare il minigioco, suddividendo il punteggio in fasce di tempo (veloce, medio, lento).
+  * **Vantaggio**: ogni minigioco può utilizzare una diversa strategia di calcolo dei punteggi senza modificare il codice del controller, garantendo che il sistema sia facilmente estendibile.
+
+* **Beneficio**:
+
+  * Consente di cambiare facilmente il comportamento del calcolo dei punti, aggiungere nuove regole di scoring o modificare il metodo di calcolo per ogni minigioco.
+  * Ad esempio, se si volesse introdurre una modalità difficile con un diverso calcolo del punteggio, basterebbe scrivere una nuova strategia senza toccare il codice che gestisce i minigiochi o la visualizzazione del punteggio.
+
+---
+
+### 2) Decorator Pattern
+
+* **Cos'è**:
+  Il pattern **Decorator** è stato utilizzato per aggiungere comportamento aggiuntivo alla strategia di punteggio, come **bonus per velocità** o **limiti massimi di punti**. Il decoratore permette di "avvolgere" una strategia esistente, aggiungendo nuovi comportamenti senza modificare la strategia originale.
+
+* **Come è stato utilizzato**:
+
+  * **`TimeBonusDecorator`**: aggiunge un bonus di punti se il minigioco è completato in un tempo inferiore a una certa soglia (ad esempio, sotto i 15 secondi).
+  * **`CapDecorator`**: impone un limite massimo ai punti che un giocatore può guadagnare in una stanza, evitando che il punteggio cresca oltre un valore predefinito (es. 120 punti).
+
+* **Beneficio**:
+
+  * Consente di combinare facilmente diversi comportamenti di punteggio.
+  * In questo modo, un punteggio può essere modificato dinamicamente, aggiungendo bonus o capi senza cambiare il comportamento di calcolo base.
+  * La catena di decoratori può essere modificata o estesa a runtime, il che rende il sistema di punteggio altamente configurabile.
+
+---
+
+### 3) Observer Pattern
+
+* **Cos'è**:
+  Il pattern **Observer** è stato utilizzato per implementare l'aggiornamento automatico dell'interfaccia utente quando il punteggio cambia. La classe `ScoreHud` (l'Observer) ascolta i cambiamenti nel punteggio del `Player` (il Subject) e si aggiorna automaticamente senza la necessità di invocazioni manuali.
+
+* **Come è stato utilizzato**:
+
+  * La classe `Player` implementa l'interfaccia `ScoreListener` e notifica gli osservatori ogni volta che il punteggio cambia tramite il metodo `addRoomScore(...)`.
+  * **`ScoreHud`** è registrato come listener, e ogni volta che il punteggio cambia, l'interfaccia viene aggiornata per riflettere il nuovo punteggio.
+
+* **Beneficio**:
+
+  * Decouple la logica di aggiornamento dell'interfaccia utente dalla logica di calcolo del punteggio.
+  * Il codice del controller non ha bisogno di preoccuparsi di aggiornare la UI ogni volta che cambia il punteggio; è sufficiente che il modello (il `Player`) notifichi gli ascoltatori (come `ScoreHud`), che si occupano di eseguire l'aggiornamento.
+
+---
+
+### 📜 Creazione di `RoomScoreData` (o `RoomPlayerData`)
+
+Per migliorare la tracciabilità e la gestione del punteggio per ogni stanza completata, abbiamo introdotto una nuova classe chiamata **`RoomScoreData`** (o **`RoomPlayerData`**):
+
+* **Perché è stata creata**:
+  Ogni volta che un giocatore completa una stanza, bisogna registrare il punteggio per quella stanza, il tempo impiegato e lo stato di completamento. **`RoomScoreData`** tiene traccia di questi dati specifici per ogni stanza.
+
+* **Cosa fa**:
+  La classe `RoomScoreData` memorizza:
+
+  * **`timeTaken`**: il tempo impiegato per completarla
+  * **`pointsGained`**: i punti guadagnati
+  * **`completed`**: se la stanza è stata completata con successo
+
+* **Dove viene utilizzata**:
+  Ogni volta che un minigioco viene completato, la classe `Player` registra un nuovo oggetto `RoomScoreData` per la stanza. L'oggetto `RoomScoreData` viene poi usato per calcolare il punteggio totale e notificare gli ascoltatori (ad esempio l'HUD).
+
+**Esempio di utilizzo:**
+
+```java
+// Quando il giocatore completa un minigioco:
+gameState.getPlayer().addRoomScore(currentMinigameRoomId, timeTaken, pointsGained);
+```
+
+In questo caso, **`addRoomScore(...)`** aggiunge i dati alla mappa `roomScores` del `Player` con l'ID della stanza come chiave. L'oggetto `RoomScoreData` contiene le informazioni sui punti guadagnati e il tempo impiegato per completare la stanza.
+
+---
+
+### 🧪 Utilizzo nei Minigiochi
+
+Ogni **minigioco** è legato al sistema di punteggio tramite la seguente interazione:
+
+1. **Chiamata al metodo `endMinigame(boolean success)`**
+
+   ```java
+   callback.endMinigame(true);  // Se il giocatore ha vinto
+   callback.endMinigame(false); // Se ha fallito
+   ```
+
+2. **Calcolo dei Punti**
+
+   ```java
+   final int pointsGained = scoring.calculate(data);
+   ```
+
+3. **Aggiornamento del Punteggio**
+
+   ```java
+   gameState.getPlayer().addRoomScore(currentMinigameRoomId, timeTaken, pointsGained);
+   ```
+
+4. **Aggiornamento dell’HUD**
+   La classe `ScoreHud` osserva il punteggio del giocatore e si aggiorna automaticamente ogni volta che cambia, grazie al **Pattern Observer**.
+
+![UML Point_System](reportImg/PSUML.PNG)
+---
+
+## Bar Minigame
+
+La realizzazione del **Bar Minigame** (“Sort & Serve”) ha seguito un approccio didattico e rigoroso all’**Object-Oriented Programming** (OOP), basandosi su pattern solidi per ottenere modularità, estensibilità e una chiara separazione dei ruoli tra componenti.
+
+### 🧠 Pattern Principali Utilizzati
+
+Il minigioco sfrutta in modo massiccio i pattern **MVC (Model-View-Controller)**, **Observer**, **Builder**, **Strategy** e **Decorator**. Ogni parte del progetto è stata progettata per isolare responsabilità e facilitare la collaborazione di più sviluppatori.
+
+---
+
+### 1 Model-View-Controller (MVC)
+
+* **Model:**
+
+  * **`BarModel`**: Tiene lo stato della partita (glasses, mosse, listeners, regole di gioco) e gestisce la logica di tutte le azioni possibili.
+  * **`Glass`**: Rappresenta un singolo bicchiere (con capacità e pila di colori), incluse le regole per i versamenti e i controlli di validità.
+* **View:**
+
+  * **`BarPanel`**: Pannello custom di Swing che disegna i bicchieri, le selezioni, i livelli di liquido e lo sfondo. Gestisce click utente e segnala le azioni. Qui si registra anche il **listener** di input dell’utente, **`GlassClickListener`**.
+* **Controller:**
+
+  * **`BarMinigame`**: Il “cervello” del minigioco: gestisce la partenza, lo stato di gioco, la logica di restart, la ricezione di eventi dal modello, il punteggio e il callback di fine minigioco.
+
+**Vantaggio:**
+Questa separazione permette di modificare l’aspetto grafico, la logica o le interazioni utente senza dover toccare tutte le classi.
+
+---
+
+### 2) Observer Pattern
+
+* **Cosa fa:**
+  Il modello (`BarModel`) notifica tutti i listener ogni volta che cambia (es. avviene un versamento o si completa il puzzle).
+
+* **File/Interfacce Coinvolte:**
+
+  * `PuzzleListener` (interfaccia): definisce i metodi `onPoured` e `onCompleted`.
+  * Il `BarPanel` si aggiorna con repaint ogni volta che riceve una notifica; il `BarMinigame` può chiudere la finestra o segnalare la fine del minigioco tramite callback.
+  * **`GlassClickListener` (view → controller):** listener specifico che collega il click di un bicchiere all’azione (versamento) da gestire.
+
+* **Esempio:**
+
+  ```java
+  model.addListener(new PuzzleListener() {
+      public void onPoured(int from, int to) { SwingUtilities.invokeLater(panel::repaint); }
+      public void onCompleted() { callback.onComplete(true, elapsedSeconds); stop(); }
+  });
+  ```
+
+**Vantaggio:**
+Disaccoppiamento tra input utente, logica di gioco e logica di rendering. Qualunque nuova interazione (ad es. drag\&drop, tastiera, ecc.) si può gestire aggiungendo o cambiando un listener, senza modificare la struttura base.
+
+---
+
+### 3) Builder Pattern
+
+* **Cosa fa:**
+  Semplifica la costruzione di oggetti complessi con molti parametri, tramite una DSL fluida.
+
+* **File Coinvolto:**
+
+  * `BarModel.Builder`: consente di creare modelli configurabili (numero bicchieri, capacità, colori, seed, strategia di shuffle…).
+
+* **Esempio:**
+
+  ```java
+  new BarModel.Builder()
+      .numGlasses(6)
+      .capacity(4)
+      .colors(Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW)
+      .shuffleSeed(seed)
+      .shuffleStrategy(new RandomShuffleStrategy())
+      .build();
+  ```
+
+**Vantaggio:**
+Codice leggibile, parametri facoltativi, nessuna “costruttore telescopico”.
+
+---
+
+### 4) Strategy & Decorator Pattern (Sistema di Punteggio)
+
+* **Strategy:**
+
+  * Permette di definire diversi algoritmi di calcolo punteggio e selezionarli a runtime.
+  * **File Coinvolti:**
+
+    * `ScoringStrategy` (interfaccia): Metodo `calculate(int timeTaken, int roomId)`.
+    * `TieredScoringStrategy`: Strategia base che assegna punti in base al tempo.
+
+* **Decorator:**
+
+  * Aggiunge comportamento (bonus/limiti) a una strategia senza modificarne il codice.
+  * **File Coinvolti:**
+
+    * `TimeBonusDecorator`: Bonus punti se finisci entro una certa soglia di secondi.
+    * `CapDecorator`: Impone un tetto massimo ai punti.
+
+* **Catena d’Uso:**
+
+  ```java
+  ScoringStrategy strategy =
+    new CapDecorator(
+      new TimeBonusDecorator(
+        new TieredScoringStrategy(),
+        30, // tempo per il bonus
+        10  // punti bonus
+      ),
+      100 // massimo punti
+    );
+  ```
+
+* **Dove viene usato:**
+
+  * Nel controller (`BarMinigame`), la strategia viene passata al costruttore e usata al completamento:
+
+    ```java
+    int score = scoringStrategy.calculate(elapsedSeconds);
+    ```
+
+**Vantaggio:**
+Sistema di punteggio totalmente configurabile: puoi cambiare strategia, stacking decoratori, o crearne di nuovi senza cambiare nulla in controller, model o view.
+
+---
+
+### 5) Strategy Pattern (ShuffleStrategy & RandomShuffleStrategy)
+
+* **Cosa fa:**
+  Permette di astrarre la logica di miscelamento iniziale delle bottiglie, consentendo diversi algoritmi di shuffle.
+
+* **File Coinvolti:**
+
+  * `ShuffleStrategy` (interfaccia): Definisce il metodo `shuffle(List<Color> pool, long seed)`.
+  * `RandomShuffleStrategy`: implementa la logica di shuffle casuale.
+
+* **Dove viene usato:**
+
+  ```java
+  .shuffleStrategy(new RandomShuffleStrategy())
+  ```
+
+**Vantaggio:**
+Chiunque può aggiungere nuove modalità di inizializzazione o testare algoritmi diversi di shuffle senza modificare la logica principale del modello o controller.
+
+---
+
+### 6) Flow e Collegamento dei Componenti
+
+* **Integrazione con il sistema di gioco:**
+
+  * Il minigioco viene creato tramite la factory dei minigiochi (`MinigameFactory`) e utilizza un callback (`MinigameCallback`) per notificare la fine partita e passare punteggio/tempo al sistema principale.
+* **Restart:**
+
+  * Premendo `R` si ricrea la stessa partita usando lo stesso seed (quindi layout identico, utile per tentativi multipli e fairness).
+* **Logica di scoring:**
+
+  * Il controller tiene traccia delle mosse (`moveCount`) e del tempo, passando tutto al calcolatore di punteggio al termine.
+  * Il punteggio è separato dalla UI e dalla logica di gioco, pronto per essere letto dal sistema di progressione, HUD, etc.
+
+  ![UML Bar-Minigame](reportImg/BarUML.PNG)
 
 ### 2.2.4 Simone Brunelli
 
