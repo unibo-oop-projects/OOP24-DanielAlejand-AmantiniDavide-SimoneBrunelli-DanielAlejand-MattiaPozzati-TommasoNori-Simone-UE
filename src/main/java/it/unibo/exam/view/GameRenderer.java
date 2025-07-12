@@ -5,7 +5,6 @@ import it.unibo.exam.model.entity.enviroments.Room;
 import it.unibo.exam.model.game.GameState;
 import it.unibo.exam.view.hud.ScoreHud;
 import it.unibo.exam.view.renderer.PlayerRenderer;
-import it.unibo.exam.view.renderer.DoorRenderer;
 import it.unibo.exam.view.renderer.NpcRenderer;
 import it.unibo.exam.utility.generator.RoomGenerator;
 import it.unibo.exam.utility.medialoader.AssetLoader;
@@ -38,7 +37,6 @@ public class GameRenderer {
 
     // Entity renderers
     private final PlayerRenderer playerRenderer;
-    private final DoorRenderer   doorRenderer;
     private final NpcRenderer    npcRenderer;
 
     // Map room-name → background image
@@ -55,7 +53,6 @@ public class GameRenderer {
 
         // Initialize renderers
         this.playerRenderer = new PlayerRenderer();
-        this.doorRenderer   = new DoorRenderer();
         this.npcRenderer    = new NpcRenderer();
 
         // Load each room's background via AssetLoader
@@ -104,9 +101,6 @@ public class GameRenderer {
 
         clearBackground(g);
         drawRoomBackground(g, currentRoom);
-
-        // Draw doors
-        currentRoom.getDoors().forEach(door -> doorRenderer.render(g, door));
 
         // Draw puzzle NPC if present
         if (currentRoom.getRoomType() == RoomGenerator.PUZZLE_ROOM

@@ -17,6 +17,8 @@ public class DoorGenerator extends EntityGenerator<List<Door>> {
     private static final int MIN_DOOR_DIMENSION = 40;
     private static final int DOOR_DIVIDER = 20;
     private static final int DOOR_MARGIN = 20;
+    private static final int DELTA = 200;
+
 
     private List<Point2D> dir;
     private final Point2D environmentSize;
@@ -51,7 +53,7 @@ public class DoorGenerator extends EntityGenerator<List<Door>> {
             ),
             // To room 2 – bottom side
             new Point2D(
-                Math.max(0, envSize.getX() / 3 - doorWidth / 2),
+                Math.max(0, envSize.getX() / 3 - doorWidth / 2 - DELTA),
                 Math.max(0, envSize.getY() - doorHeight - margin)
             ),
             // To room 3 – left side
@@ -66,7 +68,7 @@ public class DoorGenerator extends EntityGenerator<List<Door>> {
             ),
             // To room 5 – bottom side
             new Point2D(
-                Math.max(0, 2 * envSize.getX() / 3 - doorWidth / 2),
+                Math.max(0, 2 * envSize.getX() / 3 - doorWidth / 2 + DELTA),
                 Math.max(0, envSize.getY() - doorHeight - margin)
             )
         );
