@@ -193,6 +193,9 @@ Le modifiche sono state integrate tramite e code review.
 **Pozzati Mattia:**  
 All’inizio il progetto è stato impegnativo, ma lavorando in gruppo e suddividendo le responsabilità sono riuscito a migliorare sia tecnicamente che come membro di un team. In futuro vorrei approfondire la gestione di animazioni e l’ottimizzazione delle performance.
 
+**Amantini Davide:**
+Sicuramente è stato un progetto impegnativo, però sento che mi ha fatto imparare molto, sia dal punto di vista della programmazione, dal punto di vista del lavoro di gruppo, e nel cercare di rispettare una deadline a lungo termine. Mi sarebbe piaciuto approfondire la parte grafica e l'implementazione di altri pattern.
+
 **[Altri membri]:**  
 *(Aggiungi qui le autovalutazioni degli altri membri, seguendo lo stile sopra)*
 
