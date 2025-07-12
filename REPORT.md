@@ -179,7 +179,7 @@ Ho progettato e sviluppato la **GUI del menu principale** utilizzando Swing, seg
 
 **Minigioco CatchBall - Architettura e Sviluppo**
 
-![Diagramma UML CatchBall Minigioco](reportImg/CatchBallUML.PNG)
+![Diagramma UML CatchBall Minigame](reportImg/gardenUML.jpg)
 
 Ho progettato e realizzato il **minigioco CatchBall** (MVC pattern), ambientato nella stanza Garden, che simula la raccolta di gocce d'acqua con una borraccia.
 
