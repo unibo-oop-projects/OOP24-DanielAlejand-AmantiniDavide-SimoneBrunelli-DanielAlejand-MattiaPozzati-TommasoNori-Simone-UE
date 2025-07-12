@@ -820,6 +820,14 @@ Chiunque può aggiungere nuove modalità di inizializzazione o testare algoritmi
 
   ![UML Bar-Minigame](reportImg/BarUML.PNG)
 
+**Altre responsabilità:**
+
+* Ho creato classi relative agli NPC di spostamento con le loro implementazioni.
+
+* Sono stato il Project Manager e Code Checker per la durata del progetto
+
+---
+
 ### 2.2.4 Simone Brunelli
 
 **Gestione movimento player**
