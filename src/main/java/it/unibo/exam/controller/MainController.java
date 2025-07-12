@@ -12,11 +12,11 @@ import it.unibo.exam.controller.position.PlayerPositionManager;
 import it.unibo.exam.controller.minigame.MinigameManager;
 import it.unibo.exam.model.entity.Player;
 import it.unibo.exam.model.entity.Npc;
-import it.unibo.exam.model.entity.RoamingNpc;                    // ADDED
+import it.unibo.exam.model.entity.RoamingNpc;
 import it.unibo.exam.model.entity.enviroments.Door;
 import it.unibo.exam.model.entity.enviroments.Room;
 import it.unibo.exam.model.game.GameState;
-import it.unibo.exam.utility.generator.NpcGenerator;              // ADDED
+import it.unibo.exam.utility.generator.NpcGenerator;
 import it.unibo.exam.utility.generator.RoomGenerator;
 import it.unibo.exam.utility.geometry.Point2D;
 import it.unibo.exam.view.GameRenderer;
@@ -200,11 +200,10 @@ public class MainController {
      * Updates the game state.
      */
     private void update() {
-        final double deltaTime = 1.0 / FPS;                            // ADDED: compute timestep
+        final double deltaTime = 1.0 / FPS;
         final Player player = gameState.getPlayer();
         final Room room     = gameState.getCurrentRoom();
 
-        // ── ADDED: move all roaming NPCs each tick ──
         for (final RoamingNpc rn : room.getRoamingNpcs()) {
             rn.update(deltaTime, room);
         }

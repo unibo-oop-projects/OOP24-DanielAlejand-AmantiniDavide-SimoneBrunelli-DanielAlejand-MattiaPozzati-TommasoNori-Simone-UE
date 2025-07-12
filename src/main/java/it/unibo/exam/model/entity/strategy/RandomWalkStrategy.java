@@ -1,5 +1,6 @@
-package it.unibo.exam.model.entity;
+package it.unibo.exam.model.entity.strategy;
 
+import it.unibo.exam.model.entity.MovementEntity;
 import it.unibo.exam.model.entity.enviroments.Room;
 import it.unibo.exam.utility.geometry.Point2D;
 import java.util.Random;
