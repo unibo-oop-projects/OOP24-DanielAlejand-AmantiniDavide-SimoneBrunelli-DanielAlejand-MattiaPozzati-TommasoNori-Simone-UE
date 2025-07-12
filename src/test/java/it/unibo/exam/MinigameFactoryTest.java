@@ -9,10 +9,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class MinigameFactoryTest {
 
     private static final int GARDEN_ROOM_ID = 1;
-    private static final int LAB_ROOM_ID = 2;
-    private static final int MAZE_ROOM_ID = 3;
-    private static final int GYM_ROOM_ID = 4;
-    private static final int BAR_ROOM_ID = 5;
+    private static final int LAB_ROOM_ID = 5;
+    private static final int MAZE_ROOM_ID = 2;
+    private static final int GYM_ROOM_ID = 3;
+    private static final int BAR_ROOM_ID = 4;
     private static final int INVALID_ROOM_ID = 999;
 
     @Test
