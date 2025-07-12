@@ -2,10 +2,10 @@ package it.unibo.exam.utility.generator;
 
 import it.unibo.exam.model.entity.Npc;
 import it.unibo.exam.model.entity.RoamingNpc;
-import it.unibo.exam.model.entity.MovementStrategy;
-import it.unibo.exam.model.entity.RandomWalkStrategy;
 import it.unibo.exam.utility.geometry.Point2D;
 import it.unibo.exam.model.entity.enviroments.Room;
+import it.unibo.exam.model.entity.strategy.MovementStrategy;
+import it.unibo.exam.model.entity.strategy.RandomWalkStrategy;
 
 /**
  * NPC generator.

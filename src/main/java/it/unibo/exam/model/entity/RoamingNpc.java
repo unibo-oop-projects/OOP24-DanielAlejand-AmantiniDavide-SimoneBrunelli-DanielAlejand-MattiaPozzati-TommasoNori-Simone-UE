@@ -2,6 +2,7 @@ package it.unibo.exam.model.entity;
 
 import it.unibo.exam.utility.geometry.Point2D;
 import it.unibo.exam.model.entity.enviroments.Room;
+import it.unibo.exam.model.entity.strategy.MovementStrategy;
 
 /**
  * A non-interactable NPC that just moves around.
