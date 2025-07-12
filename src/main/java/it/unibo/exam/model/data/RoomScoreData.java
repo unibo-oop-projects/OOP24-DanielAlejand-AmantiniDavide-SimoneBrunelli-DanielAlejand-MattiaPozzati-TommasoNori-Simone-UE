@@ -5,16 +5,7 @@ package it.unibo.exam.model.data;
  * Updated to include the new Library room.
  */
 public class RoomScoreData {
-    // Room names mapped by room ID
-    private static final String[] ROOM_NAMES = {
-        "Garden",
-        "2.12",
-        "Lab",
-        "Gym",
-        "Bar",
-    };
 
-    private final int roomId;
     private final int timeTaken;
     private final int pointsGained;
     private final boolean completed;
@@ -22,28 +13,14 @@ public class RoomScoreData {
     /**
      * Constructs a RoomScoreData object with the given details.
      *
-     * @param roomId        the ID of the room
      * @param timeTaken     time taken to complete the minigame (seconds or ms)
      * @param pointsGained  points gained for the room
      * @param completed     true if the room has been completed, false otherwise
      */
-    public RoomScoreData(final int roomId, final int timeTaken, final int pointsGained, final boolean completed) {
-        this.roomId = roomId;
+    public RoomScoreData(final int timeTaken, final int pointsGained, final boolean completed) {
         this.timeTaken = timeTaken;
         this.pointsGained = pointsGained;
         this.completed = completed;
-    }
-
-    /**
-     * Gets the name of the room based on its ID.
-     *
-     * @return the room's name
-     */
-    public String getRoomName() {
-        if (roomId >= 0 && roomId < ROOM_NAMES.length) {
-            return ROOM_NAMES[roomId];
-        }
-        return "Unknown";
     }
 
     /**
@@ -81,8 +58,6 @@ public class RoomScoreData {
     @Override
     public String toString() {
         return "RoomScoreData{"
-            + "roomId=" + roomId
-            + ", roomName='" + getRoomName() + '\''
             + ", timeTaken=" + timeTaken
             + ", pointsGained=" + pointsGained
             + ", completed=" + completed

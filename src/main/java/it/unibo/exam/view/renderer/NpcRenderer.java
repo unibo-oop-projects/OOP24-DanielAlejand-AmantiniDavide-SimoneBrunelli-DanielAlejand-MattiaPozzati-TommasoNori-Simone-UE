@@ -2,120 +2,162 @@ package it.unibo.exam.view.renderer;
 
 import it.unibo.exam.model.entity.Entity;
 import it.unibo.exam.model.entity.Npc;
+import it.unibo.exam.model.entity.RoamingNpc;
 import it.unibo.exam.utility.geometry.Point2D;
+import it.unibo.exam.utility.medialoader.AssetLoader;
 
 import java.awt.Graphics2D;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Image;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
- * Renderer for NPC entities.
+ * Renders both interactive and roaming NPCs, each with its own sprite.
+ * The Hub has no interactive NPC, so only the 5 puzzle rooms get interactive sprites.
  */
-public class NpcRenderer extends EntityRenderer {
+public final class NpcRenderer extends EntityRenderer {
 
-    private static final Color NPC_COLOR = new Color(255, 165, 0); // Orange
-    private static final Color NPC_BORDER_COLOR = new Color(255, 140, 0); // Dark Orange
-    private static final Color INTERACTION_INDICATOR_COLOR = new Color(255, 255, 0); // Yellow
-    private static final Color BACKGROUND_COLOR = new Color(0, 0, 0, 128);
+    private static final Color NPC_COLOR                  = new Color(255, 165, 0);
+    private static final Color NPC_BORDER_COLOR           = new Color(255, 140, 0);
+    private static final Color NAME_BACKGROUND_COLOR      = new Color(0, 0, 0, 128);
+
+    private static final double SPRITE_SCALE              = 2.5;
+    private static final int    NAME_FONT_SIZE            = 8;
+    private static final int    NAME_MAX_LENGTH           = 12;
+    private static final int    NAME_TRIM_LENGTH          = 9;
+    private static final int    TEXT_PADDING              = 2;
+    private static final int    NAME_BACKGROUND_HEIGHT    = 9;
+
+    /** room-name → sprite for roaming NPCs. */
+    private final Map<String, Image> roamingSprites     = new HashMap<>();
+    /** room-name → sprite for interactive NPCs (only puzzle rooms).*/
+    private final Map<String, Image> interactiveSprites = new HashMap<>();
+    private       String            currentRoomName     = "";
+
     /**
-     * Renders an NPC with interaction indicators.
-     * 
-     * @param g the graphics context
-     * @param entity the NPC entity to render
+     * Constructs a new NpcRenderer and loads all NPC sprites.
+     * Keys in the maps must match {@code Room.getName()}.
+     */
+    public NpcRenderer() {
+        // Roaming NPC sprites (6 rooms including Hub)
+        roamingSprites.put("Hub",     AssetLoader.loadImage("characters/students/hub.png"));
+        roamingSprites.put("Garden",  AssetLoader.loadImage("characters/students/garden.png"));
+        roamingSprites.put("Lab",     AssetLoader.loadImage("characters/students/lab.png"));
+        roamingSprites.put("Gym",     AssetLoader.loadImage("characters/students/gym.png"));
+        roamingSprites.put("Bar",     AssetLoader.loadImage("characters/students/bar.png"));
+        roamingSprites.put("2.12",    AssetLoader.loadImage("characters/students/2.12.png"));
+
+        // Interactive NPC sprites (only the 5 puzzle rooms; no Hub)
+        interactiveSprites.put("Garden", AssetLoader.loadImage("characters/teachers/Gardener.png"));
+        interactiveSprites.put("Lab",    AssetLoader.loadImage("characters/teachers/AM.png"));
+        interactiveSprites.put("Gym",    AssetLoader.loadImage("characters/teachers/Andrew.png"));
+        interactiveSprites.put("Bar",    AssetLoader.loadImage("characters/teachers/Bartender.png"));
+        interactiveSprites.put("2.12",   AssetLoader.loadImage("characters/teachers/Teacher.png"));
+    }
+
+    /**
+     * Informs the renderer of the current room so that both roaming and
+     * interactive NPCs can pick the correct sprite.
+     *
+     * @param roomName the name of the current room
+     */
+    public void setCurrentRoomName(final String roomName) {
+        this.currentRoomName = roomName;
+    }
+
+    /**
+     * Renders an NPC entity. If it's a RoamingNpc, draws its room-specific
+     * student sprite; if it's an interactive Npc, draws its puzzle-room sprite
+     * (or falls back to a rectangle + "N").
      */
     @Override
     public void render(final Graphics2D g, final Entity entity) {
-        if (!(entity instanceof Npc)) {
-            throw new IllegalArgumentException("Entity must be an Npc instance");
+        if (entity instanceof RoamingNpc) {
+            renderRoamingNpc(g, (RoamingNpc) entity);
+        } else if (entity instanceof Npc) {
+            renderInteractiveNpc(g, (Npc) entity);
+        } else {
+            throw new IllegalArgumentException("Entity must be an Npc or RoamingNpc");
+        }
+    }
+
+    private void renderRoamingNpc(final Graphics2D g, final RoamingNpc rn) {
+        final Point2D pos = rn.getPosition();
+        final Point2D dim = rn.getDimension();
+        final int x = pos.getX(), y = pos.getY(),
+                  w = dim.getX(),  h = dim.getY();
+        final Image sprite = roamingSprites.get(currentRoomName);
+
+        if (sprite != null && sprite.getWidth(null) > 0) {
+            final int imgW = sprite.getWidth(null),
+                      imgH = sprite.getHeight(null);
+            final double baseScale = Math.min((double) w / imgW, (double) h / imgH);
+            final double scale     = baseScale * SPRITE_SCALE;
+            final int drawW        = (int) (imgW * scale),
+                      drawH        = (int) (imgH * scale);
+            final int drawX        = x + (w - drawW) / 2,
+                      drawY        = y + (h - drawH) / 2;
+            g.drawImage(sprite, drawX, drawY, drawW, drawH, null);
+        } else {
+            g.setColor(NPC_COLOR);
+            g.fillRect(x, y, w, h);
+            g.setColor(NPC_BORDER_COLOR);
+            g.drawRect(x, y, w, h);
+        }
+    }
+
+    private void renderInteractiveNpc(final Graphics2D g, final Npc npc) {
+        final Point2D pos = npc.getPosition();
+        final Point2D dim = npc.getDimension();
+        final int x = pos.getX(), y = pos.getY(),
+                  w = dim.getX(),  h = dim.getY();
+        final Image sprite = interactiveSprites.get(currentRoomName);
+
+        if (sprite != null && sprite.getWidth(null) > 0) {
+            final int imgW = sprite.getWidth(null),
+                      imgH = sprite.getHeight(null);
+            final double baseScale = Math.min((double) w / imgW, (double) h / imgH);
+            final double scale     = baseScale * SPRITE_SCALE;
+            final int drawW        = (int) (imgW * scale),
+                      drawH        = (int) (imgH * scale);
+            final int drawX        = x + (w - drawW) / 2,
+                      drawY        = y + (h - drawH) / 2;
+            g.drawImage(sprite, drawX, drawY, drawW, drawH, null);
+        } else {
+            g.setColor(NPC_COLOR);
+            g.fillRect(x, y, w, h);
+            g.setColor(NPC_BORDER_COLOR);
+            g.drawRect(x, y, w, h);
+            drawCenteredText(g, npc, "N", Color.WHITE);
         }
 
-        final Npc npc = (Npc) entity;
-        final Point2D position = npc.getPosition();
-        final Point2D dimension = npc.getDimension();
-
-        // Draw NPC body
-        g.setColor(NPC_COLOR);
-        g.fillRect(
-            position.getX(), 
-            position.getY(), 
-            dimension.getX(), 
-            dimension.getY()
-        );
-
-        // Draw border
-        g.setColor(NPC_BORDER_COLOR);
-        g.drawRect(
-            position.getX(), 
-            position.getY(), 
-            dimension.getX(), 
-            dimension.getY()
-        );
-
-        // Draw "N" in the center
-        drawCenteredText(g, npc, "N", Color.WHITE);
-
-        // Draw interaction indicator
-        drawInteractionIndicator(g, npc);
-
-        // Draw name above NPC
         drawNpcName(g, npc);
     }
 
-    /**
-     * Draws an interaction indicator above the NPC.
-     * 
-     * @param g the graphics context
-     * @param npc the NPC
-     */
-    private void drawInteractionIndicator(final Graphics2D g, final Npc npc) {
-        final Point2D position = npc.getPosition();
-        final Point2D dimension = npc.getDimension();
-
-        // Draw "E" above the NPC to indicate interaction key
-        g.setColor(INTERACTION_INDICATOR_COLOR);
-        final int indicatorX = position.getX() + dimension.getX() / 2 - 5;
-        final int indicatorY = position.getY() - 5;
-
-        // Draw small background circle
-        final int height = 12;
-        g.fillOval(indicatorX - 3, indicatorY - 8, 16, height);
-
-        // Draw "E" text
-        g.setColor(Color.BLACK);
-        g.setFont(new Font("Arial", Font.BOLD, 10));
-        g.drawString("E", indicatorX, indicatorY);
-    }
-
-    /**
-     * Draws the NPC's name above the entity.
-     * 
-     * @param g the graphics context
-     * @param npc the NPC
-     */
     private void drawNpcName(final Graphics2D g, final Npc npc) {
-        final Point2D position = npc.getPosition();
-        final Point2D dimension = npc.getDimension();
-
-        g.setColor(Color.WHITE);
-        g.setFont(new Font("Arial", Font.PLAIN, 8));
-
-        // Truncate name if too long
-        String displayName = npc.getName();
-        final int lastIndex = 9, max = 12;
-        if (displayName.length() > max) {
-            displayName = displayName.substring(0, lastIndex) + "...";
+        String name = npc.getName();
+        if (name.length() > NAME_MAX_LENGTH) {
+            name = name.substring(0, NAME_TRIM_LENGTH) + "...";
         }
 
-        final int nameX = position.getX() + dimension.getX() / 2 - (displayName.length() * 2);
-        final int nameY = position.getY() - 15;
+        g.setFont(new Font("Arial", Font.PLAIN, NAME_FONT_SIZE));
+        final int textWidth = name.length() * NAME_FONT_SIZE / 2;
+        final Point2D pos    = npc.getPosition();
+        final Point2D dim    = npc.getDimension();
+        final int nameX      = pos.getX() + (dim.getX() - textWidth) / 2;
+        final int nameY      = pos.getY() - (TEXT_PADDING + NAME_FONT_SIZE);
 
-        // Draw background for text
-        g.setColor(BACKGROUND_COLOR);
-        final int height = 9;
-        g.fillRect(nameX - 2, nameY - 10, displayName.length() * 4 + 4, height);
+        g.setColor(NAME_BACKGROUND_COLOR);
+        g.fillRect(
+            nameX - TEXT_PADDING,
+            nameY - NAME_FONT_SIZE,
+            textWidth + TEXT_PADDING * 2,
+            NAME_BACKGROUND_HEIGHT
+        );
 
-        // Draw text
         g.setColor(Color.WHITE);
-        g.drawString(displayName, nameX, nameY);
+        g.drawString(name, nameX, nameY);
     }
 }

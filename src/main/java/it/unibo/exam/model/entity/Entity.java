@@ -17,14 +17,18 @@ public class Entity {
     private Point2D dimension;
     private Rectangle hitbox;
     private Point2D enviromentSize;
+    private int xFactor = 1;
+    private int yFactor = 1;
 
     /**
      * Constructor for Entity.
      *
      * @param enviromentSize the size of the environment
      * @param position Inizial position of the entity
+     * @param xFactor  scaling factor for the entity's width relative to the environment
+     * @param yFactor scaling factor for the entity's height relative to the environment
      */
-    public Entity(final Point2D position, final Point2D enviromentSize) {
+    public Entity(final Point2D position, final Point2D enviromentSize, final int xFactor, final int yFactor) {
         if (enviromentSize == null) {
             throw new IllegalArgumentException("Environment size cannot be null");
         }
@@ -41,9 +45,23 @@ public class Entity {
         } else {
             this.position = new Point2D(position);
         }
+        this.xFactor = xFactor;
+        this.yFactor = yFactor;
 
-        this.dimension = new Point2D(enviromentSize.getX() / SCALE_FACTOR, enviromentSize.getY() / SCALE_FACTOR);
+        this.dimension = new Point2D(
+            xFactor * enviromentSize.getX() / SCALE_FACTOR, 
+            yFactor * enviromentSize.getY() / SCALE_FACTOR
+        );
         this.hitbox = new Rectangle(this.position, dimension);
+    }
+
+    /**
+     * 
+     * @param position
+     * @param enviromentSize
+     */
+    public Entity(final Point2D position, final Point2D enviromentSize) {
+        this(position, enviromentSize, 1, 1);
     }
 
 
@@ -90,7 +108,10 @@ public class Entity {
      */
     public void resize(final Point2D newEnviromentSize) {
         this.enviromentSize = new Point2D(newEnviromentSize);
-        this.dimension = new Point2D(enviromentSize.getX() / SCALE_FACTOR, enviromentSize.getY() / SCALE_FACTOR);
+        this.dimension = new Point2D(
+            xFactor * enviromentSize.getX() / SCALE_FACTOR, 
+            yFactor * enviromentSize.getY() / SCALE_FACTOR
+        );
         updateHitbox();
     }
 
@@ -99,6 +120,14 @@ public class Entity {
      */
     private void updateHitbox() {
         this.hitbox = new Rectangle(this.position, dimension);
+    }
+
+    /**
+     * 
+     * @return SCALE_FACTOR
+     */
+    public int getScaleFactor() {
+        return SCALE_FACTOR;
     }
 
     /**

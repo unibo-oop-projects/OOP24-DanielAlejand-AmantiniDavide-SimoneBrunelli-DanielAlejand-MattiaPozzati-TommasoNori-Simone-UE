@@ -1,66 +1,87 @@
 package it.unibo.exam.utility.generator;
 
 import it.unibo.exam.model.entity.Npc;
+import it.unibo.exam.model.entity.RoamingNpc;
+import it.unibo.exam.model.entity.MovementStrategy;
+import it.unibo.exam.model.entity.RandomWalkStrategy;
 import it.unibo.exam.utility.geometry.Point2D;
+import it.unibo.exam.model.entity.enviroments.Room;
 
 /**
  * NPC generator.
  */
 public final class NpcGenerator extends EntityGenerator<Npc> {
 
+    private static final int X = 50;
+    private static final int Y = 80;
+    private static final int DELTA =  100;
+
+
     private static final String[] NAMES = {
-        "Professor Oak",
-        "Professor Elm",
-        "Professor Birch",
-        "Professor Rowan",
-        "Professor Sycamore",
-        "Professor Kukui",
-        "Professor Magnolia",
-        "Professor Cerise",
+        "Mario the Gardener",    // room 1
+        "R2D2",     // room 2
+        "Coach Andrew",                 // room 3
+        "Barista Bro",           // room 4
+        "Einstein",         // room 5
     };
 
     private static final String[] DESCRIPTIONS = {
-        "A wise and knowledgeable professor.",
-        "An expert in Pokémon research.",
-        "A friendly and helpful professor.",
-        "A professor with a passion for Pokémon.",
-        "A professor who loves to teach.",
-        "A professor with a deep understanding of Pokémon.",
-        "A professor who is always ready to help.",
-        "A professor with a wealth of knowledge.",
+        "Il giardiniere dell'università, esperto di piante e natura.",
+        "R2D2 sempre pronto a risolvere problemi.",
+        "Allenatore energico e motivante.",
+        "Barista simpatica che conosce tutti gli studenti.",
+        "Docente di matematica, appassionata e disponibile.",
     };
 
     private static final String[] DIALOGUES = {
-        "Hello, trainer! Are you ready for your adventure?",
-        "Welcome to the world of Pokémon!",
-        "I have a special task for you, trainer.",
-        "Are you interested in learning more about Pokémon?",
-        "Let's embark on an exciting journey together!",
-        "I have some valuable information for you.",
-        "Do you want to hear about my latest research?",
-        "I'm here to help you on your journey.",
+        "Benvenuto nel giardino! Raccogli tutte le gocce d'acqua con la bottiglia per aiutare le piante. ",
+        "Bzz bzz! Trova l'uscita dal labirinto del laboratorio informatico.",
+        "Pronto per una sfida fisica? Colpisci tutti i dischi per vincere!",
+        "Ciao! Mescola i drink correttamente per servire i clienti del bar.",
+        "Ciao! Risolvi il quiz per dimostrare le tue conoscenze.",
     };
 
     /**
      * Constructor for NpcGenerator.
      *
-     * @param enviromentSize the size of the environment
+     * @param environmentSize the size of the environment
      */
-    public NpcGenerator(final Point2D enviromentSize) {
-        super(enviromentSize);
+    public NpcGenerator(final Point2D environmentSize) {
+        super(environmentSize);
     }
 
     /**
-     * Generates an NPC based on the given ID.
+     * Generates an interactable NPC based on the given room ID.
+     * Expects room IDs 1–5; maps to index ID-1 in the arrays.
      *
-     * @param id the ID of the NPC to generate
+     * @param id the ID of the room (1–5)
      * @return the generated NPC
+     * @throws IllegalArgumentException if id < 1 or id > NAMES.length
      */
     @Override
     public Npc generate(final int id) {
-        final String name = NAMES[id];
-        final String description = DESCRIPTIONS[id];
-        final String dialogue = DIALOGUES[id];
+        if (id < 1 || id > NAMES.length) {
+            throw new IllegalArgumentException("Invalid room ID for NPC: " + id);
+        }
+        final int idx = id - 1;                              // ADJUST INDEX
+        final String name        = NAMES[idx];
+        final String description = DESCRIPTIONS[idx];
+        final String dialogue    = DIALOGUES[idx];
         return new Npc(super.getEnv(), name, description, dialogue);
+    }
+
+    /**
+     * Generates a single non-interactable, roaming NPC for the given room.
+     *
+     * @param room the room to populate
+     * @return a RoamingNpc that will wander within the environment bounds
+     */
+    public RoamingNpc generateRoamingNpc(final Room room) {
+        final Point2D start = new Point2D(
+            X + DELTA * room.getId(),
+            Y
+        );
+        final MovementStrategy strategy = new RandomWalkStrategy(super.getEnv());
+        return new RoamingNpc(start, super.getEnv(), strategy);
     }
 }

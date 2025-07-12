@@ -20,11 +20,10 @@ public final class TieredScoringStrategy implements ScoringStrategy {
      * Calculates points based on how quickly a room was cleared.
      *
      * @param timeTaken the time taken to complete the room (in seconds)
-     * @param roomId    the identifier of the room (unused in this strategy)
      * @return the points awarded for the given time
      */
     @Override
-    public int calculate(final int timeTaken, final int roomId) {
+    public int calculate(final int timeTaken) {
         if (timeTaken < FAST_THRESHOLD) {
             return POINTS_FAST;
         } else if (timeTaken < MEDIUM_THRESHOLD) {

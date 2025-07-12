@@ -38,12 +38,11 @@ public abstract class ScoringDecorator implements ScoringStrategy {
      * Subclasses may add additional behavior.
      * </p>
      *
-     * @param timeTaken the time taken to complete the room (seconds)
-     * @param roomId    identifier of the room
+     * @param data the data used for scoring, such as time taken or room context
      * @return the points awarded by the inner strategy
      */
     @Override
-    public int calculate(final int timeTaken, final int roomId) {
-        return this.inner.calculate(timeTaken, roomId);
+    public int calculate(final int data) {
+        return this.inner.calculate(data);
     }
 }

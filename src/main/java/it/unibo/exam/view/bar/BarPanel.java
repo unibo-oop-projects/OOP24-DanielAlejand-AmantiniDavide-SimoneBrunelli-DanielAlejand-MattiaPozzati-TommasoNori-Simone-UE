@@ -3,7 +3,7 @@ package it.unibo.exam.view.bar;
 import it.unibo.exam.controller.minigame.bar.GlassClickListener;
 import it.unibo.exam.model.entity.minigame.bar.BarModel;
 import it.unibo.exam.model.entity.minigame.bar.Glass;
-
+import it.unibo.exam.utility.medialoader.AssetLoader;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import javax.swing.JPanel;
@@ -15,12 +15,9 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.imageio.ImageIO;
-import java.util.logging.Logger;
 
 
 /**
@@ -41,7 +38,6 @@ public final class BarPanel extends JPanel {
     private static final int GLASS_OVERLAY_BLUE  = 255;
     private static final int GLASS_OVERLAY_ALPHA = 90;   // Opacity for the frosted effect
     private static final int SELECTED_BORDER_THICKNESS = 5;
-    private static final Logger LOGGER = Logger.getLogger(BarPanel.class.getName());
 
 
     /**
@@ -56,7 +52,7 @@ public final class BarPanel extends JPanel {
     /**
      * The background image drawn behind the bottles.
      */
-    private transient Image backgroundImage;
+    private final transient Image backgroundImage;
 
     /**
      * Called when the user clicks a glass.
@@ -78,15 +74,7 @@ public final class BarPanel extends JPanel {
     public BarPanel(final BarModel model) {
         this.model = model;
 
-        // --- LOAD BACKGROUND IMAGE ---
-        try {
-            // Adjust the path as needed. Example: "/img/bar-bg.png"
-            backgroundImage = ImageIO.read(getClass().getResource("/bar/backgrounds/barminigame.png"));
-        } catch (IOException | IllegalArgumentException e) {
-            // LOGGER.info("Background URL: " + url);
-            LOGGER.warning("Resource NOT FOUND!");
-            backgroundImage = null;
-        }
+        this.backgroundImage = AssetLoader.loadImage("bar/backgrounds/barminigame.png");
 
         setFocusable(true);
         requestFocusInWindow();

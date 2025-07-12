@@ -129,12 +129,13 @@ public class GameState {
     private void repositionNpc(final Npc npc, final Point2D newSize, final int roomId) {
         final int npcWidth = newSize.getX() / 20;
         final int npcHeight = newSize.getY() / 20;
+        final int delta = 50; // Offset for NPC positioning
         final int margin = 80;
         final int lastRoom = 5;
         final Point2D newPosition;
         switch (roomId) {
-            case 1: // Bar
-                newPosition = new Point2D(margin, margin);
+            case 1: // Garden
+                newPosition = new Point2D(newSize.getX() / 2 - npcWidth / 2 - delta, newSize.getY() / 2 - npcHeight / 2);
                 break;
             case 2: // Lab
                 newPosition = new Point2D(newSize.getX() / 2 - npcWidth / 2, newSize.getY() / 2 - npcHeight / 2);
@@ -142,10 +143,10 @@ public class GameState {
             case 3: // Gym
                 newPosition = new Point2D(newSize.getX() - npcWidth - margin, newSize.getY() - npcHeight - margin);
                 break;
-            case 4: // Garden
-                newPosition = new Point2D(margin, newSize.getY() / 2 - npcHeight / 2);
+            case 4: // Bar
+                newPosition = new Point2D(newSize.getX() / 2 - npcWidth / 2, newSize.getY() / 2 - npcHeight / 2);
                 break;
-            case lastRoom : // LastRoom
+            case lastRoom : // 2.12
                 newPosition = new Point2D(newSize.getX() - npcWidth - margin, newSize.getY() - npcHeight - margin);
                 break;
             default:
@@ -180,21 +181,25 @@ public class GameState {
         final int npcWidth = environmentSize.getX() / 20;
         final int npcHeight = environmentSize.getY() / 20;
 
+        // Skip room 0 (main room), start from room 1 (index 1)
         for (int i = 1; i < rooms.size(); i++) {
             final Room room = rooms.get(i);
+
+            // Check if it's a puzzle room and generate NPC
             if (room.getRoomType() == RoomGenerator.PUZZLE_ROOM) {
                 try {
-                    final Npc npc = npcGenerator.generate(i - 1);
+                    // Generate NPC for puzzle room
+                    final Npc npc = npcGenerator.generate(i);  // Avoid using room 0
 
-                    // Posizioni personalizzate per ogni stanza
+                    // Calculate NPC position for the room
                     final Point2D npcPosition = calculateNpcPosition(i, environmentSize, npcWidth, npcHeight);
-
                     npc.setPosition(npcPosition);
+
+                    // Attach NPC to the room
                     room.attachNpc(npc);
 
-                    LOGGER.info("NPC " + npc.getName() + " posizionato in room " + i 
-                        + " alla posizione (" + npcPosition.getX() + "," + npcPosition.getY() + ")");
-
+                    LOGGER.info("NPC " + npc.getName() + " placed in room " + i 
+                        + " at position (" + npcPosition.getX() + "," + npcPosition.getY() + ")");
                 } catch (final IllegalArgumentException e) {
                     LOGGER.log(Level.SEVERE, "Failed to generate NPC for room " + i + ": " + e.getMessage(), e);
                 }
@@ -211,23 +216,27 @@ public class GameState {
      * @param npcHeight NPC height
      * @return new position for NPC
      */
-    @SuppressWarnings("DB_DUPLICATE_SWITCH_CLAUSES") // Similar positioning logic is intentional
+    @SuppressFBWarnings(
+        value = "DB_DUPLICATE_SWITCH_CLAUSES",
+        justification = "Cases 2, 4 and default intentionally share the same centering logic"
+    )
     private Point2D calculateNpcPosition(final int roomId, final Point2D environmentSize,
-                                    final int npcWidth, final int npcHeight) {
+                                         final int npcWidth, final int npcHeight) {
         final int margin = 60;
         final int centerX = environmentSize.getX() / 2;
         final int centerY = environmentSize.getY() / 2;
+        final int delta = 50;
 
         switch (roomId) {
             case 1:
-                return new Point2D(margin, margin);
+                return new Point2D(centerX - npcWidth / 2 - delta, centerY - npcHeight / 2);
             case 2:
                 return new Point2D(centerX - npcWidth / 2, centerY - npcHeight / 2);
             case 3:
                 return new Point2D(environmentSize.getX() - npcWidth - margin,
-                                    environmentSize.getY() - npcHeight - margin);
+                                   environmentSize.getY() - npcHeight - margin);
             case 4:
-                return new Point2D(margin, centerY - npcHeight / 2);
+                return new Point2D(centerX - npcWidth / 2, centerY - npcHeight / 2);
             default:
                 return new Point2D(centerX - npcWidth / 2, centerY - npcHeight / 2);
         }

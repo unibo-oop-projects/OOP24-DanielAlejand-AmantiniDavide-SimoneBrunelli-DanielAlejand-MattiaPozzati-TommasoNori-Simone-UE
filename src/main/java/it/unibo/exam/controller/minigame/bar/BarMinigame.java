@@ -20,6 +20,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Objects;
 import java.util.Random;
 
@@ -30,24 +32,26 @@ import java.util.Random;
  * Fires a callback on completion.
  * Allows restart ('R') with the original shuffle for fairness.
  * Now includes a flexible points system via Strategy and Decorator.
+ * Will report failure if the window is closed prematurely.
  */
 public final class BarMinigame implements Minigame {
 
     private static final int BONUS_TIME_THRESHOLD_SECONDS = 30;
     private static final int BONUS_POINTS                 = 10;
     private static final int MAX_POINTS_CAP               = 100;
-    private static final int CAPACITY       = 4;
-    private static final int TOTAL_GLASSES  = 6;
-    private static final int ROOM_ID        = 5;
-    private static final int FRAME_WIDTH    = 1000; // Preferred width for the minigame window
-    private static final int FRAME_HEIGHT   = 600;  // Preferred height for the minigame window
-    private static final Random RNG = new Random();
+    private static final int CAPACITY                     = 5;
+    private static final int TOTAL_GLASSES                = 6;
+    private static final int FRAME_WIDTH                  = 1000;
+    private static final int FRAME_HEIGHT                 = 600;
+    private static final Random RNG                       = new Random();
 
     private JFrame             frame;
     private MinigameCallback   callback;
     private long               initialSeed;
     private int                moveCount;
     private long               startTimeMillis;
+    private boolean            won;    // tracks whether the puzzle was completed
+
     private final ScoringStrategy scoringStrategy;
 
     /**
@@ -98,6 +102,16 @@ public final class BarMinigame implements Minigame {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setVisible(true);
 
+        // If the user closes the window before completion, report failure
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(final WindowEvent e) {
+                if (!won && BarMinigame.this.callback != null) {
+                    BarMinigame.this.callback.onComplete(false, 0, 0);
+                }
+            }
+        });
+
         moveCount       = 0;
         startTimeMillis = System.currentTimeMillis();
 
@@ -120,7 +134,6 @@ public final class BarMinigame implements Minigame {
             });
     }
 
-
     /**
      * Restarts the puzzle panel with the original shuffle/seed.
      *
@@ -136,6 +149,7 @@ public final class BarMinigame implements Minigame {
 
         moveCount       = 0;
         startTimeMillis = System.currentTimeMillis();
+        won        = false;
     }
 
     /**
@@ -175,9 +189,11 @@ public final class BarMinigame implements Minigame {
 
             @Override
             public void onCompleted() {
+                won = true;  // mark as successfully finished
+
                 final long elapsedMillis  = System.currentTimeMillis() - startTimeMillis;
                 final int  elapsedSeconds = (int) (elapsedMillis / 1_000L);
-                final int  score          = scoringStrategy.calculate(elapsedSeconds, ROOM_ID);
+                final int  score          = scoringStrategy.calculate(elapsedSeconds);
 
                 JOptionPane.showMessageDialog(frame,
                     "Puzzle completed!\nMoves: " + moveCount
