@@ -10,78 +10,94 @@ import java.awt.Color;
 import java.awt.Image;
 
 /**
- * Renderer for the player entity, scaling the sprite up by a fixed factor.
+ * Renders the Player entity using a scaled sprite.
+ * <p>
+ * The yellow direction dot has been removed.
+ * </p>
  */
-public class PlayerRenderer extends EntityRenderer {
+public final class PlayerRenderer extends EntityRenderer {
 
-    private static final Color PLAYER_FALLBACK_COLOR     = new Color(70, 130, 180);
-    private static final Color PLAYER_FALLBACK_BORDER    = new Color(25, 25, 112);
-    private static final Color DIRECTION_INDICATOR_COLOR = Color.YELLOW;
+    private static final Color PLAYER_FALLBACK_COLOR  = new Color(70, 130, 180);
+    private static final Color PLAYER_FALLBACK_BORDER = new Color(25, 25, 112);
 
-    // Load your player sprite once
+    /** Sprite image for the player. */
     private static final Image PLAYER_SPRITE =
         AssetLoader.loadImage("characters/player/player.png");
 
     /**
-     * How much bigger to draw the sprite relative to the model's hitbox.
+     * Scale factor applied to the sprite relative to the model’s hitbox.
      * 1.0 = exactly hitbox size, 2.0 = twice as large, etc.
      */
     private static final double SPRITE_SCALE = 2.5;
 
+    /**
+     * Renders the given entity as a Player sprite.
+     *
+     * @param g      the graphics context to draw on
+     * @param entity the entity to render; must be a {@link Player}
+     * @throws IllegalArgumentException if {@code g} or {@code entity} is null,
+     *                                  or if {@code entity} is not a {@code Player}
+     */
     @Override
-    public void render(Graphics2D g, Entity entity) {
+    public void render(final Graphics2D g, final Entity entity) {
+        if (g == null || entity == null) {
+            throw new IllegalArgumentException("Graphics and entity must not be null");
+        }
         if (!(entity instanceof Player)) {
             throw new IllegalArgumentException("Entity must be a Player");
         }
-        Player player   = (Player) entity;
-        Point2D pos     = player.getPosition();
-        Point2D dim     = player.getDimension();
-        int boxX        = pos.getX();
-        int boxY        = pos.getY();
-        int boxW        = dim.getX();
-        int boxH        = dim.getY();
+
+        final Player player = (Player) entity;
+        final Point2D pos    = player.getPosition();
+        final Point2D dim    = player.getDimension();
+        final int boxX       = pos.getX();
+        final int boxY       = pos.getY();
+        final int boxW       = dim.getX();
+        final int boxH       = dim.getY();
 
         if (PLAYER_SPRITE != null) {
-            int imgW = PLAYER_SPRITE.getWidth(null);
-            int imgH = PLAYER_SPRITE.getHeight(null);
+            final int imgW = PLAYER_SPRITE.getWidth(null);
+            final int imgH = PLAYER_SPRITE.getHeight(null);
+
             if (imgW > 0 && imgH > 0) {
-                // base scale to fit sprite in hitbox
-                double baseScale = Math.min((double)boxW / imgW, (double)boxH / imgH);
-                // enlarge by our factor
-                double scale = baseScale * SPRITE_SCALE;
-
-                int drawW = (int)(imgW * scale);
-                int drawH = (int)(imgH * scale);
-
-                // center the enlarged sprite on the hitbox
-                int drawX = boxX + (boxW - drawW) / 2;
-                int drawY = boxY + (boxH - drawH) / 2;
+                final double baseScale = Math.min((double) boxW / imgW, (double) boxH / imgH);
+                final double scale     = baseScale * SPRITE_SCALE;
+                final int drawW        = (int) (imgW * scale);
+                final int drawH        = (int) (imgH * scale);
+                final int drawX        = boxX + (boxW - drawW) / 2;
+                final int drawY        = boxY + (boxH - drawH) / 2;
 
                 g.drawImage(PLAYER_SPRITE, drawX, drawY, drawW, drawH, null);
-            } else {
-                drawFallback(g, boxX, boxY, boxW, boxH, player);
+                return;
             }
-        } else {
-            drawFallback(g, boxX, boxY, boxW, boxH, player);
         }
 
-        drawDirectionIndicator(g, player);
+        // Fallback if sprite is missing or invalid
+        drawFallback(g, boxX, boxY, boxW, boxH, player);
     }
 
-    private void drawFallback(Graphics2D g, int x, int y, int w, int h, Player player) {
+    /**
+     * Draws the fallback: a filled rectangle with a 'P' label.
+     *
+     * @param g      the graphics context
+     * @param x      the hitbox X coordinate
+     * @param y      the hitbox Y coordinate
+     * @param w      the hitbox width
+     * @param h      the hitbox height
+     * @param player the player entity (for centered text)
+     */
+    private void drawFallback(
+            final Graphics2D g,
+            final int x,
+            final int y,
+            final int w,
+            final int h,
+            final Player player
+    ) {
         g.setColor(PLAYER_FALLBACK_COLOR);
         g.fillRect(x, y, w, h);
         g.setColor(PLAYER_FALLBACK_BORDER);
         g.drawRect(x, y, w, h);
         drawCenteredText(g, player, "P", Color.WHITE);
-    }
-
-    private void drawDirectionIndicator(Graphics2D g, Player player) {
-        Point2D pos = player.getPosition();
-        Point2D dim = player.getDimension();
-        int centerX = pos.getX() + dim.getX() / 2;
-        int centerY = pos.getY() + dim.getY() / 4;
-        g.setColor(DIRECTION_INDICATOR_COLOR);
-        g.fillOval(centerX - 2, centerY - 2, 4, 4);
     }
 }

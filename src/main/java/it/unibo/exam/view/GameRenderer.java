@@ -114,6 +114,7 @@ public class GameRenderer {
             npcRenderer.render(g, currentRoom.getNpc());
         }
 
+        npcRenderer.setCurrentRoomName(currentRoom.getName());
         // Draw roaming NPCs (non-interactable)
         currentRoom.getRoamingNpcs()
                    .forEach(rn -> npcRenderer.render(g, rn));
