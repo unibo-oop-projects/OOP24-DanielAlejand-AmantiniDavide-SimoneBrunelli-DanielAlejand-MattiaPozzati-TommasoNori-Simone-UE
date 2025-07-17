@@ -1,6 +1,16 @@
+rootProject.name = "oop-24-UE"
 plugins {
-    // Automatically downloads the correct java version to run the static analyzers
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.10.0"
+    id("com.gradle.develocity") version "4.1"
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
-rootProject.name = "university-escape"
+develocity {
+    buildScan {
+        termsOfUseUrl = "https://gradle.com/terms-of-service"
+        termsOfUseAgree = "yes"
+        uploadInBackground = !System.getenv("CI").toBoolean()
+        buildScanPublished {
+            file("scan-journal.log").writeText("$buildScanId - $buildScanUri\n")
+        }
+    }
+}

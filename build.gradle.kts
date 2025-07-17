@@ -2,7 +2,6 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.api.tasks.bundling.Tar
 import org.gradle.jvm.application.tasks.CreateStartScripts
-
 plugins {
     java
     application
@@ -11,7 +10,12 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
     // QA plugin (SpotBugs, static checks, config-cache)
     id("org.danilopianini.gradle-java-qa") version "1.96.0"
+
+    id("org.danilopianini.unibo-oop-gradle-plugin") version "1.1.40"
 }
+
+java { toolchain { languageVersion.set(JavaLanguageVersion.of(21)) } }
+
 
 repositories {
     mavenCentral()
